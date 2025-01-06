@@ -1,5 +1,4 @@
 ﻿using PPPredictor.Core.DataType;
-using PPPredictor.Core.DataType.BeatSaberEncapsulation;
 using PPPredictor.Core.DataType.Curve;
 using PPPredictor.Core.DataType.MapPool;
 using PPPredictor.Core.DataType.Score;
@@ -147,7 +146,7 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, GameplayModifiers gameplayModifiers, bool levelFailed, bool levelPaused)
+        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed, bool levelPaused)
         {
             List<string> lsModifiers = ParseModifiers(gameplayModifiers);
             double accRating = beatMapInfo.BaseStarRating.AccRating;
@@ -171,24 +170,24 @@ namespace PPPredictor.Core.Calculator
             return beatMapInfo;
         }
 
-        private List<string> ParseModifiers(GameplayModifiers gameplayModifiers)
+        private List<string> ParseModifiers(DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers)
         {
             try
             {
                 List<string> lsModifiers = new List<string>();
                 if (gameplayModifiers.disappearingArrows) lsModifiers.Add("DA");
-                if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) lsModifiers.Add("FS");
-                if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) lsModifiers.Add("SS");
-                if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.SuperFast) lsModifiers.Add("SF");
+                if (gameplayModifiers.songSpeed == DataType.BeatSaberEncapsulation.GameplayModifiers.SongSpeed.Faster) lsModifiers.Add("FS");
+                if (gameplayModifiers.songSpeed == DataType.BeatSaberEncapsulation.GameplayModifiers.SongSpeed.Slower) lsModifiers.Add("SS");
+                if (gameplayModifiers.songSpeed == DataType.BeatSaberEncapsulation.GameplayModifiers.SongSpeed.SuperFast) lsModifiers.Add("SF");
                 if (gameplayModifiers.ghostNotes) lsModifiers.Add("GN");
                 if (gameplayModifiers.noArrows) lsModifiers.Add("NA");
                 if (gameplayModifiers.noBombs) lsModifiers.Add("NB");
                 if (gameplayModifiers.noFailOn0Energy) lsModifiers.Add("NF");
-                if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) lsModifiers.Add("NO");
+                if (gameplayModifiers.enabledObstacleType == DataType.BeatSaberEncapsulation.GameplayModifiers.EnabledObstacleType.NoObstacles) lsModifiers.Add("NO");
                 if (gameplayModifiers.proMode) lsModifiers.Add("PM");
                 if (gameplayModifiers.smallCubes) lsModifiers.Add("SC");
                 if (gameplayModifiers.instaFail) lsModifiers.Add("IF");
-                if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) lsModifiers.Add("BE");
+                if (gameplayModifiers.energyType == DataType.BeatSaberEncapsulation.GameplayModifiers.EnergyType.Battery) lsModifiers.Add("BE");
                 if (gameplayModifiers.strictAngles) lsModifiers.Add("SA");
                 if (gameplayModifiers.zenMode) lsModifiers.Add("ZM");
                 return lsModifiers;
@@ -242,7 +241,7 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        public override string CreateSeachString(string hash, BeatmapKey beatmapKey)
+        public override string CreateSeachString(string hash, DataType.BeatSaberEncapsulation.BeatmapKey beatmapKey)
         {
             return $"{hash}_{ParsingUtil.ParseDifficultyNameToInt(beatmapKey.difficulty.ToString())}";
         }

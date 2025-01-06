@@ -1,5 +1,4 @@
 ﻿using PPPredictor.Core.DataType;
-using PPPredictor.Core.DataType.BeatSaberEncapsulation;
 using PPPredictor.Core.DataType.LeaderBoard;
 using PPPredictor.Core.DataType.MapPool;
 using PPPredictor.Core.DataType.Score;
@@ -403,9 +402,9 @@ namespace PPPredictor.Core.Calculator
 
         internal abstract Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool);
 
-        internal abstract PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false);
+        internal abstract PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false);
 
-        public abstract string CreateSeachString(string hash, BeatmapKey beatmapKey);
+        public abstract string CreateSeachString(string hash, DataType.BeatSaberEncapsulation.BeatmapKey beatmapKey);
 
         internal abstract Task InternalUpdateMapPoolDetails(PPPMapPool mapPool);
 

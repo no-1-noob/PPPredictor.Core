@@ -1,7 +1,6 @@
 ﻿using PPPredictor.Core.API;
 using PPPredictor.Core.Calculator;
 using PPPredictor.Core.DataType;
-using PPPredictor.Core.DataType.BeatSaberEncapsulation;
 using PPPredictor.Core.DataType.LeaderBoard;
 using PPPredictor.Core.DataType.MapPool;
 using System;
@@ -91,7 +90,7 @@ namespace PPPredictor.Core
             return calculator.CalculatePPatPercentage(_currentBeatMapInfo, mapPool, percentage, failed, paused);
         }
 
-        public PPPBeatMapInfo ApplyModifiersToBeatmapInfo(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo beatMapInfo, GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
+        public PPPBeatMapInfo ApplyModifiersToBeatmapInfo(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo beatMapInfo, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
         {
             (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderBoard, mapPoolId);
             return calculator.ApplyModifiersToBeatmapInfo(beatMapInfo, mapPool, gameplayModifiers, levelFailed, levelPaused);

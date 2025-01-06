@@ -1,5 +1,4 @@
 ﻿using PPPredictor.Core.DataType;
-using PPPredictor.Core.DataType.BeatSaberEncapsulation;
 using PPPredictor.Core.DataType.Curve;
 using PPPredictor.Core.DataType.MapPool;
 using PPPredictor.Core.DataType.Score;
@@ -43,7 +42,7 @@ namespace PPPredictor.Core.Calculator
             return Task.FromResult(new PPPScoreCollection());
         }
 
-        public override string CreateSeachString(string hash, BeatmapKey beatmapKey)
+        public override string CreateSeachString(string hash, DataType.BeatSaberEncapsulation.BeatmapKey beatmapKey)
         {
             return $"{hash}_{beatmapKey.difficulty}";
         }
@@ -53,7 +52,7 @@ namespace PPPredictor.Core.Calculator
             return Task.CompletedTask;
         }
 
-        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
+        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
         {
             return beatMapInfo;
         }
