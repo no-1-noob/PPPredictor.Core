@@ -3,6 +3,7 @@ using PPPredictor.Core.Calculator;
 using PPPredictor.Core.DataType;
 using PPPredictor.Core.DataType.LeaderBoard;
 using PPPredictor.Core.DataType.MapPool;
+using PPPredictor.Core.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,32 +28,39 @@ namespace PPPredictor.Core
         public static async Task<CalculatorInstance> CreateAsync(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction)
         {
             var instance = new CalculatorInstance(settings);
-            await instance.InitializeAsync(settings, dctLeaderboardData, scoreSaberLookUpFunction);
+            await instance.InitializeAsync<ScoresaberAPI, BeatleaderAPI, HitbloqAPI, AccSaberApi>(settings, dctLeaderboardData, scoreSaberLookUpFunction);
             return instance;
         }
 
-        private async Task InitializeAsync(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction)
+        internal static async Task<CalculatorInstance> CreateAsyncMock<SSAPI, BLAPI, HBAPI, ASAPI>(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction) where SSAPI : IScoresaberAPI, new() where BLAPI : IBeatLeaderAPI, new() where HBAPI : IHitBloqAPI, new() where ASAPI : IAccSaberAPI, new()
+        {
+            var instance = new CalculatorInstance(settings);
+            await instance.InitializeAsync<SSAPI, BLAPI, HBAPI, ASAPI>(settings, dctLeaderboardData, scoreSaberLookUpFunction);
+            return instance;
+        }
+
+        private async Task InitializeAsync<SSAPI, BLAPI, HBAPI, ASAPI>(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction) where SSAPI : IScoresaberAPI, new() where BLAPI : IBeatLeaderAPI, new() where HBAPI : IHitBloqAPI, new() where ASAPI : IAccSaberAPI, new()
         {
 
             if (settings.IsScoreSaberEnabled)
             {
                 if (scoreSaberLookUpFunction == null) throw new Exception("ScoreSaberLookUpFunction is missing");
-                var v = new PPCalculatorScoreSaber<ScoresaberAPI>(dctLeaderboardData.TryGetValue(Leaderboard.ScoreSaber.ToString(), out var result) ? result.DctMapPool : null, settings, scoreSaberLookUpFunction);
+                var v = new PPCalculatorScoreSaber<SSAPI>(dctLeaderboardData.TryGetValue(Leaderboard.ScoreSaber.ToString(), out var result) ? result.DctMapPool : null, settings, scoreSaberLookUpFunction);
                 dctCalculator.Add(Leaderboard.ScoreSaber, v);
             }
             if(settings.IsBeatLeaderEnabled)
             {
-                var v = new PPCalculatorBeatLeader<BeatleaderAPI>(dctLeaderboardData.TryGetValue(Leaderboard.BeatLeader.ToString(), out var result) ? result.DctMapPool : null, settings);
+                var v = new PPCalculatorBeatLeader<BLAPI>(dctLeaderboardData.TryGetValue(Leaderboard.BeatLeader.ToString(), out var result) ? result.DctMapPool : null, settings);
                 dctCalculator.Add(Leaderboard.BeatLeader, v);
             }
             if (settings.IsHitbloqEnabled)
             {
-                var v = new PPCalculatorHitBloq<HitbloqAPI>(dctLeaderboardData.TryGetValue(Leaderboard.HitBloq.ToString(), out var result) ? result.DctMapPool : null, settings);
+                var v = new PPCalculatorHitBloq<HBAPI>(dctLeaderboardData.TryGetValue(Leaderboard.HitBloq.ToString(), out var result) ? result.DctMapPool : null, settings);
                 dctCalculator.Add(Leaderboard.HitBloq, v);
             }
             if (settings.IsAccSaberEnabled)
             {
-                var v = new PPCalculatorAccSaber<AccSaberApi>(dctLeaderboardData.TryGetValue(Leaderboard.AccSaber.ToString(), out var result) ? result.DctMapPool : null, settings);
+                var v = new PPCalculatorAccSaber<ASAPI>(dctLeaderboardData.TryGetValue(Leaderboard.AccSaber.ToString(), out var result) ? result.DctMapPool : null, settings);
                 dctCalculator.Add(Leaderboard.AccSaber, v);
             }
             if(dctCalculator.Count == 0)

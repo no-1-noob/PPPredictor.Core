@@ -4,6 +4,7 @@ using PPPredictor.Core.Interface;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,6 +13,7 @@ using static PPPredictor.Core.DataType.LeaderBoard.HitBloqDataTypes;
 
 namespace PPPredictor.Core.API
 {
+    [ExcludeFromCodeCoverage]
     class HitbloqAPI : IHitBloqAPI
     {
         private static readonly string baseUrl = "https://hitbloq.com";
