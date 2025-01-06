@@ -11,7 +11,7 @@ using static PPPredictor.Core.DataType.Enums;
 
 namespace PPPredictor.Core.Calculator
 {
-    public abstract class PPCalculator
+    internal abstract class PPCalculator
     {
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         internal PPPLeaderboardInfo _leaderboardInfo;
