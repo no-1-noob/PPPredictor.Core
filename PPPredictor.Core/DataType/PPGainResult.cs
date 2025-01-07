@@ -12,7 +12,7 @@ namespace PPPredictor.Core.DataType
         public double PpTotal { get => _ppTotal; }
         public double PpGainWeighted { get => _ppGainWeighted; }
         public double PpGainRaw { get => _ppGainRaw; }
-        public double PpDisplayValue => _ppDisplayValue;
+        public double PpDisplayValue { get => _ppDisplayValue; }
 
         public PPGainResult() : this(0,0,0, PPGainCalculationType.Raw) {
             _ppDisplayValue = 0;

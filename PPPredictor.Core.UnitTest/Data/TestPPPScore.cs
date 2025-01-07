@@ -96,6 +96,14 @@ namespace UnitTests.Data
             Assert.IsTrue(score.SongHash == testHash.ToUpper(), "SongHash should match");
             Assert.IsTrue(score.Difficulty1 == 7, "Difficulty1 should match");
             Assert.IsTrue(score.GameMode == testGameMode, "GameMode should match");
+
+            playerScore = new AccSaberScores();
+            playerScore.timeSet = dtTest.Date;
+            playerScore.ap = testPP;
+            playerScore.songHash = null;
+            playerScore.difficulty = testDifficultyAccSaber;
+            score = new PPPScore(playerScore);
+            Assert.IsNull(score.SongHash, "SongHash should be null");
         }
     }
 }
