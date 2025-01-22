@@ -1,5 +1,4 @@
 ﻿using PPPredictor.Core.DataType;
-using PPPredictor.Core.DataType.BeatSaberEncapsulation;
 using PPPredictor.Core.DataType.LeaderBoard;
 using PPPredictor.Core.DataType.MapPool;
 using PPPredictor.Core.DataType.Score;
@@ -12,7 +11,7 @@ using static PPPredictor.Core.DataType.Enums;
 
 namespace PPPredictor.Core.Calculator
 {
-    public abstract class PPCalculator
+    internal abstract class PPCalculator
     {
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         internal PPPLeaderboardInfo _leaderboardInfo;
@@ -227,7 +226,6 @@ namespace PPPredictor.Core.Calculator
             catch (Exception ex)
             {
                 Logging.ErrorPrint($"PPPredictor {_leaderboardInfo?.LeaderboardName} GetPlayerScorePPGain Error: {ex.Message}");
-                return new PPGainResult(currentTotalPP, pp, pp, _settings.PpGainCalculationType);
             }
             return new PPGainResult(currentTotalPP, pp, pp, _settings.PpGainCalculationType);
         }
@@ -403,9 +401,9 @@ namespace PPPredictor.Core.Calculator
 
         internal abstract Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool);
 
-        internal abstract PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false);
+        internal abstract PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false);
 
-        public abstract string CreateSeachString(string hash, BeatmapKey beatmapKey);
+        public abstract string CreateSeachString(string hash, DataType.BeatSaberEncapsulation.BeatmapKey beatmapKey);
 
         internal abstract Task InternalUpdateMapPoolDetails(PPPMapPool mapPool);
 

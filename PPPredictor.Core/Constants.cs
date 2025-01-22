@@ -2,6 +2,6 @@
 {
     public class Constants
     {
-        public const string OldDots = "OldDots";
+        internal const string OldDots = "OldDots";
     }
 }

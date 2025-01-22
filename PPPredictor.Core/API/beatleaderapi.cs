@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using PPPredictor.Core.Interface;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using static PPPredictor.Core.DataType.LeaderBoard.BeatLeaderDataTypes;
 
 namespace PPPredictor.Core.API
 {
+    [ExcludeFromCodeCoverage]
     class BeatleaderAPI : IBeatLeaderAPI
     {
         private static readonly string baseUrl = "https://api.beatleader.com";

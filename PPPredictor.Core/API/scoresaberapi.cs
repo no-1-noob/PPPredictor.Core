@@ -2,6 +2,7 @@
 using PPPredictor.Core.Interface;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using static PPPredictor.Core.DataType.LeaderBoard.ScoreSaberDataTypes;
 
 namespace PPPredictor.Core.API
 {
+    [ExcludeFromCodeCoverage]
     internal class ScoresaberAPI : IScoresaberAPI
     {
         private static readonly string baseUrl = "https://scoresaber.com/api/";

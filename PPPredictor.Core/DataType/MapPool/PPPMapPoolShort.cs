@@ -11,11 +11,11 @@ namespace PPPredictor.Core.DataType.MapPool
         private bool _selectedByLoading = false;
 
 
-        public string Id { get => _id; set => _id = value; }
-        public string IconUrl { get => iconUrl; set => iconUrl = value; }
+        public string Id { get => _id; }
+        public string IconUrl { get => iconUrl; }
         public byte[] IconData { get => _iconData; set => _iconData = value; }
-        public string MapPoolName { get => _mapPoolName; set => _mapPoolName = value; }
-        public int SortIndex { get => _sortIndex; set => _sortIndex = value; }
+        public string MapPoolName { get => _mapPoolName; }
+        public int SortIndex { get => _sortIndex; }
         public bool SelectedByLoading { get => _selectedByLoading; set => _selectedByLoading = value; }
 
         public PPPMapPoolShort()

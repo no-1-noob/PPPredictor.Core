@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PPPredictor.Core.API
 {
+    [ExcludeFromCodeCoverage]
     internal class AccSaberApi : IAccSaberAPI
     {
         private static readonly string baseUrl = "http://api.accsaber.com";
