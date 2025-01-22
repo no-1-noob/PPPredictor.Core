@@ -1,5 +1,9 @@
-name: Unit Test With Coverage
+name: Build & Test
 on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
   workflow_dispatch:
 jobs:
   build:
@@ -9,7 +13,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.301
+        dotnet-version: 8.0.404
     - name: Restore dependencies
       run: dotnet restore   
     - name: Build
