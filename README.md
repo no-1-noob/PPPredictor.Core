@@ -1,0 +1,2 @@
+![example workflow](https://github.com/no-1-noob/PPPredictor.Core/actions/workflows/buildandtest.yaml/badge.svg)
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/no-1-noob/9607a1e304cc0df5f46b0b61a8abf559/raw/PPPredictorCoreCoverage.json)
