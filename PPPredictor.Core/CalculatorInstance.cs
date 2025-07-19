@@ -66,7 +66,7 @@ namespace PPPredictor.Core
             if(dctCalculator.Count == 0)
             {
                 var v = new PPCalculatorNoLeaderboard(null, settings);
-                dctCalculator.Add(Leaderboard.AccSaber, v);
+                dctCalculator.Add(Leaderboard.NoLeaderboard, v);
             }
 
             var updateAvailableMapPoolsTask = dctCalculator.Values.Select(item => item.UpdateAvailableMapPools());
