@@ -226,7 +226,6 @@ namespace PPPredictor.Core.Calculator
             catch (Exception ex)
             {
                 Logging.ErrorPrint($"PPPredictor {_leaderboardInfo?.LeaderboardName} GetPlayerScorePPGain Error: {ex.Message}");
-                return new PPGainResult(currentTotalPP, pp, pp, _settings.PpGainCalculationType);
             }
             return new PPGainResult(currentTotalPP, pp, pp, _settings.PpGainCalculationType);
         }
