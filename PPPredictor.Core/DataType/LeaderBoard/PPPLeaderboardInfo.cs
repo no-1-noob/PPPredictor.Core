@@ -58,7 +58,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _taskDelayValue = 1100;
                     break;
                 case Leaderboard.NoLeaderboard:
-                    _leaderboardIcon = "";
+                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.Empty.png";
                     break;
                 case Leaderboard.HitBloq:
                     _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.HitBloq.png";

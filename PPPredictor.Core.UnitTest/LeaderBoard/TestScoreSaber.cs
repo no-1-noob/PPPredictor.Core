@@ -61,7 +61,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         [TestMethod]
         public async Task TestGetBeatMapInfoAsync()
         {
-            List<PPPBeatMapInfo> lsBeatMapInfos = new List<PPPBeatMapInfo>();
+            List<PPPBeatMapInfo>? lsBeatMapInfos = new List<PPPBeatMapInfo>();
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber>(
                 new Settings(true, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
@@ -131,7 +131,6 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Dictionary<string, PPPMapPool> dctMapPool = new Dictionary<string, PPPMapPool>();
             dctMapPool.Add("-1", new PPPMapPool(MapPoolType.Default, $"", PPCalculatorScoreSaber<ScoresaberAPI>.accumulationConstant, 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.ScoreSaber))));
             dctMapPool["-1"].LsScores = new List<DataType.Score.ShortScore>();
-            double sum = 0;
             for (int i = 0; i < 100; i++)
             {
                 dctMapPool["-1"].LsScores.Add(new DataType.Score.ShortScore($"HASH_{i}", 300 - i));
