@@ -12,5 +12,10 @@
         <_Parameter1>$(AssemblyName).UnitTest</_Parameter1>
     </AssemblyAttribute>
 </ItemGroup>
+<ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>$(AssemblyName).Performance</_Parameter1>
+    </AssemblyAttribute>
+</ItemGroup>
 
 </Project>

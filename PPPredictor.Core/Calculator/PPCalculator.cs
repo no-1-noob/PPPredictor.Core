@@ -26,7 +26,7 @@ namespace PPPredictor.Core.Calculator
 
         public PPCalculator(Dictionary<string, PPPMapPool> dctMapPool, Settings settings, Leaderboard leaderboard)
         {
-            if(dctMapPool != null)
+            if (dctMapPool != null)
             {
                 _dctMapPool = dctMapPool;
             }
@@ -36,7 +36,8 @@ namespace PPPredictor.Core.Calculator
 
         internal PPPMapPool GetMapPoolById(string mapPoolId)
         {
-            if(_dctMapPool.TryGetValue(mapPoolId, out var mapPool)){
+            if (_dctMapPool.TryGetValue(mapPoolId, out var mapPool))
+            {
                 return mapPool;
             }
             else
@@ -69,7 +70,7 @@ namespace PPPredictor.Core.Calculator
         {
             if (long.TryParse(GetUserId(mapPool), out long longUserId))
             {
-                var player = await GetPlayerInfo(longUserId, mapPool); 
+                var player = await GetPlayerInfo(longUserId, mapPool);
                 return player;
             }
             return new PPPPlayer();
@@ -107,8 +108,9 @@ namespace PPPredictor.Core.Calculator
                         playerscores = await GetAllScores(userId, mapPool);
                         hasMoreData = false;
                     }
-                    else {
-                        playerscores = await GetRecentScores(userId, hasNoScores ? largePageSize: pageSize, page, mapPool);
+                    else
+                    {
+                        playerscores = await GetRecentScores(userId, hasNoScores ? largePageSize : pageSize, page, mapPool);
                         if (playerscores.Page * playerscores.ItemsPerPage >= playerscores.Total || fetchOnePage)
                         {
                             hasMoreData = false;
@@ -119,7 +121,7 @@ namespace PPPredictor.Core.Calculator
                         string searchString = CreateSeachString(scores.SongHash, scores.GameMode, (int)scores.Difficulty1);
                         ShortScore previousScore = mapPool.LsScores.Find(x => x.Searchstring == searchString);
                         ShortScore newScore = new ShortScore(searchString, scores.Pp);
-                        if(newScore.Pp > 0) // Do not cache unranked scores
+                        if (newScore.Pp > 0) // Do not cache unranked scores
                         {
                             if (previousScore == null)
                             {
@@ -173,69 +175,163 @@ namespace PPPredictor.Core.Calculator
         {
             try
             {
-                if (lsScores.Count > 0 && !string.IsNullOrEmpty(mapSearchString))
-                {
-                    if (pp > 0)
-                    {
-                        double ppAfterPlay = 0;
-                        int index = 1;
-                        bool newPPadded = false;
-                        bool newPPSkiped = false;
-                        double previousPP = 0;
-                        foreach (ShortScore score in lsScores)
-                        {
-                            double weightedPP = WeightPP(score.Pp, index, mapPool);
-                            double weightedNewPP = WeightPP(pp, index, mapPool);
-                            if (score.Searchstring == mapSearchString) //skip older (lower) score
-                            {
-                                previousPP = score.Pp;
-                                if(pp <= previousPP)
-                                {
-                                    ppAfterPlay = currentTotalPP; //If old score is better return currentPlayer pp => Otherwise innacuraccies while adding could result in gain
-                                    break;
-                                }
-                                if (!newPPadded)
-                                {
-                                    ppAfterPlay += Math.Max(weightedPP, weightedNewPP); //Special case for improvement of your top play
-                                    newPPSkiped = true;
-                                    index++;
-                                }
-                                continue;
-                            }
-                            if (!newPPadded && !newPPSkiped && weightedNewPP >= weightedPP) //add new (potential) pp
-                            {
-                                ppAfterPlay += weightedNewPP;
-                                newPPadded = true;
-                                index++;
-                                weightedPP = WeightPP(score.Pp, index, mapPool);
-                            }
-                            ppAfterPlay += weightedPP;
-                            index++;
-                        }
-                        return new PPGainResult(Math.Round(ppAfterPlay, 2, MidpointRounding.AwayFromZero), Zeroizer(Math.Round(ppAfterPlay - currentTotalPP, 2, MidpointRounding.AwayFromZero), 0.02), pp - previousPP, _settings.PpGainCalculationType);
-                    }
-                    //Try to find old pp value if the map has been failed
-                    ShortScore oldScore = lsScores.Find(x => x.Searchstring == mapSearchString);
-                    return new PPGainResult(currentTotalPP, pp, oldScore != null ? -oldScore.Pp : 0, _settings.PpGainCalculationType);
-                }
-                else if(currentTotalPP == 0) //If you have not set a score yet, total is = the new pp play
-                {
+                if (pp <= 0 || string.IsNullOrEmpty(mapSearchString))
+                    return new PPGainResult(currentTotalPP, pp, 0, _settings.PpGainCalculationType);
+
+                int scoreCount = lsScores.Count;
+                if (scoreCount == 0)
                     return new PPGainResult(pp, pp, pp, _settings.PpGainCalculationType);
+
+                const double minWeightThreshold = 0.00001;
+
+                // Step 1: Find existing score (if any)
+                int existingIndex = -1;
+                double previousPP = 0;
+                for (int i = 0; i < scoreCount; i++)
+                {
+                    if (lsScores[i].Searchstring == mapSearchString)
+                    {
+                        previousPP = lsScores[i].Pp;
+                        existingIndex = i;
+                        break;
+                    }
                 }
+
+                // If not an improvement, return early
+                if (existingIndex >= 0 && pp <= previousPP)
+                    return new PPGainResult(currentTotalPP, 0, pp - previousPP, _settings.PpGainCalculationType);
+
+                // Step 2: Binary search for insertion index
+                int insertIndex = 0;
+                int low = 0, high = scoreCount - 1;
+                while (low <= high)
+                {
+                    int mid = (low + high) >> 1;
+                    if (lsScores[mid].Pp > pp)
+                        low = mid + 1;
+                    else
+                        high = mid - 1;
+                }
+                insertIndex = low;
+
+                // Step 3: Weighted sum calculation
+                double ppAfterPlay = 0;
+                int weightIndex = 1;
+                bool newInserted = false;
+
+                for (int i = 0; i < scoreCount; i++)
+                {
+                    if (i == existingIndex)
+                        continue;
+
+                    // Insert new pp at correct position
+                    if (!newInserted && weightIndex == insertIndex + 1)
+                    {
+                        double newWeight = GetWeightMulitplier(weightIndex, mapPool);
+                        //if (newWeight < minWeightThreshold)
+                        //    break;
+
+                        ppAfterPlay += pp * newWeight;
+                        weightIndex++;
+                        newInserted = true;
+                    }
+
+                    double weight = GetWeightMulitplier(weightIndex, mapPool);
+                    //if (weight < minWeightThreshold)
+                    //    break;
+
+                    ppAfterPlay += lsScores[i].Pp * weight;
+                    weightIndex++;
+                }
+
+                // If pp is the lowest, append it
+                if (!newInserted)
+                {
+                    double lastWeight = GetWeightMulitplier(weightIndex, mapPool);
+                    if (lastWeight >= minWeightThreshold)
+                        ppAfterPlay += pp * lastWeight;
+                }
+
+                double roundedTotal = Math.Round(ppAfterPlay, 2, MidpointRounding.AwayFromZero);
+                double gain = Zeroizer(Math.Round(roundedTotal - currentTotalPP, 2, MidpointRounding.AwayFromZero), 0.02);
+                double rawGain = pp - previousPP;
+
+                return new PPGainResult(roundedTotal, gain, rawGain, _settings.PpGainCalculationType);
             }
             catch (Exception ex)
             {
                 Logging.ErrorPrint($"PPPredictor {_leaderboardInfo?.LeaderboardName} GetPlayerScorePPGain Error: {ex.Message}");
+                return new PPGainResult(currentTotalPP, pp, 0, _settings.PpGainCalculationType);
             }
-            return new PPGainResult(currentTotalPP, pp, pp, _settings.PpGainCalculationType);
         }
+
+        //internal PPGainResult GetPlayerScorePPGainInternal(List<ShortScore> lsScores, string mapSearchString, double pp, double currentTotalPP, PPPMapPool mapPool)
+        //{
+        //    try
+        //    {
+        //        if (lsScores.Count > 0 && !string.IsNullOrEmpty(mapSearchString))
+        //        {
+        //            if (pp > 0)
+        //            {
+        //                double ppAfterPlay = 0;
+        //                int index = 1;
+        //                bool newPPadded = false;
+        //                bool newPPSkiped = false;
+        //                double previousPP = 0;
+        //                foreach (ShortScore score in lsScores)
+        //                {
+        //                    double weightedPP = WeightPP(score.Pp, index, mapPool);
+        //                    double weightedNewPP = WeightPP(pp, index, mapPool);
+        //                    if (score.Searchstring == mapSearchString) //skip older (lower) score
+        //                    {
+        //                        previousPP = score.Pp;
+        //                        if (pp <= previousPP)
+        //                        {
+        //                            ppAfterPlay = currentTotalPP; //If old score is better return currentPlayer pp => Otherwise innacuraccies while adding could result in gain
+        //                            break;
+        //                        }
+        //                        if (!newPPadded)
+        //                        {
+        //                            ppAfterPlay += Math.Max(weightedPP, weightedNewPP); //Special case for improvement of your top play
+        //                            newPPSkiped = true;
+        //                            index++;
+        //                        }
+        //                        continue;
+        //                    }
+        //                    if (!newPPadded && !newPPSkiped && weightedNewPP >= weightedPP) //add new (potential) pp
+        //                    {
+        //                        ppAfterPlay += weightedNewPP;
+        //                        newPPadded = true;
+        //                        index++;
+        //                        weightedPP = WeightPP(score.Pp, index, mapPool);
+        //                    }
+        //                    ppAfterPlay += weightedPP;
+        //                    index++;
+        //                }
+        //                return new PPGainResult(Math.Round(ppAfterPlay, 2, MidpointRounding.AwayFromZero), Zeroizer(Math.Round(ppAfterPlay - currentTotalPP, 2, MidpointRounding.AwayFromZero), 0.02), pp - previousPP, _settings.PpGainCalculationType);
+        //            }
+        //            //Try to find old pp value if the map has been failed
+        //            ShortScore oldScore = lsScores.Find(x => x.Searchstring == mapSearchString);
+        //            return new PPGainResult(currentTotalPP, pp, oldScore != null ? -oldScore.Pp : 0, _settings.PpGainCalculationType);
+        //        }
+        //        else if (currentTotalPP == 0) //If you have not set a score yet, total is = the new pp play
+        //        {
+        //            return new PPGainResult(pp, pp, pp, _settings.PpGainCalculationType);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logging.ErrorPrint($"PPPredictor {_leaderboardInfo?.LeaderboardName} GetPlayerScorePPGain Error: {ex.Message}");
+        //    }
+        //    return new PPGainResult(currentTotalPP, pp, pp, _settings.PpGainCalculationType);
+        //}
 
         internal async Task<RankGainResult> GetPlayerRankGain(double pp, PPPMapPool mapPool)
         {
             try
             {
                 if (pp == mapPool.CurrentPlayer.Pp || pp < mapPool.CurrentPlayer.Pp) return new RankGainResult(mapPool.CurrentPlayer.Rank, mapPool.CurrentPlayer.CountryRank, mapPool.CurrentPlayer); //Fucking bullshit
-                                                                                                                                                                                                                                                                                                                                //Refetch if the current rank has decrease outside of fetched range (first GetPlayerRankGain call after loading saved Session data, then update from web)
+                                                                                                                                                                                                      //Refetch if the current rank has decrease outside of fetched range (first GetPlayerRankGain call after loading saved Session data, then update from web)
                 double worstRankFetched = mapPool.LsPlayerRankings.Select(x => x.Rank).DefaultIfEmpty(Double.MaxValue).Max();
                 if (!_leaderboardInfo.HasPPToRankFunctionality && mapPool.CurrentPlayer.Rank > worstRankFetched) mapPool.LsPlayerRankings = new List<PPPPlayer>();
 
@@ -342,7 +438,8 @@ namespace PPPredictor.Core.Calculator
 
         private double GetWeightMulitplier(int index, PPPMapPool mapPool)
         {
-            if(mapPool.DctWeightLookup.TryGetValue(index, out double value)){
+            if (mapPool.DctWeightLookup.TryGetValue(index, out double value))
+            {
                 return value;
             }
             double mult = CalculateWeightMulitplier(index, mapPool.AccumulationConstant);
@@ -367,6 +464,12 @@ namespace PPPredictor.Core.Calculator
             return pp;
         }
 
+        //public static double Zeroizer(double pp, double limit = 0.01)
+        //{
+        //    // If the absolute value is less than the limit, return zero; else return pp
+        //    return (Math.Abs(pp) < limit) ? 0 : pp;
+        //}
+
         protected void SendMapPoolRefreshed()
         {
             OnMapPoolRefreshed?.Invoke(this, null);
@@ -381,7 +484,8 @@ namespace PPPredictor.Core.Calculator
             return true;
         }
 
-        internal async Task UpdateMapPoolDetails(PPPMapPool mapPool){
+        internal async Task UpdateMapPoolDetails(PPPMapPool mapPool)
+        {
             if (mapPool.DtUtcLastRefresh < DateTime.UtcNow.AddDays(-1))
             {
                 await InternalUpdateMapPoolDetails(mapPool);

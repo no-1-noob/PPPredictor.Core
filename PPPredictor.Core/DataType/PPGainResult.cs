@@ -1,4 +1,5 @@
-﻿using static PPPredictor.Core.DataType.Enums;
+﻿using Newtonsoft.Json;
+using static PPPredictor.Core.DataType.Enums;
 
 namespace PPPredictor.Core.DataType
 {
@@ -32,6 +33,15 @@ namespace PPPredictor.Core.DataType
                     _ppDisplayValue = PpGainRaw;
                     break;
             }
+        }
+
+        [JsonConstructor]
+        public PPGainResult(double ppTotal, double ppGainWeighted, double ppGainRaw, double ppDisplayValue)
+        {
+            _ppTotal = ppTotal;
+            _ppGainWeighted = ppGainWeighted;
+            _ppGainRaw = ppGainRaw;
+            _ppDisplayValue = ppDisplayValue;
         }
 
         public override string ToString()

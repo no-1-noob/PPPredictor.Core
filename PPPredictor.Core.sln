@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPPredictor.Core", "PPPredi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPPredictor.Core.UnitTest", "PPPredictor.Core.UnitTest\PPPredictor.Core.UnitTest.csproj", "{DC6D3D15-914E-4116-A9F5-ED4C5F080F6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPPredictor.Core.Performance", "PPPredictor.Core.Performance\PPPredictor.Core.Performance.csproj", "{F4CD3FA3-6B42-4FDF-ACA7-11DE79EA02C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DC6D3D15-914E-4116-A9F5-ED4C5F080F6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC6D3D15-914E-4116-A9F5-ED4C5F080F6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC6D3D15-914E-4116-A9F5-ED4C5F080F6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4CD3FA3-6B42-4FDF-ACA7-11DE79EA02C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4CD3FA3-6B42-4FDF-ACA7-11DE79EA02C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4CD3FA3-6B42-4FDF-ACA7-11DE79EA02C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4CD3FA3-6B42-4FDF-ACA7-11DE79EA02C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
