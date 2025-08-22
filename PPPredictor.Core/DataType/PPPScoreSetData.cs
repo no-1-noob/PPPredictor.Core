@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PPPredictor.Core.DataType
+﻿namespace PPPredictor.Core.DataType
 {
     public class PPPScoreSetData
     {

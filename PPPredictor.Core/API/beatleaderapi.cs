@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using PPPredictor.Core.Interface;
 using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Http.Headers;

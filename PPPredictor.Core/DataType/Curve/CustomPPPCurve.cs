@@ -1,6 +1,4 @@
-﻿using PPPredictor.Core.Interface;
-using PPPredictor.Core.DataType;
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using static PPPredictor.Core.DataType.LeaderBoard.HitBloqDataTypes;

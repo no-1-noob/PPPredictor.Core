@@ -1,5 +1,4 @@
-﻿using System;
-namespace PPPredictor.Core.DataType.MapPool
+﻿namespace PPPredictor.Core.DataType.MapPool
 {
     public class PPPMapPoolShort
     {

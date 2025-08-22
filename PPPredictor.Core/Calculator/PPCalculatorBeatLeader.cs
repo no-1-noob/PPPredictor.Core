@@ -278,5 +278,10 @@ namespace PPPredictor.Core.Calculator
         {
             return _dctMapPool.Values.OrderBy(x => x.SortIndex).Select(x => (PPPMapPoolShort)x).ToList();
         }
+
+        internal override string GetStarDisplay(PPPBeatMapInfo beatMapInfo)
+        {
+            return $"💪{FormatStarRating(beatMapInfo.ModifiedStarRating?.PassRating)} 🎯{FormatStarRating(beatMapInfo.ModifiedStarRating?.AccRating)} 🔧{FormatStarRating(beatMapInfo.ModifiedStarRating?.TechRating)}";
+        }
     }
 }

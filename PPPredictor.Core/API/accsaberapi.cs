@@ -5,7 +5,6 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Diagnostics;
 using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
 using System.Diagnostics.CodeAnalysis;
 

@@ -1,5 +1,4 @@
-﻿using PPPredictor.Core.Interface;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using static PPPredictor.Core.DataType.Enums;
 

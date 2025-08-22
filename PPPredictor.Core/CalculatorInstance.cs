@@ -215,6 +215,12 @@ namespace PPPredictor.Core
             return (calculator, mapPool);
         }
 
+        internal string GetStarDisplayForCalculator(Leaderboard leaderboardName, string mapPoolId, PPPBeatMapInfo beatMapInfo)
+        {
+            (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderboardName, mapPoolId);
+            return calculator.GetStarDisplay(beatMapInfo);
+        }
+
         private async Task<T> SemaphoreFunction<T>(SemaphoreSlim sem, Func<Task<T>> function)
         {
             await sem.WaitAsync(); // Wait for access

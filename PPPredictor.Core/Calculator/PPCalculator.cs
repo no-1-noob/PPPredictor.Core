@@ -409,10 +409,26 @@ namespace PPPredictor.Core.Calculator
 
         public abstract Task UpdateAvailableMapPools();
         internal abstract bool IsScoreSetOnCurrentMapPool(PPPMapPool mapPool, PPPScoreSetData score);
+        internal virtual string GetStarDisplay(PPPBeatMapInfo beatMapInfo)
+        {
+            return FormatStarRating(beatMapInfo.ModifiedStarRating?.Stars);
+        }
+        internal string FormatStarRating(double? starRating)
+        {
+            if ((starRating ?? 0) < 0)
+            {
+                return $"{0:N2}★";
+            }
+            else
+            {
+                return $"{starRating ?? 0:N2}★";
+            }
+        }
 
         internal PPPMapPoolShort FindPoolWithSyncURL(string syncUrl)
         {
             return _dctMapPool.Values.FirstOrDefault(x => x.SyncUrl == syncUrl);
         }
+
     }
 }
