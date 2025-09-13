@@ -11,12 +11,14 @@ namespace PPPredictor.Core.Interface
 
         Task<BeatLeaderPlayer> GetPlayer(long userId, long leaderboardContextId);
 
+        Task<BeatLeaderPlayerList> GetPlayerForEvent(string eventId, string userName);
+
         Task<BeatLeaderPlayerScoreList> GetPlayerScores(string userId, string sortBy, string order, int page, int count, long leaderboardContextId, long? eventId = null);
 
         Task<BeatLeaderPlayerList> GetPlayersInLeaderboard(string sortBy, int page, int? count, string order, long leaderboardContextId);
 
-        Task<BeatLeaderPlayerList> GetPlayersInEventLeaderboard(long eventId, string sortBy, int page, int? count, string order);
+        Task<BeatLeaderPlayerList> GetPlayersInEventLeaderboard(string eventId, string sortBy, int page, int? count, string order);
 
-        Task<BeatLeaderPlayList> GetPlayList(long playListId);
+        Task<BeatLeaderPlayListSongList> GetSongsInPlaylistById(long playListId);
     }
 }

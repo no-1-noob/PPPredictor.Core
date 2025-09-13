@@ -425,6 +425,11 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
+        internal virtual PPPMapPoolShort FindPoolWithPlayListId(string playListId)
+        {
+            return null;
+        }
+
         internal PPPMapPoolShort FindPoolWithSyncURL(string syncUrl)
         {
             return _dctMapPool.Values.FirstOrDefault(x => x.SyncUrl == syncUrl);

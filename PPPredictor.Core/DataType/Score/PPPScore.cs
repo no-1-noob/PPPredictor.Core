@@ -34,7 +34,13 @@ namespace PPPredictor.Core.DataType.Score
 
         public PPPScore(BeatLeaderPlayerScore playerScore)
         {
-            if (long.TryParse(playerScore.timeset, out long timeSetLong))
+            string timeSetString = playerScore.timeset;
+            if (string.IsNullOrWhiteSpace(playerScore.timeset) && !string.IsNullOrWhiteSpace(playerScore.timepost))
+            {
+                timeSetString = playerScore.timepost;
+            }
+
+            if (long.TryParse(timeSetString, out long timeSetLong))
             {
                 timeSet = new DateTime(1970, 1, 1).AddSeconds(timeSetLong);
             }

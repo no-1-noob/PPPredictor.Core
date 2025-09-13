@@ -20,6 +20,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             public int id { get; set; }
             public string name { get; set; }
             public long endDate { get; set; }
+            public string image { get; set; }
             public DateTime dtEndDate
             {
                 get
@@ -69,12 +70,12 @@ namespace PPPredictor.Core.DataType.LeaderBoard
 
         public class BeatLeaderPlayer
         {
+            public long id { get; set; }
             public string name { get; set; }
             public string country { get; set; }
             public float rank { get; set; }
             public float countryRank { get; set; }
             public float pp { get; set; }
-            public List<BeatLeaderPlayerEvents> eventsParticipating { get; set; }
         }
 
         public class BeatLeaderPlayerEvents
@@ -101,8 +102,12 @@ namespace PPPredictor.Core.DataType.LeaderBoard
 
         public class BeatLeaderPlayerScore
         {
+
             public string timeset { get; set; }
+            public string timepost { get; set; }
             public float pp { get; set; }
+            public double accuracy { get; set; }
+            public string modifiers { get; set; }
             public BeatLeaderLeaderboard leaderboard { get; set; } = new BeatLeaderLeaderboard();
         }
 
@@ -120,26 +125,15 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             public BeatLeaderSong song { get; set; } = new BeatLeaderSong();
         }
 
-        public class BeatLeaderPlayList
+        public class BeatLeaderPlayListSongList
         {
-            public List<BeatLeaderPlayListSong> songs { get; set; }
-            public BeatLeaderPlayList()
+            public List<BeatLeaderSong> data { get; set; }
+            public BeatLeaderPlayListSongList()
             {
-                songs = new List<BeatLeaderPlayListSong>();
+                data = new List<BeatLeaderSong>();
             }
 
         }
-
-        public class BeatLeaderPlayListSong
-        {
-            public string hash { get; set; }
-            public List<BeatLeaderPlayListDifficulties> difficulties { get; set; }
-            public BeatLeaderPlayListSong()
-            {
-                difficulties = new List<BeatLeaderPlayListDifficulties>();
-            }
-        }
-
 
         public class BeatLeaderPlayListDifficulties
         {

@@ -45,9 +45,16 @@ namespace PPPredictor.Core.DataType
             _stars = _predictedAcc = _passRating = _accRating = _techRating = starRating;
         }
 
-        internal PPPStarRating(LeaderBoard.BeatLeaderDataTypes.BeatLeaderDifficulty beatLeaderDifficulty)
+        internal PPPStarRating(LeaderBoard.BeatLeaderDataTypes.BeatLeaderDifficulty beatLeaderDifficulty, bool? isEventRanked = null)
         {
-            _rankedBeatLeader = beatLeaderDifficulty.status == (int)Enums.BeatLeaderDifficultyStatus.ranked;
+            if (isEventRanked.HasValue)
+            {
+                _rankedBeatLeader = isEventRanked.Value;
+            }
+            else
+            {
+                _rankedBeatLeader = beatLeaderDifficulty.status == (int)Enums.BeatLeaderDifficultyStatus.ranked;
+            }
             _predictedAcc = beatLeaderDifficulty.predictedAcc.GetValueOrDefault();
             _passRating = beatLeaderDifficulty.passRating.GetValueOrDefault();
             _accRating = beatLeaderDifficulty.accRating.GetValueOrDefault();

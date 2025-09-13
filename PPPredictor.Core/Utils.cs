@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using static PPPredictor.Core.DataType.Enums;
 
 namespace PPPredictor.Core
 {
@@ -24,6 +27,32 @@ namespace PPPredictor.Core
                 Logging.ErrorPrint($"Error in ParseDifficultyNameToInt could not parse {difficulty}, {ex.Message}");
             }
             return -1;
+        }
+    }
+
+    public class NetworkUtil
+    {
+        internal static async System.Threading.Tasks.Task<T> GetDataAsync<T>(HttpClient client, Leaderboard leaderboard, string callingMethod, string requestUrl) where T : new()
+        {
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(requestUrl);
+                Logging.DebugNetworkPrint($"{leaderboard}Network: {response.RequestMessage.RequestUri.ToString()}", leaderboard);
+                if (response.IsSuccessStatusCode)
+                {
+                    string result = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<T>(result);
+                }
+                else
+                {
+                    Logging.ErrorPrint($"Error in {leaderboard}Network {callingMethod}: {response?.StatusCode} {response?.ReasonPhrase} for {requestUrl}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logging.ErrorPrint($"Error in {leaderboard}Network {callingMethod}: {ex.Message} for {requestUrl}");
+            }
+            return new T();
         }
     }
 }

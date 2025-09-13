@@ -1,5 +1,4 @@
 ﻿
-using Newtonsoft.Json;
 using PPPredictor.Core.Interface;
 using System;
 using System.Collections.Generic;
@@ -30,178 +29,47 @@ namespace PPPredictor.Core.API
 
         public async Task<HitBloqUserId> GetHitBloqUserIdByUserId(string id)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/tools/ss_to_hitbloq/{id}");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<HitBloqUserId>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetHitBloqUserIdByUserId: {ex.Message}");
-            }
-            return new HitBloqUserId();
+            return await NetworkUtil.GetDataAsync<HitBloqUserId>(client, DataType.Enums.Leaderboard.HitBloq, "GetHitBloqUserIdByUserId", $"api/tools/ss_to_hitbloq/{id}");
         }
 
         public async Task<List<HitBloqMapPool>> GetHitBloqMapPools()
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/map_pools_detailed");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<HitBloqMapPool>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetHitBloqUserIdByUserId: {ex.Message}");
-            }
-            return new List<HitBloqMapPool>();
+            return await NetworkUtil.GetDataAsync<List<HitBloqMapPool>>(client, DataType.Enums.Leaderboard.HitBloq, "GetHitBloqMapPools", $"api/map_pools_detailed");
         }
 
         public async Task<HitBloqMapPoolDetails> GetHitBloqMapPoolDetails(string poolIdent, int page)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/ranked_list/{poolIdent}/{page}");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<HitBloqMapPoolDetails>(result);
-                }
-                }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetHitBloqMapPoolDetails: {ex.Message}");
-            }
-            return new HitBloqMapPoolDetails();
+            return await NetworkUtil.GetDataAsync<HitBloqMapPoolDetails>(client, DataType.Enums.Leaderboard.HitBloq, "GetHitBloqMapPoolDetails", $"api/ranked_list/{poolIdent}/{page}");
         }
 
         public async Task<HitBloqUser> GetHitBloqUserByPool(long userId, string poolIdent)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/player_rank/{poolIdent}/{userId}");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<HitBloqUser>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetHitBloqUserIdByUserId: {ex.Message}");
-            }
-            return new HitBloqUser();
+            return await NetworkUtil.GetDataAsync<HitBloqUser>(client, DataType.Enums.Leaderboard.HitBloq, "GetHitBloqUserByPool", $"api/player_rank/{poolIdent}/{userId}");
         }
 
         public async Task<List<HitBloqScores>> GetRecentScores(string userId, string poolId, int page)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/user/{userId}/scores?page={page}&pool={poolId}&sort=newest");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<HitBloqScores>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetRecentScores: {ex.Message}");
-            }
-            return new List<HitBloqScores>();
+            return await NetworkUtil.GetDataAsync< List<HitBloqScores>>(client, DataType.Enums.Leaderboard.HitBloq, "GetRecentScores", $"api/user/{userId}/scores?page={page}&pool={poolId}&sort=newest");
         }
 
         public async Task<List<HitBloqScores>> GetAllScores(string userId, string poolId)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/user/{userId}/all_scores?pool={poolId}");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<HitBloqScores>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetAllScores: {ex.Message}");
-            }
-            return new List<HitBloqScores>();
+            return await NetworkUtil.GetDataAsync< List<HitBloqScores>>(client, DataType.Enums.Leaderboard.HitBloq, "GetAllScores", $"api/user/{userId}/all_scores?pool={poolId}");
         }
 
         public async Task<HitBloqLadder> GetPlayerListForMapPool(double page, string mapPoolId)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/ladder/{mapPoolId}/players/{page}");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<HitBloqLadder>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetPlayerListForMapPool: {ex.Message}");
-            }
-            return new HitBloqLadder();
+            return await NetworkUtil.GetDataAsync<HitBloqLadder>(client, DataType.Enums.Leaderboard.HitBloq, "GetPlayerListForMapPool", $"api/ladder/{mapPoolId}/players/{page}");
         }
 
         public async Task<HitBloqRankFromCr> GetPlayerRankByCr(string mapPoolId, double cr)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/ladder/{mapPoolId}/cr_to_rank/{cr.ToString(new CultureInfo("en-US"))}");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<HitBloqRankFromCr>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetPlayerRankByCr: {ex.Message}");
-            }
-            return new HitBloqRankFromCr();
+            return await NetworkUtil.GetDataAsync<HitBloqRankFromCr>(client, DataType.Enums.Leaderboard.HitBloq, "GetPlayerRankByCr", $"api/ladder/{mapPoolId}/cr_to_rank/{cr.ToString(new CultureInfo("en-US"))}");
         }
 
         public async Task<HitBloqLeaderboardInfo> GetLeaderBoardInfo(string searchString)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"api/leaderboard/{searchString}/info");
-                DebugPrintHitbloqNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<HitBloqLeaderboardInfo>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetLeaderBoardInfo: {ex.Message}");
-            }
-            return new HitBloqLeaderboardInfo();
-        }
-
-        public void DebugPrintHitbloqNetwork(string message)
-        {
-            Logging.DebugNetworkPrint($"HitbloqNetwork: {message}", DataType.Enums.Leaderboard.HitBloq);
+            return await NetworkUtil.GetDataAsync<HitBloqLeaderboardInfo>(client, DataType.Enums.Leaderboard.HitBloq, "GetLeaderBoardInfo", $"api/leaderboard/{searchString}/info");
         }
     }
 }

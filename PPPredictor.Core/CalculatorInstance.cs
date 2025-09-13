@@ -133,6 +133,11 @@ namespace PPPredictor.Core
             return calculator.GetPlayerScorePPGain(mapSearchString, pp, mapPool);
         }
 
+        public PPPMapPoolShort FindPoolWithPlayListId(Leaderboard leaderBoard, string playListId)
+        {
+            PPCalculator calculator = GetCalculator(leaderBoard);
+            return calculator.FindPoolWithPlayListId(playListId);
+        }
         public PPPMapPoolShort FindPoolWithSyncURL(Leaderboard leaderBoard, string syncUrl)
         {
             PPCalculator calculator = GetCalculator(leaderBoard);

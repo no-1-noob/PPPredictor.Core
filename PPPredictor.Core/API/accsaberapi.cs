@@ -1,12 +1,11 @@
 ﻿using PPPredictor.Core.Interface;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
 
 namespace PPPredictor.Core.API
 {
@@ -26,142 +25,39 @@ namespace PPPredictor.Core.API
             client.BaseAddress = new Uri(baseUrl);
         }
 
-        public void DebugPrintAccSaberNetwork(string message)
-        {
-            Logging.DebugNetworkPrint($"AccSaberNetwork: {message}", DataType.Enums.Leaderboard.AccSaber);
-        }
-
         public async Task<List<AccSaberScores>> GetAllScores(string userId)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"/players/{userId}/scores?pageSize=9999");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<AccSaberScores>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetAllScores: {ex.Message}");
-            }
-            return new List<AccSaberScores>();
+            return await NetworkUtil.GetDataAsync<List<AccSaberScores>>(client, DataType.Enums.Leaderboard.AccSaber, "GetAllScores", $"/players/{userId}/scores?pageSize=9999");
         }
 
         public async Task<List<AccSaberScores>> GetAllScoresByPool(string userId, string poolId)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"/players/{userId}/{poolId}/scores");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<AccSaberScores>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetAllScores: {ex.Message}");
-            }
-            return new List<AccSaberScores>();
+            return await NetworkUtil.GetDataAsync<List<AccSaberScores>>(client, DataType.Enums.Leaderboard.AccSaber, "GetAllScoresByPool", $"/players/{userId}/{poolId}/scores");
         }
 
         public async Task<AccSaberPlayer> GetAccSaberUserByPool(long userId, string poolIdent)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"players/{userId}/{poolIdent}");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<AccSaberPlayer>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetHitBloqUserIdByUserId: {ex.Message}");
-            }
-            return new AccSaberPlayer();
+            return await NetworkUtil.GetDataAsync<AccSaberPlayer>(client, DataType.Enums.Leaderboard.AccSaber, "GetAccSaberUserByPool", $"players/{userId}/{poolIdent}");
         }
 
         public async Task<List<AccSaberMapPool>> GetAccSaberMapPools()
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"categories");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<AccSaberMapPool>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetAccSaberMapPools: {ex.Message}");
-            }
-            return new List<AccSaberMapPool>();
+            return await NetworkUtil.GetDataAsync<List<AccSaberMapPool>>(client, DataType.Enums.Leaderboard.AccSaber, "GetAccSaberMapPools", "categories");
         }
 
         public async Task<List<AccSaberRankedMap>> GetAllRankedMaps()
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"ranked-maps");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<AccSaberRankedMap>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetAllRankedMaps: {ex.Message}");
-            }
-            return new List<AccSaberRankedMap>();
+            return await NetworkUtil.GetDataAsync<List<AccSaberRankedMap>>(client, DataType.Enums.Leaderboard.AccSaber, "GetAllRankedMaps", $"ranked-maps");
         }
 
         public async Task<List<AccSaberRankedMap>> GetRankedMaps(string mapPool)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"ranked-maps/category/{mapPool}");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<AccSaberRankedMap>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetRankedMaps: {ex.Message}");
-            }
-            return new List<AccSaberRankedMap>();
+            return await NetworkUtil.GetDataAsync<List<AccSaberRankedMap>>(client, DataType.Enums.Leaderboard.AccSaber, "GetRankedMaps", $"ranked-maps/category/{mapPool}");
         }
 
         public async Task<List<AccSaberPlayer>> GetPlayerListForMapPool(double page, string mapPoolId)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"categories/{mapPoolId}/standings");
-                DebugPrintAccSaberNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<AccSaberPlayer>>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in GetPlayerListForMapPool: {ex.Message}");
-            }
-            return new List<AccSaberPlayer>();
+            return await NetworkUtil.GetDataAsync<List<AccSaberPlayer>>(client, DataType.Enums.Leaderboard.AccSaber, "GetPlayerListForMapPool", $"categories/{mapPoolId}/standings");
         }
     }
 }

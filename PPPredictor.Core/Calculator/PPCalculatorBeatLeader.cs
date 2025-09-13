@@ -16,9 +16,11 @@ namespace PPPredictor.Core.Calculator
     {
         private readonly BLAPI beatleaderapi;
         internal static float accumulationConstant = 0.965f;
+        private const float accumulationConstantEvent = 0.925f;
         private const string AccRating = "AccRating";
         private const string PassRating = "PassRating";
         private const string TechRating = "TechRating";
+        private string _userName = string.Empty;
 
         public PPCalculatorBeatLeader(Dictionary<string, PPPMapPool> dctMapPool, Settings settings) : base(dctMapPool, settings, Leaderboard.BeatLeader) 
         {
@@ -29,15 +31,19 @@ namespace PPPredictor.Core.Calculator
         {
             try
             {
-                BeatLeaderPlayer player = await beatleaderapi.GetPlayer(userId, GetLeaderboardContextId(mapPool.LeaderboardContext));
                 if(mapPool != null && mapPool.MapPoolType == MapPoolType.Default)
                 {
+                    BeatLeaderPlayer player = await beatleaderapi.GetPlayer(userId, GetLeaderboardContextId(mapPool.LeaderboardContext));
                     return new PPPPlayer(player);
                 }
                 else if (mapPool != null && mapPool.MapPoolType == MapPoolType.Custom)
                 {
-                    BeatLeaderPlayerEvents eventPlayer = player.eventsParticipating.Where(x => x.eventId == long.Parse(mapPool.Id)).FirstOrDefault();
-                    if(eventPlayer != null)
+                    if (string.IsNullOrEmpty(_userName)) {
+                        BeatLeaderPlayer player = await beatleaderapi.GetPlayer(userId, GetLeaderboardContextId(mapPool.LeaderboardContext));
+                        _userName = player.name;
+                    }
+                    BeatLeaderPlayerList playerList = await beatleaderapi.GetPlayerForEvent(mapPool.Id , _userName);
+                    if(playerList != null && playerList.data?.FirstOrDefault(x => x.id == userId) is BeatLeaderPlayer eventPlayer)
                     {
                         return new PPPPlayer(eventPlayer);
                     }
@@ -63,7 +69,7 @@ namespace PPPredictor.Core.Calculator
                 }
                 else if(mapPool != null)
                 {
-                    scoreSaberPlayerCollection = await beatleaderapi.GetPlayersInEventLeaderboard(long.Parse(mapPool.Id), "pp", (int)fetchIndexPage, _leaderboardInfo.PlayerPerPages, "desc");
+                    scoreSaberPlayerCollection = await beatleaderapi.GetPlayersInEventLeaderboard(mapPool.Id, "pp", (int)fetchIndexPage, _leaderboardInfo.PlayerPerPages, "desc");
                 }
                 foreach (var scoreSaberPlayer in scoreSaberPlayerCollection.data)
                 {
@@ -82,12 +88,12 @@ namespace PPPredictor.Core.Calculator
         {
             try
             {
-                long? id = null;
-                if (!string.IsNullOrEmpty(mapPool.Id))
+                long? eventId = null;
+                if (mapPool.MapPoolType == MapPoolType.Custom && !string.IsNullOrEmpty(mapPool.Id))
                 {
-                    id = long.Parse(mapPool.Id);
+                    eventId = long.Parse(mapPool.Id);
                 }
-                BeatLeaderPlayerScoreList beatLeaderPlayerScoreList = await beatleaderapi.GetPlayerScores(userId, "date", "desc", page, pageSize, GetLeaderboardContextId(mapPool.LeaderboardContext));
+                BeatLeaderPlayerScoreList beatLeaderPlayerScoreList = await beatleaderapi.GetPlayerScores(userId, "date", "desc", page, pageSize, GetLeaderboardContextId(mapPool.LeaderboardContext), eventId);
                 return new PPPScoreCollection(beatLeaderPlayerScoreList);
             }
             catch (Exception ex)
@@ -125,9 +131,19 @@ namespace PPPredictor.Core.Calculator
                             if (diff != null)
                             {
                                 mapPool.LsLeaderboadInfo.Add(new ShortScore(searchString, new PPPStarRating(diff), DateTime.Now));
-                                if (diff.stars.HasValue && diff.status == (int)BeatLeaderDifficultyStatus.ranked)
+                                if(mapPool.MapPoolType == MapPoolType.Custom)
                                 {
-                                    return new PPPBeatMapInfo(beatMapInfo , new PPPStarRating(diff));
+                                    if (diff.stars.HasValue)
+                                    {
+                                        return new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(diff, true));
+                                    }
+                                }
+                                else
+                                {
+                                    if (diff.stars.HasValue && diff.status == (int)BeatLeaderDifficultyStatus.ranked)
+                                    {
+                                        return new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(diff));
+                                    }
                                 }
                             }
                         }
@@ -230,12 +246,13 @@ namespace PPPredictor.Core.Calculator
             if (mapPool.MapPoolType != MapPoolType.Default)
             {
                 mapPool.LsMapPoolEntries.Clear();
-                BeatLeaderPlayList lsPlayList = await this.beatleaderapi.GetPlayList(long.Parse(mapPool.PlayListId));
-                foreach (BeatLeaderPlayListSong song in lsPlayList.songs)
+                BeatLeaderPlayListSongList lsPlayList = await this.beatleaderapi.GetSongsInPlaylistById(long.Parse(mapPool.PlayListId));
+                foreach (BeatLeaderSong song in lsPlayList.data)
                 {
-                    foreach (BeatLeaderPlayListDifficulties diff in song.difficulties)
+                    foreach (BeatLeaderDifficulty diff in song.difficulties)
                     {
-                        mapPool.LsMapPoolEntries.Add(new PPPMapPoolEntry(song, diff));
+                        string searchString = CreateSeachString(song.hash, "SOLO" + diff.modeName, diff.value);
+                        mapPool.LsMapPoolEntries.Add(new PPPMapPoolEntry(searchString));
                     }
                 }
             }
@@ -259,14 +276,40 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        override public Task UpdateAvailableMapPools()
+        override public async Task UpdateAvailableMapPools()
         {
             if (!_dctMapPool.ContainsKey("-1")) _dctMapPool.Add("-1", new PPPMapPool("-1", MapPoolType.Default, $"General", accumulationConstant, 0, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderDefault));
             if (!_dctMapPool.ContainsKey("-2")) _dctMapPool.Add("-2", new PPPMapPool("-2", MapPoolType.Default, $"No modifiers", accumulationConstant, 1, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoModifiers));
             if (!_dctMapPool.ContainsKey("-3")) _dctMapPool.Add("-3", new PPPMapPool("-3", MapPoolType.Default, $"No pauses", accumulationConstant, 2, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoPauses));
             if (!_dctMapPool.ContainsKey("-4")) _dctMapPool.Add("-4", new PPPMapPool("-4", MapPoolType.Default, $"Golf", accumulationConstant, 3, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderGolf));
             if (!_dctMapPool.ContainsKey("-5")) _dctMapPool.Add("-5", new PPPMapPool("-5", MapPoolType.Default, $"SCPM", accumulationConstant, 4, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderSCPM));
-            return Task.CompletedTask;
+
+            //BeatLeaderEventList beatLeaderEventList = await beatleaderapi.GetEvents();
+            BeatLeaderEventList beatLeaderEventList = new BeatLeaderEventList();
+            DateTime dateCutoff = DateTime.UtcNow;
+#if DEBUG
+            //dateCutoff = dateCutoff.AddDays(-120);
+#endif
+            foreach (BeatLeaderEvent blEvent in beatLeaderEventList.data)
+            {
+                if (_dctMapPool.TryGetValue(blEvent.id.ToString(), out PPPMapPool mapPool))
+                {
+                    if (blEvent.dtEndDate < dateCutoff)
+                    {
+                        _dctMapPool.Remove(blEvent.id.ToString());
+                    }
+                }
+                else
+                {
+                    if (blEvent.dtEndDate >= dateCutoff)
+                    {
+                        PPPMapPool insertMapPool = new PPPMapPool(blEvent.id.ToString(), blEvent.playListId.ToString(), MapPoolType.Custom, $"Event {blEvent.name}", accumulationConstantEvent, (int.MaxValue - blEvent.id), new BeatLeaderPPPCurve(), blEvent.image);
+                        if (!_dctMapPool.ContainsKey(insertMapPool.Id)) _dctMapPool.Add(insertMapPool.Id, insertMapPool);
+                    }
+                }
+            }
+            SendMapPoolRefreshed();
+            return;
         }
 
         internal override bool IsScoreSetOnCurrentMapPool(PPPMapPool mapPool, PPPScoreSetData score)
@@ -282,6 +325,11 @@ namespace PPPredictor.Core.Calculator
         internal override string GetStarDisplay(PPPBeatMapInfo beatMapInfo)
         {
             return $"💪{FormatStarRating(beatMapInfo.ModifiedStarRating?.PassRating)} 🎯{FormatStarRating(beatMapInfo.ModifiedStarRating?.AccRating)} 🔧{FormatStarRating(beatMapInfo.ModifiedStarRating?.TechRating)}";
+        }
+
+        internal override PPPMapPoolShort FindPoolWithPlayListId(string playlistId)
+        {
+            return _dctMapPool.Values.FirstOrDefault(x => x.PlayListId == playlistId);
         }
     }
 }

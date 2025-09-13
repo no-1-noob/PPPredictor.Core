@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using PPPredictor.Core.Interface;
+﻿using PPPredictor.Core.Interface;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
@@ -25,66 +24,19 @@ namespace PPPredictor.Core.API
             client.BaseAddress = new Uri(baseUrl);
         }
 
-        public void DebugPrintBeatLeaderNetwork(string message)
-        {
-            Logging.DebugNetworkPrint($"ScoreSaberNetwork: {message}", DataType.Enums.Leaderboard.ScoreSaber);
-        }
-
         public async Task<ScoreSaberPlayerList> GetPlayers(double? page)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"players?&page={page}&withMetadata=true");
-                DebugPrintBeatLeaderNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<ScoreSaberPlayerList>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in scoresaberapi GetPlayers: {ex.Message}");
-            }
-            return new ScoreSaberPlayerList();
+            return await NetworkUtil.GetDataAsync<ScoreSaberPlayerList>(client, DataType.Enums.Leaderboard.ScoreSaber, "GetPlayers", $"players?&page={page}&withMetadata=true");
         }
 
         public async Task<ScoreSaberPlayer> GetPlayer(long playerId)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"player/{playerId}/basic");
-                DebugPrintBeatLeaderNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<ScoreSaberPlayer>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in scoresaberapi GetPlayer: {ex.Message}");
-            }
-            return new ScoreSaberPlayer();
+            return await NetworkUtil.GetDataAsync<ScoreSaberPlayer>(client, DataType.Enums.Leaderboard.ScoreSaber, "GetPlayer", $"player/{playerId}/basic");
         }
 
         public async Task<ScoreSaberPlayerScoreList> GetPlayerScores(string playerId, int? limit, int? page)
         {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync($"player/{playerId}/scores?limit={limit}&sort=recent&page={page}&withMetadata=true");
-                DebugPrintBeatLeaderNetwork(response.RequestMessage.RequestUri.ToString());
-                if (response.IsSuccessStatusCode)
-                {
-                    string result = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<ScoreSaberPlayerScoreList>(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.ErrorPrint($"Error in scoresaberapi GetPlayerScores: {ex.Message}");
-            }
-            return new ScoreSaberPlayerScoreList();
+            return await NetworkUtil.GetDataAsync<ScoreSaberPlayerScoreList>(client, DataType.Enums.Leaderboard.ScoreSaber, "GetPlayerScores", $"player/{playerId}/scores?limit={limit}&sort=recent&page={page}&withMetadata=true");
         }
     }
 }
