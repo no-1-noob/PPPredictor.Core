@@ -30,7 +30,7 @@ namespace UnitTests.Data
         [TestMethod]
         public void TupelConstructor()
         {
-            BeatLeaderPlayListSong song = new BeatLeaderPlayListSong() { hash = testHash };
+            BeatLeaderSong song = new BeatLeaderSong() { hash = testHash };
             BeatLeaderPlayListDifficulties diff = new BeatLeaderPlayListDifficulties() { name = Enums.BeatMapDifficulty.ExpertPlus};
             PPPMapPoolEntry mapPoolEntry = new PPPMapPoolEntry(song, diff);
             Assert.IsNotNull(mapPoolEntry.Searchstring);

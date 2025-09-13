@@ -1,4 +1,6 @@
-﻿namespace PPPredictor.Core.DataType.MapPool
+﻿using static PPPredictor.Core.DataType.LeaderBoard.BeatLeaderDataTypes;
+
+namespace PPPredictor.Core.DataType.MapPool
 {
     public class PPPMapPoolEntry
     {
@@ -12,6 +14,10 @@
         public PPPMapPoolEntry(string searchstring)
         {
             Searchstring = searchstring;
+        }
+        internal PPPMapPoolEntry(BeatLeaderSong song, BeatLeaderPlayListDifficulties diff)
+        {
+            _searchstring = $"{song.hash}_{(int)diff.name}";
         }
     }
 }

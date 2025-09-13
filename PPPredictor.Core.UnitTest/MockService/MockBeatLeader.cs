@@ -15,6 +15,11 @@ namespace PPPredictor.Core.UnitTest.MockService
             throw new NotImplementedException();
         }
 
+        public Task<BeatLeaderDataTypes.BeatLeaderPlayerList> GetPlayerForEvent(string eventId, string userName)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<BeatLeaderDataTypes.BeatLeaderPlayerScoreList> GetPlayerScores(string userId, string sortBy, string order, int page, int count, long leaderboardContextId, long? eventId = null)
         {
             throw new NotImplementedException();
@@ -25,17 +30,22 @@ namespace PPPredictor.Core.UnitTest.MockService
             throw new NotImplementedException();
         }
 
+        public Task<BeatLeaderDataTypes.BeatLeaderPlayerList> GetPlayersInEventLeaderboard(string eventId, string sortBy, int page, int? count, string order)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<BeatLeaderDataTypes.BeatLeaderPlayerList> GetPlayersInLeaderboard(string sortBy, int page, int? count, string order, long leaderboardContextId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<BeatLeaderDataTypes.BeatLeaderPlayList> GetPlayList(long playListId)
+        public Task<BeatLeaderDataTypes.BeatLeaderSong> GetSongByHash(string hash)
         {
             throw new NotImplementedException();
         }
 
-        public Task<BeatLeaderDataTypes.BeatLeaderSong> GetSongByHash(string hash)
+        public Task<BeatLeaderDataTypes.BeatLeaderPlayListSongList> GetSongsInPlaylistById(long playListId)
         {
             throw new NotImplementedException();
         }
