@@ -136,6 +136,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
                 dctMapPool["-1"].LsScores.Add(new DataType.Score.ShortScore($"HASH_{i}", 300 - i));
 
             };
+            dctMapPool["-1"].LsScores = dctMapPool["-1"].LsScores; //Trigger sorting like when loading from file or adding score
             dctMapPool["-1"].CurrentPlayer.Pp = 7643.94898356585;
 
             Dictionary<string, DataType.LeaderBoard.LeaderboardData> dct = new Dictionary<string, DataType.LeaderBoard.LeaderboardData>();

@@ -13,6 +13,7 @@ namespace PPPredictor.Core.Calculator
 {
     internal abstract class PPCalculator
     {
+        private const double SCORETHRESHOLD = 0.0000000001;
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         internal PPPLeaderboardInfo _leaderboardInfo;
         protected Settings _settings;
@@ -30,8 +31,29 @@ namespace PPPredictor.Core.Calculator
             {
                 _dctMapPool = dctMapPool;
             }
+            foreach (var pool in _dctMapPool.Values)
+            {
+                RecalculateScoreWeightedSum(pool);
+            }
             _leaderboardInfo = new PPPLeaderboardInfo(leaderboard);
             _settings = settings;
+        }
+
+        internal void RecalculateScoreWeightedSum(PPPMapPool mapPool)
+        {
+            mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
+            mapPool.DctScorePositionLookup.Clear();
+            if (mapPool.LsScores != null)
+            {
+                double weightedSum = 0;
+                for (int i = 0; i < mapPool.LsScores.Count; i++)
+                {
+                    ShortScore score = mapPool.LsScores[i];
+                    weightedSum += WeightPP(score.Pp, i + 1, mapPool);
+                    score.WeightedSum = weightedSum;
+                    mapPool.DctScorePositionLookup[score.Searchstring] = i;
+                }
+            }
         }
 
         internal PPPMapPool GetMapPoolById(string mapPoolId)
@@ -155,7 +177,7 @@ namespace PPPredictor.Core.Calculator
                         previousScore.Pp = newScore.Pp;
                     }
                 };
-                mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
+                RecalculateScoreWeightedSum(mapPool);
                 mapPool.DtLastScoreSet = dtNewLastScoreSet > mapPool.DtLastScoreSet ? dtNewLastScoreSet : mapPool.DtLastScoreSet;
             }
             catch (Exception ex)
@@ -175,50 +197,65 @@ namespace PPPredictor.Core.Calculator
             {
                 if (lsScores.Count > 0 && !string.IsNullOrEmpty(mapSearchString))
                 {
+                    ShortScore oldScore = null;
+                    int oldIndex = -1;
+                    if (mapPool.DctScorePositionLookup.TryGetValue(mapSearchString, out oldIndex))
+                    if (oldIndex >= 0)
+                    {
+                        oldScore = lsScores[oldIndex];
+                    }
+
                     if (pp > 0)
                     {
                         double ppAfterPlay = 0;
-                        int index = 1;
-                        bool newPPadded = false;
-                        bool newPPSkiped = false;
-                        double previousPP = 0;
-                        foreach (ShortScore score in lsScores)
+                        double previousPP = oldScore?.Pp ?? 0;
+
+                        if (oldScore != null && pp <= oldScore.Pp)
                         {
-                            double weightedPP = WeightPP(score.Pp, index, mapPool);
-                            double weightedNewPP = WeightPP(pp, index, mapPool);
-                            if (score.Searchstring == mapSearchString) //skip older (lower) score
+                            ppAfterPlay = currentTotalPP;
+                        }
+                        else
+                        {
+                            int insertionIndex = lsScores.BinarySearch(
+                                new ShortScore("", pp),
+                                Comparer<ShortScore>.Create((a, b) => b.Pp.CompareTo(a.Pp))
+                            );
+                            if (insertionIndex < 0)
                             {
-                                previousPP = score.Pp;
-                                if(pp <= previousPP)
+                                insertionIndex = ~insertionIndex;
+                            }
+
+                            if (insertionIndex > 0)
+                            {
+                                ppAfterPlay = lsScores[insertionIndex - 1].WeightedSum;
+                            }
+                            ppAfterPlay += WeightPP(pp, insertionIndex + 1, mapPool);
+
+                            int weightIndexAdd = 2;
+
+                            for (int i = insertionIndex; i < lsScores.Count; i++)
+                            {
+                                ShortScore score = lsScores[i];
+                                if (score.Searchstring == mapSearchString)
                                 {
-                                    ppAfterPlay = currentTotalPP; //If old score is better return currentPlayer pp => Otherwise innacuraccies while adding could result in gain
+                                    weightIndexAdd--;
+                                    continue;
+                                }
+                                double weightedScore = WeightPP(score.Pp, i + weightIndexAdd, mapPool);
+                                if (weightedScore < SCORETHRESHOLD)
+                                {
                                     break;
                                 }
-                                if (!newPPadded)
-                                {
-                                    ppAfterPlay += Math.Max(weightedPP, weightedNewPP); //Special case for improvement of your top play
-                                    newPPSkiped = true;
-                                    index++;
-                                }
-                                continue;
+                                ppAfterPlay += weightedScore;
                             }
-                            if (!newPPadded && !newPPSkiped && weightedNewPP >= weightedPP) //add new (potential) pp
-                            {
-                                ppAfterPlay += weightedNewPP;
-                                newPPadded = true;
-                                index++;
-                                weightedPP = WeightPP(score.Pp, index, mapPool);
-                            }
-                            ppAfterPlay += weightedPP;
-                            index++;
                         }
+
+
                         return new PPGainResult(Math.Round(ppAfterPlay, 2, MidpointRounding.AwayFromZero), Zeroizer(Math.Round(ppAfterPlay - currentTotalPP, 2, MidpointRounding.AwayFromZero), 0.02), pp - previousPP, _settings.PpGainCalculationType);
                     }
-                    //Try to find old pp value if the map has been failed
-                    ShortScore oldScore = lsScores.Find(x => x.Searchstring == mapSearchString);
                     return new PPGainResult(currentTotalPP, pp, oldScore != null ? -oldScore.Pp : 0, _settings.PpGainCalculationType);
                 }
-                else if(currentTotalPP == 0) //If you have not set a score yet, total is = the new pp play
+                else if (currentTotalPP == 0) //If you have not set a score yet, total is = the new pp play
                 {
                     return new PPGainResult(pp, pp, pp, _settings.PpGainCalculationType);
                 }

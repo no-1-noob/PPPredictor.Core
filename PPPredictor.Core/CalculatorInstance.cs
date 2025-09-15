@@ -81,7 +81,7 @@ namespace PPPredictor.Core
             }
         }
 
-        private PPCalculator GetCalculator(Leaderboard leaderboard)
+        internal PPCalculator GetCalculator(Leaderboard leaderboard)
         {
             if(dctCalculator.TryGetValue(leaderboard, out PPCalculator calculator)){
                 return calculator;

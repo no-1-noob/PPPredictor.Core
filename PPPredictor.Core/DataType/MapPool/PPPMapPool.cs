@@ -32,6 +32,7 @@ namespace PPPredictor.Core.DataType.MapPool
         private LeaderboardContext _leaderboardContext;
         private bool isPlayerFound;
         private Dictionary<int, double> dctWeightLookup;
+        private Dictionary<string, int> _dctScorePositionLookup = new Dictionary<string, int>();
         private string _customLeaderboardUserId;
 
         public string MapPoolName { get => _mapPoolName; set => _mapPoolName = value; }
@@ -71,6 +72,7 @@ namespace PPPredictor.Core.DataType.MapPool
         [JsonIgnore]
         public Dictionary<int, double> DctWeightLookup { get => dctWeightLookup; }
         public string CustomLeaderboardUserId { get => _customLeaderboardUserId; set => _customLeaderboardUserId = value; }
+        public Dictionary<string, int> DctScorePositionLookup { get => _dctScorePositionLookup; set => _dctScorePositionLookup = value; }
 
         [JsonConstructor]
 
@@ -96,6 +98,7 @@ namespace PPPredictor.Core.DataType.MapPool
             isPlayerFound = true;
             dctWeightLookup = new Dictionary<int, double>();
             _customLeaderboardUserId = string.Empty;
+            _dctScorePositionLookup = new Dictionary<string, int>();
         }
 
         public PPPMapPool(string id, string playListId, MapPoolType mapPoolType, string mapPoolName, float accumulationConstant, int sortIndex, IPPPCurve curve, string iconUrl, double popularity = 0, string syncUrl = "", LeaderboardContext leaderboardContext = LeaderboardContext.None) : this()
