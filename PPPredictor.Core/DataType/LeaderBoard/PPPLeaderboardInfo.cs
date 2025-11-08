@@ -4,6 +4,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
 {
     public class PPPLeaderboardInfo
     {
+        private Leaderboard _leaderboard;
         private string _leaderboardName;
         private string _leaderboardIcon;
         private string _ppSuffix;
@@ -18,6 +19,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
         private bool _hasOldDotRanking = true;
         private int _pageFetchLimit = 5;
 
+        public Leaderboard Leaderboard { get => _leaderboard; set => _leaderboard = value; }
         public string LeaderboardName { get => _leaderboardName; }
         public string LeaderboardIcon { get => _leaderboardIcon; }
         public string PpSuffix { get => _ppSuffix; }
@@ -38,6 +40,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
 
         public PPPLeaderboardInfo(Leaderboard leaderboard)
         {
+            this._leaderboard = leaderboard;
             this._leaderboardName = leaderboard.ToString();
             this._ppSuffix = "pp";
             _leaderboardFirstPageIndex = 1;

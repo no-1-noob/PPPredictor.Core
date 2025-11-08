@@ -12,6 +12,11 @@ namespace PPPredictor.Core
             OnMessage?.Invoke(null, new LoggingMessage(LoggingMessage.LoggingType.Error, message));
         }
 
+        internal static void LoadingStatusPrint(Leaderboard leaderboard, string message)
+        {
+            OnMessage?.Invoke(null, new LoggingMessage(LoggingMessage.LoggingType.LoadingStatus, leaderboard, message));
+        }
+
         internal static void DebugNetworkPrint(string message, Leaderboard leaderboard)
         {
             OnMessage?.Invoke(null, new LoggingMessage(LoggingMessage.LoggingType.DebugNetworkPrint, leaderboard, message));
@@ -41,7 +46,8 @@ namespace PPPredictor.Core
         public enum LoggingType
         {
             Error,
-            DebugNetworkPrint
+            DebugNetworkPrint,
+            LoadingStatus
         }
     }
 }
