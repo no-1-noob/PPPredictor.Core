@@ -173,6 +173,11 @@ namespace PPPredictor.Core.Calculator
 
         internal PPGainResult GetPlayerScorePPGainInternal(List<ShortScore> lsScores, string mapSearchString, double pp, double currentTotalPP, PPPMapPool mapPool)
         {
+            return GetPlayerScorePPGainInternalOriginal(lsScores, mapSearchString, pp, currentTotalPP, mapPool);
+        }
+
+        internal PPGainResult GetPlayerScorePPGainInternalOriginal(List<ShortScore> lsScores, string mapSearchString, double pp, double currentTotalPP, PPPMapPool mapPool)
+        {
             try
             {
                 if (pp <= 0 || string.IsNullOrEmpty(mapSearchString))

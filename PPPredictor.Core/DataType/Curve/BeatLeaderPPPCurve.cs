@@ -7,6 +7,8 @@ namespace PPPredictor.Core.DataType.Curve
 {
     class BeatLeaderPPPCurve : IPPPCurve
     {
+        private string lastHash = string.Empty;
+        private Dictionary<double, double> dctLastResults = new Dictionary<double, double>();
         private readonly List<(double, double)> accPointList = new List<(double, double)> {
                 (1.0, 7.424),
                 (0.999, 6.241),
@@ -45,18 +47,33 @@ namespace PPPredictor.Core.DataType.Curve
         {
             try
             {
+                string newInfo = $"{beatMapInfo.ModifiedStarRating.IsRanked()} {beatMapInfo.ModifiedStarRating.Multiplier} {beatMapInfo.ModifiedStarRating.AccRating} {beatMapInfo.ModifiedStarRating.PassRating} {beatMapInfo.ModifiedStarRating.TechRating} {failed} {paused} {leaderboardContext}";
+                if (true)
+                {
+                    dctLastResults = new Dictionary<double, double>();
+                }
+                if (dctLastResults.TryGetValue(percentage, out var result))
+                {
+                    return result;
+                }
+
                 if (beatMapInfo.ModifiedStarRating.IsRanked())
                 {
                     percentage /= 100.0;
                     if (leaderboardContext == LeaderboardContext.BeatLeaderGolf)
                     {
-                        if (percentage > 0.5f) return 0;
+                        if (percentage > 0.5f)
+                        {
+                            dctLastResults[percentage] = 0;
+                            return 0;
+                        }
                         percentage = 1f - percentage;
                     }
                     if (!failed && !(leaderboardContext == LeaderboardContext.BeatLeaderNoPauses && paused))
                     {
                         var (passPP, accPP, techPP) = CalculatePP(percentage, beatMapInfo.ModifiedStarRating.AccRating * beatMapInfo.ModifiedStarRating.Multiplier, beatMapInfo.ModifiedStarRating.PassRating * beatMapInfo.ModifiedStarRating.Multiplier, beatMapInfo.ModifiedStarRating.TechRating * beatMapInfo.ModifiedStarRating.Multiplier, leaderboardContext);
                         var rawPP = Inflate(passPP + accPP + techPP);
+                        dctLastResults[percentage] = rawPP;
                         return rawPP;
                     }
                 }
