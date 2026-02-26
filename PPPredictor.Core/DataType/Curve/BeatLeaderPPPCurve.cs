@@ -108,6 +108,7 @@ namespace PPPredictor.Core.DataType.Curve
 
         public double CalculateMaxPP(PPPBeatMapInfo beatMapInfo, LeaderboardContext leaderboardContext = LeaderboardContext.None)
         {
+            //Golf mode?
             return CalculatePPatPercentage(beatMapInfo, 100, false, false, leaderboardContext);
         }
 

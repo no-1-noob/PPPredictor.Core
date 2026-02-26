@@ -472,5 +472,107 @@ namespace PPPredictor.Core.Calculator
             return _dctMapPool.Values.FirstOrDefault(x => x.SyncUrl == syncUrl);
         }
 
+        internal string CalculatePercentageNeededForPP(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double targetPPGain)
+        {
+            string result = "∞";
+
+            //throw new NotImplementedException();
+            if (mapPool.LsScores.Count > 0 && !string.IsNullOrEmpty(currentBeatMapInfo.SelectedMapSearchString) && targetPPGain > 0)
+            {
+                double calculateMaxPP = mapPool.Curve.CalculateMaxPP(currentBeatMapInfo, mapPool.LeaderboardContext);
+                var ppNeeded = FindClosestPPGain(currentBeatMapInfo, mapPool, calculateMaxPP, targetPPGain);
+
+                //Debug calculation
+                //var ppGain = GetPlayerScorePPGainInternal(mapPool.LsScores, currentBeatMapInfo.CustomLevelHash, ppNeeded, mapPool.CurrentPlayer.Pp, mapPool);
+
+                if(ppNeeded > calculateMaxPP)
+                {
+                    return result;
+                }
+
+                double closest = -1;
+                double closesDiff = double.MaxValue;
+                for(double x = 100; x > 0; x -= 0.01)
+                {
+                    var ppAtPercentage = mapPool.Curve.CalculatePPatPercentage(currentBeatMapInfo, x, false, false, mapPool.LeaderboardContext);
+                    var diff = Math.Abs(ppNeeded - ppAtPercentage);
+                    if (diff < closesDiff)
+                    {
+                        closesDiff = diff;
+                        closest = x;
+                    }
+                    else
+                    {
+                        //Console.WriteLine("dd");
+                    }
+                    //if (closesDiff < 0.05) break; break early?
+                }
+
+                return $"{closest:N2}%";
+            }
+            return result;
+        }
+
+        private double FindClosestPPGain(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double calculateMaxPPRaw, double targetPPGain)
+        {
+            try
+            {
+                ShortScore oldScore = null;
+                int oldIndex = -1;
+
+                if (!string.IsNullOrEmpty(currentBeatMapInfo.SelectedMapSearchString))
+                {
+                    oldIndex = mapPool.LsScores.FindIndex(s => s.Searchstring == currentBeatMapInfo.SelectedMapSearchString);
+                    if (oldIndex >= 0)
+                        oldScore = mapPool.LsScores[oldIndex];
+                }
+
+                var scores = new List<double>();
+                for (int i = 0; i < mapPool.LsScores.Count; i++)
+                {
+                    if (i == oldIndex)
+                        continue;
+                    scores.Add(mapPool.LsScores[i].Pp);
+                }
+
+                int n = scores.Count;
+
+                double[] arrWeightedSums = new double[n + 1];
+                arrWeightedSums[0] = 0;
+
+                for (int i = 1; i <= n; i++)
+                {
+                    arrWeightedSums[i] = arrWeightedSums[i - 1] + (scores[i - 1] * Math.Pow(mapPool.AccumulationConstant, i - 1));
+                }
+
+                double totalWithoutOld = arrWeightedSums[n];
+
+                for (int k = 1; k <= n + 1; k++)
+                {
+                    double tail = totalWithoutOld - arrWeightedSums[k - 1];
+                    double weightAtK = Math.Pow(mapPool.AccumulationConstant, k - 1);
+
+                    double requiredPP =
+                        (targetPPGain + (1 - mapPool.AccumulationConstant) * tail) / weightAtK;
+
+                    if (requiredPP <= 0)
+                        continue;
+
+                    double upper = (k == 1) ? double.PositiveInfinity : scores[k - 2];
+                    double lower = (k == n + 1) ? 0 : scores[k - 1];
+
+                    if (requiredPP <= upper && requiredPP >= lower)
+                    {
+                        return requiredPP;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return -1;
+        }
     }
 }

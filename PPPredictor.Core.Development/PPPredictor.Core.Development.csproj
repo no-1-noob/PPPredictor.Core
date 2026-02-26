@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PPPredictor.Core.UnitTest\PPPredictor.Core.UnitTest.csproj" />
     <ProjectReference Include="..\PPPredictor.Core\PPPredictor.Core.csproj" />
   </ItemGroup>
 
