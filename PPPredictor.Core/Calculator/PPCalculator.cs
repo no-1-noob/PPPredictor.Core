@@ -472,9 +472,9 @@ namespace PPPredictor.Core.Calculator
             return _dctMapPool.Values.FirstOrDefault(x => x.SyncUrl == syncUrl);
         }
 
-        internal string CalculatePercentageNeededForPP(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double targetPPGain)
+        internal double CalculatePercentageNeededForPP(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double targetPPGain)
         {
-            string result = "∞";
+            double result = -1;
 
             //throw new NotImplementedException();
             if (mapPool.LsScores.Count > 0 && !string.IsNullOrEmpty(currentBeatMapInfo.SelectedMapSearchString) && targetPPGain > 0)
@@ -508,7 +508,7 @@ namespace PPPredictor.Core.Calculator
                     //if (closesDiff < 0.05) break; break early?
                 }
 
-                return $"{closest:N2}%";
+                return closest;
             }
             return result;
         }
@@ -573,6 +573,33 @@ namespace PPPredictor.Core.Calculator
                 throw ex;
             }
             return -1;
+        }
+
+        internal async Task<double> CalculatePercentageNeededForRankGain(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, int rankGain)
+        {
+            double result = -1;
+            double targetRank = mapPool.CurrentPlayer.Rank - rankGain;
+            if (targetRank < 1) return result;
+            double currentPP = mapPool.CurrentPlayer.Pp;
+            double targetPPAtTargetRank = await GetPlayerPPAtRank(mapPool, targetRank);
+
+
+            double diff = targetPPAtTargetRank - currentPP;
+            if (diff < 0) return result;
+
+            result = CalculatePercentageNeededForPP(currentBeatMapInfo, mapPool, diff);
+
+            return result;
+        }
+
+        internal async Task<double> GetPlayerPPAtRank(PPPMapPool mapPool, double targetRank)
+        {
+                PPPPlayer targetPlayer = mapPool.LsPlayerRankings.FirstOrDefault(x => x.Rank == targetRank);
+                if (targetPlayer != null) return targetPlayer.Pp;
+                int fetchindexPage = _leaderboardInfo.LeaderboardFirstPageIndex + ((int)Math.Ceiling(targetRank / _leaderboardInfo.PlayerPerPages) - 1);
+                await FetchPlayerPageAndAddToList(fetchindexPage, mapPool);
+                targetPlayer = mapPool.LsPlayerRankings.FirstOrDefault(x => x.Rank == targetRank);
+                return targetPlayer?.Pp ?? 0;
         }
     }
 }

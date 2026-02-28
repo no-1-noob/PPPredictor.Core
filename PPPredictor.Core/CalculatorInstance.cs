@@ -98,10 +98,19 @@ namespace PPPredictor.Core
             return calculator.CalculatePPatPercentage(_currentBeatMapInfo, mapPool, percentage, failed, paused);
         }
 
-        public string CalculatePercentageNeededForPP(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, double targetPP)
+        public double CalculatePercentageNeededForPP(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, double targetPP)
         {
             (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderBoard, mapPoolId);
             return calculator.CalculatePercentageNeededForPP(currentBeatMapInfo, mapPool, targetPP);
+        }
+
+        public async Task<double> CalculatePercentageNeededForRankGain(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, int rankGain)
+        {
+            (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderBoard, mapPoolId);
+            var i = await SemaphoreFunction(calculator.Semaphore,
+                () => Task.Run(() => calculator.CalculatePercentageNeededForRankGain(currentBeatMapInfo, mapPool, rankGain))
+            );
+            return i;
         }
 
         public PPPBeatMapInfo ApplyModifiersToBeatmapInfo(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo beatMapInfo, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
