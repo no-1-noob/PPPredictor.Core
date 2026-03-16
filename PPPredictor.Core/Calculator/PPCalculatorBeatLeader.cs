@@ -276,7 +276,7 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        override public async Task UpdateAvailableMapPools()
+        override public Task UpdateAvailableMapPools()
         {
             if (!_dctMapPool.ContainsKey("-1")) _dctMapPool.Add("-1", new PPPMapPool("-1", MapPoolType.Default, $"General", accumulationConstant, 0, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderDefault));
             if (!_dctMapPool.ContainsKey("-2")) _dctMapPool.Add("-2", new PPPMapPool("-2", MapPoolType.Default, $"No modifiers", accumulationConstant, 1, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoModifiers));
@@ -309,7 +309,7 @@ namespace PPPredictor.Core.Calculator
                 }
             }
             SendMapPoolRefreshed();
-            return;
+            return Task.CompletedTask;
         }
 
         internal override bool IsScoreSetOnCurrentMapPool(PPPMapPool mapPool, PPPScoreSetData score)

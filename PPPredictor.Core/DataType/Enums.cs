@@ -69,5 +69,12 @@
             NoLeaderboard,
             HitBloq
         }
+
+        public enum CalculationMode
+        {
+            PercentToPP,
+            PPToPercent,
+            Rank
+        }
     }
 }

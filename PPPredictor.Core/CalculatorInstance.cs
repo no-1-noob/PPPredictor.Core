@@ -98,13 +98,16 @@ namespace PPPredictor.Core
             return calculator.CalculatePPatPercentage(_currentBeatMapInfo, mapPool, percentage, failed, paused);
         }
 
-        public double CalculatePercentageNeededForPP(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, double targetPP)
+        public async Task<DoubleCalculationResult> CalculatePercentageNeededForPP(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, double targetPP)
         {
             (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderBoard, mapPoolId);
-            return calculator.CalculatePercentageNeededForPP(currentBeatMapInfo, mapPool, targetPP);
+            var i = await SemaphoreFunction(calculator.Semaphore,
+                () => Task.Run(() => calculator.CalculatePercentageNeededForPP(currentBeatMapInfo, mapPool, targetPP))
+            );
+            return i;
         }
 
-        public async Task<double> CalculatePercentageNeededForRankGain(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, int rankGain)
+        public async Task<DoubleCalculationResult> CalculatePercentageNeededForRankGain(Leaderboard leaderBoard, string mapPoolId, PPPBeatMapInfo currentBeatMapInfo, int rankGain)
         {
             (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderBoard, mapPoolId);
             var i = await SemaphoreFunction(calculator.Semaphore,

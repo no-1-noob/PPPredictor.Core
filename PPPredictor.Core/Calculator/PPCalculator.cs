@@ -472,48 +472,59 @@ namespace PPPredictor.Core.Calculator
             return _dctMapPool.Values.FirstOrDefault(x => x.SyncUrl == syncUrl);
         }
 
-        internal double CalculatePercentageNeededForPP(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double targetPPGain)
+        internal DoubleCalculationResult CalculatePercentageNeededForPP(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double targetPPGain)
         {
-            double result = -1;
+            DoubleCalculationResult result = new DoubleCalculationResult(0, false);
 
             //throw new NotImplementedException();
             if (mapPool.LsScores.Count > 0 && !string.IsNullOrEmpty(currentBeatMapInfo.SelectedMapSearchString) && targetPPGain > 0)
             {
                 double calculateMaxPP = mapPool.Curve.CalculateMaxPP(currentBeatMapInfo, mapPool.LeaderboardContext);
-                var ppNeeded = FindClosestPPGain(currentBeatMapInfo, mapPool, calculateMaxPP, targetPPGain);
+                DoubleCalculationResult ppNeeded = FindClosestPPGain(currentBeatMapInfo, mapPool, calculateMaxPP, targetPPGain);
+
+                if(!ppNeeded.IsValid) return result;
 
                 //Debug calculation
-                //var ppGain = GetPlayerScorePPGainInternal(mapPool.LsScores, currentBeatMapInfo.CustomLevelHash, ppNeeded, mapPool.CurrentPlayer.Pp, mapPool);
+                var ppGain = GetPlayerScorePPGainInternal(mapPool.LsScores, currentBeatMapInfo.CustomLevelHash, ppNeeded.Value, mapPool.CurrentPlayer.Pp, mapPool);
 
-                if(ppNeeded > calculateMaxPP)
+                //Logging.ErrorPrint($"CalculatePercentageNeededForPP Target PPGain {targetPPGain}, ppNeeded: {ppNeeded}, ppGainRecalculated: {ppGain}");
+
+                if (ppNeeded.Value > calculateMaxPP)
                 {
                     return result;
                 }
 
                 double closest = -1;
                 double closesDiff = double.MaxValue;
-                for(double x = 100; x > 0; x -= 0.01)
-                {
-                    var ppAtPercentage = mapPool.Curve.CalculatePPatPercentage(currentBeatMapInfo, x, false, false, mapPool.LeaderboardContext);
-                    var diff = Math.Abs(ppNeeded - ppAtPercentage);
-                    if (diff < closesDiff)
-                    {
-                        closesDiff = diff;
-                        closest = x;
-                    }
-                    else
-                    {
-                        //Console.WriteLine("dd");
-                    }
-                    //if (closesDiff < 0.05) break; break early?
-                }
+                double initialStepSize = 0.1;
+                double mediumStepSize = 0.01;
+                double fineStepSize = 0.0001;
+                FindClosest(currentBeatMapInfo, mapPool, ppNeeded.Value, ref closest, ref closesDiff, initialStepSize, 100, 0);
+                FindClosest(currentBeatMapInfo, mapPool, ppNeeded.Value, ref closest, ref closesDiff, mediumStepSize, Math.Min(100, closest + initialStepSize), Math.Max(0, closest - initialStepSize));
+                FindClosest(currentBeatMapInfo, mapPool, ppNeeded.Value, ref closest, ref closesDiff, fineStepSize, Math.Min(100, closest + mediumStepSize), Math.Max(0, closest - mediumStepSize));
 
-                return closest;
+                //Logging.ErrorPrint($"CalculatePercentageNeededForPP closest {closest}");
+
+                return new DoubleCalculationResult(closest, true);
             }
             return result;
         }
 
-        private double FindClosestPPGain(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double calculateMaxPPRaw, double targetPPGain)
+        private static void FindClosest(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double ppNeeded, ref double closest, ref double closesDiff, double stepSize, double start, double end)
+        {
+            for (double x = 100; x > 0; x -= stepSize)
+            {
+                var ppAtPercentage = mapPool.Curve.CalculatePPatPercentage(currentBeatMapInfo, x, false, false, mapPool.LeaderboardContext);
+                var diff = Math.Abs(ppNeeded - ppAtPercentage);
+                if (diff < closesDiff)
+                {
+                    closesDiff = diff;
+                    closest = x;
+                }
+            }
+        }
+
+        private DoubleCalculationResult FindClosestPPGain(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, double calculateMaxPPRaw, double targetPPGain)
         {
             try
             {
@@ -563,7 +574,7 @@ namespace PPPredictor.Core.Calculator
 
                     if (requiredPP <= upper && requiredPP >= lower)
                     {
-                        return requiredPP;
+                        return new DoubleCalculationResult(requiredPP, true);
                     }
                 }
 
@@ -572,12 +583,12 @@ namespace PPPredictor.Core.Calculator
             {
                 throw ex;
             }
-            return -1;
+            return new DoubleCalculationResult(0, false);
         }
 
-        internal async Task<double> CalculatePercentageNeededForRankGain(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, int rankGain)
+        internal async Task<DoubleCalculationResult> CalculatePercentageNeededForRankGain(PPPBeatMapInfo currentBeatMapInfo, PPPMapPool mapPool, int rankGain)
         {
-            double result = -1;
+            DoubleCalculationResult result = new DoubleCalculationResult(0, false);
             double targetRank = mapPool.CurrentPlayer.Rank - rankGain;
             if (targetRank < 1) return result;
             double currentPP = mapPool.CurrentPlayer.Pp;

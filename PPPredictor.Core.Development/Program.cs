@@ -46,10 +46,10 @@ namespace PPPredictor.Core.Development
             beatMapKey.difficulty = BeatMapDifficulty.Expert;
             var s = new PPPBeatMapInfo(new PPPBeatMapInfo("BE49148059822B60C9AC0E7883B5F3534225A35F", beatMapKey), starRating);
             s.SelectedMapSearchString = $"BE49148059822B60C9AC0E7883B5F3534225A35F_SOLOSTANDARD_7";
-            //var v = ci.CalculatePercentageNeededForPP(Enums.Leaderboard.BeatLeader, "-1", s, 10);
+            var v = ci.CalculatePercentageNeededForPP(Enums.Leaderboard.BeatLeader, "-1", s, 10);
 
 
-            var v2 = await ci.CalculatePercentageNeededForRankGain(Leaderboard.BeatLeader, "-1", s, 10);
+            //var v2 = await ci.CalculatePercentageNeededForRankGain(Leaderboard.BeatLeader, "-1", s, 10);
             //await ci.GetPlayerScores(Enums.Leaderboard.BeatLeader, "73", 1, 100);
             //await ci.GetPlayerScores(Enums.Leaderboard.BeatLeader, "68", 1, 100);
             //await ci.UpdatePlayer(Enums.Leaderboard.BeatLeader, "68", false);
