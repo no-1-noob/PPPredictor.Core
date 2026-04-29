@@ -80,6 +80,14 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _hasGetAllScoresFunctionality = true;
                     _hasGetRecentScoresFunctionality = false;
                     break;
+                case Leaderboard.AccSaberReloaded:
+                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.AccSaberReloaded.png";
+                    _ppSuffix = "ap";
+                    _leaderboardFirstPageIndex = 0;
+                    _largePageSize = 100;
+                    _playerPerPages = 50;
+                    _hasGetAllScoresFunctionality = false;
+                    break;
             }
         }
     }

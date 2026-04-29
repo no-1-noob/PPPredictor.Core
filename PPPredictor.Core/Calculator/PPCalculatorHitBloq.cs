@@ -182,7 +182,7 @@ namespace PPPredictor.Core.Calculator
 
         public override async Task UpdateAvailableMapPools()
         {
-            var defaultMapPool = new PPPMapPool(MapPoolType.Default, $"☞ Select a map pool ☜", 0, 0, new CustomPPPCurve(new List<(double, double)>(), CurveType.Linear, 0));
+            var defaultMapPool = new PPPMapPool(MapPoolType.Default, $"☞ Select a map pool ☜", new PPPWeightingInfo(0), 0, new CustomPPPCurve(new List<(double, double)>(), CurveType.Linear, 0));
             if (!_dctMapPool.ContainsKey(defaultMapPool.Id))  _dctMapPool.Add(defaultMapPool.Id, defaultMapPool);
             List<HitBloqMapPool> hbMapPool = await hitbloqapi.GetHitBloqMapPools();
             string customUserId = await UpdateUserId();
@@ -198,7 +198,7 @@ namespace PPPredictor.Core.Calculator
                 }
                 else
                 {
-                    PPPMapPool insertMapPool = new PPPMapPool(newMapPool.id, newMapPool.id, MapPoolType.Custom, newMapPool.title, 0, 0, CustomPPPCurve.CreateDummyPPPCurve(), newMapPool.image, newMapPool.popularity, newMapPool.download_url);
+                    PPPMapPool insertMapPool = new PPPMapPool(newMapPool.id, newMapPool.id, MapPoolType.Custom, newMapPool.title, new PPPWeightingInfo(0), 0, CustomPPPCurve.CreateDummyPPPCurve(), newMapPool.image, newMapPool.popularity, newMapPool.download_url);
                     insertMapPool.CustomLeaderboardUserId = customUserId;
                     if (!_dctMapPool.ContainsKey(insertMapPool.Id)) _dctMapPool.Add(insertMapPool.Id, insertMapPool);
                 }
@@ -224,7 +224,7 @@ namespace PPPredictor.Core.Calculator
             if (mapPool.MapPoolType != MapPoolType.Default) //Filter out default 
             {
                 HitBloqMapPoolDetails mapPoolDetails = await this.hitbloqapi.GetHitBloqMapPoolDetails(mapPool.Id, 0);
-                mapPool.AccumulationConstant = mapPoolDetails.accumulation_constant;
+                mapPool.WeightingInfo = new PPPWeightingInfo(mapPoolDetails.accumulation_constant);
                 if(mapPoolDetails.cr_curve != null)
                 {
                     mapPool.Curve = new CustomPPPCurve(mapPoolDetails.cr_curve);

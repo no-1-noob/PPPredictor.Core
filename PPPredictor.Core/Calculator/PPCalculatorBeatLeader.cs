@@ -278,11 +278,11 @@ namespace PPPredictor.Core.Calculator
 
         override public async Task UpdateAvailableMapPools()
         {
-            if (!_dctMapPool.ContainsKey("-1")) _dctMapPool.Add("-1", new PPPMapPool("-1", MapPoolType.Default, $"General", accumulationConstant, 0, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderDefault));
-            if (!_dctMapPool.ContainsKey("-2")) _dctMapPool.Add("-2", new PPPMapPool("-2", MapPoolType.Default, $"No modifiers", accumulationConstant, 1, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoModifiers));
-            if (!_dctMapPool.ContainsKey("-3")) _dctMapPool.Add("-3", new PPPMapPool("-3", MapPoolType.Default, $"No pauses", accumulationConstant, 2, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoPauses));
-            if (!_dctMapPool.ContainsKey("-4")) _dctMapPool.Add("-4", new PPPMapPool("-4", MapPoolType.Default, $"Golf", accumulationConstant, 3, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderGolf));
-            if (!_dctMapPool.ContainsKey("-5")) _dctMapPool.Add("-5", new PPPMapPool("-5", MapPoolType.Default, $"SCPM", accumulationConstant, 4, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderSCPM));
+            if (!_dctMapPool.ContainsKey("-1")) _dctMapPool.Add("-1", new PPPMapPool("-1", MapPoolType.Default, $"General", new PPPWeightingInfo(accumulationConstant), 0, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderDefault));
+            if (!_dctMapPool.ContainsKey("-2")) _dctMapPool.Add("-2", new PPPMapPool("-2", MapPoolType.Default, $"No modifiers", new PPPWeightingInfo(accumulationConstant), 1, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoModifiers));
+            if (!_dctMapPool.ContainsKey("-3")) _dctMapPool.Add("-3", new PPPMapPool("-3", MapPoolType.Default, $"No pauses", new PPPWeightingInfo(accumulationConstant), 2, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderNoPauses));
+            if (!_dctMapPool.ContainsKey("-4")) _dctMapPool.Add("-4", new PPPMapPool("-4", MapPoolType.Default, $"Golf", new PPPWeightingInfo(accumulationConstant), 3, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderGolf));
+            if (!_dctMapPool.ContainsKey("-5")) _dctMapPool.Add("-5", new PPPMapPool("-5", MapPoolType.Default, $"SCPM", new PPPWeightingInfo(accumulationConstant), 4, new BeatLeaderPPPCurve(), LeaderboardContext.BeatLeaderSCPM));
 
             //BeatLeaderEventList beatLeaderEventList = await beatleaderapi.GetEvents();
             BeatLeaderEventList beatLeaderEventList = new BeatLeaderEventList();
@@ -303,7 +303,7 @@ namespace PPPredictor.Core.Calculator
                 {
                     if (blEvent.dtEndDate >= dateCutoff)
                     {
-                        PPPMapPool insertMapPool = new PPPMapPool(blEvent.id.ToString(), blEvent.playListId.ToString(), MapPoolType.Custom, $"Event {blEvent.name}", accumulationConstantEvent, (int.MaxValue - blEvent.id), new BeatLeaderPPPCurve(), blEvent.image);
+                        PPPMapPool insertMapPool = new PPPMapPool(blEvent.id.ToString(), blEvent.playListId.ToString(), MapPoolType.Custom, $"Event {blEvent.name}", new PPPWeightingInfo(accumulationConstantEvent), (int.MaxValue - blEvent.id), new BeatLeaderPPPCurve(), blEvent.image);
                         if (!_dctMapPool.ContainsKey(insertMapPool.Id)) _dctMapPool.Add(insertMapPool.Id, insertMapPool);
                     }
                 }

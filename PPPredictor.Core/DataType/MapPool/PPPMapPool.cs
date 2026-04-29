@@ -14,7 +14,8 @@ namespace PPPredictor.Core.DataType.MapPool
         private string _playListId;
         private MapPoolType _mapPoolType;
         private string _mapPoolName;
-        private float _accumulationConstant;
+        // private float _accumulationConstant;
+        private PPPWeightingInfo _weightingInfo;
         private int _sortIndex;
         private IPPPCurve _curve;
         private PPPPlayer _sessionPlayer;
@@ -36,7 +37,8 @@ namespace PPPredictor.Core.DataType.MapPool
         private string _customLeaderboardUserId;
 
         public string MapPoolName { get => _mapPoolName; set => _mapPoolName = value; }
-        public float AccumulationConstant { get => _accumulationConstant; set => _accumulationConstant = value; }
+        // public float AccumulationConstant { get => _accumulationConstant; set => _accumulationConstant = value; }
+        public PPPWeightingInfo WeightingInfo { get => _weightingInfo; set => _weightingInfo = value; }
         public int SortIndex { get => _sortIndex; set => _sortIndex = value; }
         public List<ShortScore> LsScores
         {
@@ -89,7 +91,8 @@ namespace PPPredictor.Core.DataType.MapPool
             _playListId = "-1";
             _mapPoolType = MapPoolType.Custom;
             _mapPoolName = string.Empty;
-            _accumulationConstant = 0;
+            // _accumulationConstant = 0;
+            _weightingInfo = new PPPWeightingInfo();
             _sortIndex = -1;
             _dtLastScoreSet = new DateTime(2000, 1, 1);
             _popularity = 0;
@@ -101,13 +104,13 @@ namespace PPPredictor.Core.DataType.MapPool
             _dctScorePositionLookup = new Dictionary<string, int>();
         }
 
-        public PPPMapPool(string id, string playListId, MapPoolType mapPoolType, string mapPoolName, float accumulationConstant, int sortIndex, IPPPCurve curve, string iconUrl, double popularity = 0, string syncUrl = "", LeaderboardContext leaderboardContext = LeaderboardContext.None) : this()
+        public PPPMapPool(string id, string playListId, MapPoolType mapPoolType, string mapPoolName, PPPWeightingInfo weightingInfo, int sortIndex, IPPPCurve curve, string iconUrl, double popularity = 0, string syncUrl = "", LeaderboardContext leaderboardContext = LeaderboardContext.None) : this()
         {
             _id = id;
             _playListId = playListId;
             _mapPoolType = mapPoolType;
             _mapPoolName = mapPoolName;
-            _accumulationConstant = accumulationConstant;
+            _weightingInfo = weightingInfo;
             _sortIndex = sortIndex;
             _curve = curve;
             _iconUrl = iconUrl;
@@ -116,11 +119,11 @@ namespace PPPredictor.Core.DataType.MapPool
             _leaderboardContext = leaderboardContext;
         }
 
-        public PPPMapPool(MapPoolType mapPoolType, string mapPoolName, float accumulationConstant, int sortIndex, IPPPCurve curve, LeaderboardContext leaderboardContext = LeaderboardContext.None) : this("-1", "-1", mapPoolType, mapPoolName, accumulationConstant, sortIndex, curve, string.Empty, 0, "", leaderboardContext)
+        public PPPMapPool(MapPoolType mapPoolType, string mapPoolName, PPPWeightingInfo weightingInfo, int sortIndex, IPPPCurve curve, LeaderboardContext leaderboardContext = LeaderboardContext.None) : this("-1", "-1", mapPoolType, mapPoolName, weightingInfo, sortIndex, curve, string.Empty, 0, "", leaderboardContext)
         {
         }
 
-        public PPPMapPool(string id, MapPoolType mapPoolType, string mapPoolName, float accumulationConstant, int sortIndex, IPPPCurve curve, LeaderboardContext leaderboardContext = LeaderboardContext.None) : this(id, "-1", mapPoolType, mapPoolName, accumulationConstant, sortIndex, curve, string.Empty, 0, "", leaderboardContext)
+        public PPPMapPool(string id, MapPoolType mapPoolType, string mapPoolName, PPPWeightingInfo weightingInfo, int sortIndex, IPPPCurve curve, LeaderboardContext leaderboardContext = LeaderboardContext.None) : this(id, "-1", mapPoolType, mapPoolName, weightingInfo, sortIndex, curve, string.Empty, 0, "", leaderboardContext)
         {
         }
 

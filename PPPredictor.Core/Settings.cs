@@ -16,14 +16,16 @@ namespace PPPredictor.Core
         private bool isBeatLeaderEnabled;
         private bool isHitbloqEnabled;
         private bool isAccSaberEnabled;
+        private bool isAccSaberReloadedEnabled;
         private string userId;
 
-        public Settings(bool isScoreSaberEnabled, bool isBeatLeaderEnabled, bool isHitbloqEnabled, bool isAccSaberEnabled, string userId, PPGainCalculationType ppGainCalculationType, MapPoolSorting hitbloqMapPoolSorting, string platformUserId, int refetchMapInfoAfterDays, DateTime lastSessionReset, int resetSessionHours)
+        public Settings(bool isScoreSaberEnabled, bool isBeatLeaderEnabled, bool isHitbloqEnabled, bool isAccSaberEnabled, bool isAccSaberReloadedEnabled, string userId, PPGainCalculationType ppGainCalculationType, MapPoolSorting hitbloqMapPoolSorting, string platformUserId, int refetchMapInfoAfterDays, DateTime lastSessionReset, int resetSessionHours)
         {
             this.isScoreSaberEnabled = isScoreSaberEnabled;
             this.isBeatLeaderEnabled = isBeatLeaderEnabled;
             this.isHitbloqEnabled = isHitbloqEnabled;
             this.isAccSaberEnabled = isAccSaberEnabled;
+            this.isAccSaberReloadedEnabled = isAccSaberReloadedEnabled;
             this.userId = userId;
             this.ppGainCalculationType = ppGainCalculationType;
             this.hitbloqMapPoolSorting = hitbloqMapPoolSorting;
@@ -37,6 +39,7 @@ namespace PPPredictor.Core
         public bool IsBeatLeaderEnabled { get => isBeatLeaderEnabled; set => isBeatLeaderEnabled = value; }
         public bool IsHitbloqEnabled { get => isHitbloqEnabled; set => isHitbloqEnabled = value; }
         public bool IsAccSaberEnabled { get => isAccSaberEnabled; set => isAccSaberEnabled = value; }
+        public bool IsAccSaberReloadedEnabled { get => isAccSaberReloadedEnabled; set => isAccSaberReloadedEnabled = value; }
         public string UserId { get => userId; set => userId = value; }
         public DateTime LastSessionReset { get => lastSessionReset; set => lastSessionReset = value; }
         public int ResetSessionHours { get => resetSessionHours; set => resetSessionHours = value; }
@@ -46,4 +49,3 @@ namespace PPPredictor.Core
         internal int RefetchMapInfoAfterDays { get => refetchMapInfoAfterDays; set => refetchMapInfoAfterDays = value; }
     }
 }
-

@@ -46,7 +46,8 @@
             Linear,
             Basic,
             Dummy,
-            AccSaber
+            AccSaber,
+            AccSaberReloaded
         }
 
         public enum PPGainCalculationType
@@ -66,6 +67,7 @@
             ScoreSaber,
             BeatLeader,
             AccSaber,
+            AccSaberReloaded,
             NoLeaderboard,
             HitBloq
         }

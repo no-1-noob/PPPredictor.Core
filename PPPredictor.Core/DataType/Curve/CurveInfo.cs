@@ -12,6 +12,7 @@ namespace PPPredictor.Core.DataType.Curve
         private double? baseline;
         private double? exponential;
         private double? cutoff;
+        private double? staroffset;
 
         public List<(double, double)> ArrPPCurve { get => _arrPPCurve; set => _arrPPCurve = value; }
         [DefaultValue(null)]
@@ -23,6 +24,8 @@ namespace PPPredictor.Core.DataType.Curve
         public double? Exponential { get => exponential; set => exponential = value; }
         [DefaultValue(null)]
         public double? Cutoff { get => cutoff; set => cutoff = value; }
+        [DefaultValue(null)]
+        public double? StarOffest { get => staroffset; set => staroffset = value; }
 
         public CurveInfo()
         {
@@ -38,6 +41,11 @@ namespace PPPredictor.Core.DataType.Curve
             _curveType = curveType;
             _arrPPCurve = arrPPCurve;
             this.basePPMultiplier = basePPMultiplier;
+        }
+        
+        public CurveInfo(CurveType curveType, List<(double, double)> arrPPCurve, double basePPMultiplier, double staroffset) : this(curveType, arrPPCurve, basePPMultiplier)
+        {
+            this.staroffset = staroffset;
         }
 
         public CurveInfo(CurveType curveType, List<(double, double)> arrPPCurve, double basePPMultiplier, double? baseline, double? exponential, double? cutoff) : this(curveType, arrPPCurve, basePPMultiplier)

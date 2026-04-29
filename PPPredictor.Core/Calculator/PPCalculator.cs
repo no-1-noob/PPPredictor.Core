@@ -382,14 +382,14 @@ namespace PPPredictor.Core.Calculator
             if(mapPool.DctWeightLookup.TryGetValue(index, out double value)){
                 return value;
             }
-            double mult = CalculateWeightMulitplier(index, mapPool.AccumulationConstant);
+            double mult = CalculateWeightMulitplier(index, mapPool.WeightingInfo);
             mapPool.DctWeightLookup[index] = mult;
             return mult;
         }
 
-        protected virtual double CalculateWeightMulitplier(int index, float accumulationConstant)
+        protected virtual double CalculateWeightMulitplier(int index, PPPWeightingInfo weightingInfo)
         {
-            return Math.Pow(accumulationConstant, (index - 1));
+            return Math.Pow(weightingInfo.AccumulationConstant, (index - 1));
         }
 
         public static string CreateSeachString(string hash, string gameMode, int difficulty)

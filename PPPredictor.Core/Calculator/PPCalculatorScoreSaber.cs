@@ -120,7 +120,7 @@ namespace PPPredictor.Core.Calculator
 
         public override Task UpdateAvailableMapPools()
         {
-            PPPMapPool mapPool = new PPPMapPool(MapPoolType.Default, $"", PPCalculatorScoreSaber<ScoresaberAPI>.accumulationConstant, 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.ScoreSaber)));
+            PPPMapPool mapPool = new PPPMapPool(MapPoolType.Default, $"", new PPPWeightingInfo(accumulationConstant), 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.ScoreSaber)));
             if (!_dctMapPool.ContainsKey(mapPool.Id)) _dctMapPool.Add(mapPool.Id, mapPool);
             return Task.CompletedTask;
         }

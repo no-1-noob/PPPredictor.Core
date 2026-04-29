@@ -70,6 +70,8 @@ namespace PPPredictor.Core.DataType.Curve
                     return LinearCalculatePPatPercentage(beatMapInfo, failed ? percentage / 2.0f : percentage);
                 case CurveType.AccSaber:
                     return LinearCalculatePPatPercentage(beatMapInfo, failed ? percentage / 2.0f : percentage);
+                case CurveType.AccSaberReloaded:
+                    return LinearCalculatePPatPercentage(beatMapInfo, failed ? percentage / 2.0f : percentage);
                 default:
                     return 0;
             }

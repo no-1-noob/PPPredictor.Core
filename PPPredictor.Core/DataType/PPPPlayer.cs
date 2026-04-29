@@ -1,4 +1,5 @@
 ﻿using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
+using static PPPredictor.Core.DataType.LeaderBoard.AccSaberReloadedDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.BeatLeaderDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.HitBloqDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.ScoreSaberDataTypes;
@@ -66,6 +67,14 @@ namespace PPPredictor.Core.DataType
             countryRank = 0;
             pp = accSaberPlayer.ap;
             country = string.Empty;
+        }
+
+        internal PPPPlayer(AccSaberReloadedPlayer accSaberReloadedPlayer)
+        {
+            rank = accSaberReloadedPlayer.ranking;
+            countryRank = accSaberReloadedPlayer.countryRanking;
+            pp = accSaberReloadedPlayer.ap;
+            country = accSaberReloadedPlayer.country ?? string.Empty;
         }
 
         public override string ToString()

@@ -171,7 +171,7 @@ namespace PPPredictor.Core.Calculator
             return mapPool.LsLeaderboadInfo.Exists(x => x.Searchstring.Contains(score.hash.ToUpper()));
         }
 
-        protected override double CalculateWeightMulitplier(int index, float accumulationConstant)
+        protected override double CalculateWeightMulitplier(int index, PPPWeightingInfo weightingInfo)
         {
             double y1 = 0.1;
             double x1 = 15;
@@ -208,7 +208,7 @@ namespace PPPredictor.Core.Calculator
         {
             try
             {
-                var defaultMapPool = new PPPMapPool(MapPoolType.Default, $"☞ Select a map pool ☜", 0, 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), 0);
+                var defaultMapPool = new PPPMapPool(MapPoolType.Default, $"☞ Select a map pool ☜", new PPPWeightingInfo(0), 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), 0);
                 if (!_dctMapPool.ContainsKey(defaultMapPool.Id)) _dctMapPool.Add(defaultMapPool.Id, defaultMapPool);
 
                 List<AccSaberMapPool> mapPool = await accsaberapi.GetAccSaberMapPools();
@@ -225,13 +225,13 @@ namespace PPPredictor.Core.Calculator
                     else
                     {
                         int sortindex = Array.IndexOf(new object[3] { "standard", "tech", "true" }, newMapPool.categoryName) + 1;
-                        oldPool = new PPPMapPool(newMapPool.categoryName, newMapPool.categoryName, MapPoolType.Custom, newMapPool.categoryDisplayName, 0, sortindex, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), string.Empty);
+                        oldPool = new PPPMapPool(newMapPool.categoryName, newMapPool.categoryName, MapPoolType.Custom, newMapPool.categoryDisplayName, new PPPWeightingInfo(0), sortindex, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), string.Empty);
                         if (!_dctMapPool.ContainsKey(oldPool.Id)) _dctMapPool.Add(oldPool.Id, oldPool);
                     }
                 }
                 if(!_dctMapPool.ContainsKey("overall"))
                 {
-                    var overallMapPool = new PPPMapPool("overall", "overall", MapPoolType.Default, "Overall", 0, 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), string.Empty);
+                    var overallMapPool = new PPPMapPool("overall", "overall", MapPoolType.Default, "Overall", new PPPWeightingInfo(0), 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), string.Empty);
                     if (!_dctMapPool.ContainsKey(overallMapPool.Id)) _dctMapPool.Add(overallMapPool.Id, overallMapPool);
                 }
                 SendMapPoolRefreshed();
