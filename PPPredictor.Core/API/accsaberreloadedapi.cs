@@ -28,13 +28,12 @@ namespace PPPredictor.Core.API
 
         public async Task<AccSaberReloadedScorePage> GetRecentScores(string userId, string poolId, int page, int pageSize)
         {
-            return await NetworkUtil.GetDataAsync<AccSaberReloadedScorePage>(client, DataType.Enums.Leaderboard.AccSaberReloaded, "GetRecentScores", $"v1/users/{userId}/scores?categoryId={poolId}&page={page}&size={pageSize}");
+            return await NetworkUtil.GetDataAsync<AccSaberReloadedScorePage>(client, DataType.Enums.Leaderboard.AccSaberReloaded, "GetRecentScores", $"v1/users/{userId}/scores?categoryId={poolId}&page={page}&size={pageSize}&sort=timeSet,desc");
         }
 
-        public async Task<AccSaberReloadedPlayer> GetAccSaberUserByPool(long userId, string mapPoolId)
+        public async Task<AccSaberReloadedUser> GetAccSaberUser(long userId)
         {
-            var player = await NetworkUtil.GetDataAsync<AccSaberReloadedPlayer>(client, DataType.Enums.Leaderboard.AccSaberReloaded, "GetAccSaberUserByPoolStatistics", $"/v1/users/{userId}/statistics?category={Uri.EscapeDataString(mapPoolId)}");
-            return player;
+            return await NetworkUtil.GetDataAsync<AccSaberReloadedUser>(client, DataType.Enums.Leaderboard.AccSaberReloaded, "GetAccSaberUser", $"/v1/users/{userId}?statistics=true");
         }
 
         public async Task<List<AccSaberReloadedCurve>> GetAccSaberCurves()

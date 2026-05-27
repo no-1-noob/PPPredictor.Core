@@ -10,6 +10,7 @@ namespace PPPredictor.Core
     {
         static readonly Dictionary<string, int> dctDifficultyNameToInt = new Dictionary<string, int>{
             { "EXPERTPLUS", 9 },
+            { "EXPERT_PLUS", 9},
             { "EXPERT", 7 },
             { "HARD", 5 },
             { "NORMAL", 3 },

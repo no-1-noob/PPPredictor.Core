@@ -69,6 +69,14 @@ namespace PPPredictor.Core.DataType
             country = string.Empty;
         }
 
+        internal PPPPlayer(AccSaberReloadedUser accSaberReloadedUser, AccSaberReloadedUserCategoryStatistics accSaberReloadedUserCategoryStatistics)
+        {
+            rank = accSaberReloadedUserCategoryStatistics.ranking;
+            countryRank = accSaberReloadedUserCategoryStatistics.countryRanking;
+            pp = accSaberReloadedUserCategoryStatistics.ap;
+            country = accSaberReloadedUser.country ?? string.Empty;
+        }
+        
         internal PPPPlayer(AccSaberReloadedPlayer accSaberReloadedPlayer)
         {
             rank = accSaberReloadedPlayer.ranking;
@@ -76,6 +84,7 @@ namespace PPPredictor.Core.DataType
             pp = accSaberReloadedPlayer.ap;
             country = accSaberReloadedPlayer.country ?? string.Empty;
         }
+        
 
         public override string ToString()
         {

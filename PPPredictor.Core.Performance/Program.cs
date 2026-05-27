@@ -30,9 +30,9 @@ namespace PPPredictor.Core.Performance
             Dictionary<string, LeaderboardData> dctData = new Dictionary<string, LeaderboardData>();
             ProfileInfo p = JsonConvert.DeserializeObject<ProfileInfo>(File.ReadAllText("../../../Data/PPPredictorProfileInfo.json"));
             dctData = p.DctleaderBoardData;
-            Settings settings = new Settings(false, true, false, false, "", PPGainCalculationType.Weighted, MapPoolSorting.Alphabetical, "", 7, DateTime.Now.AddDays(-1), 48);
+            Settings settings = new Settings(false, true, false, false, false, "", PPGainCalculationType.Weighted, MapPoolSorting.Alphabetical, "", 7, 48);
 
-            CalculatorInstance calculatorInstance = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber>(
+            CalculatorInstance calculatorInstance = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
                 settings,
                 dctData,
                 null

@@ -33,6 +33,12 @@ namespace PPPredictor.Core.Calculator
             }
             foreach (var pool in _dctMapPool.Values)
             {
+                //save old acc constant into new weighting info
+                if (pool.AccumulationConstant != null && pool.AccumulationConstant > 0)
+                {
+                    pool.WeightingInfo = new PPPWeightingInfo(pool.AccumulationConstant);
+                    pool.AccumulationConstant = 0;
+                }
                 RecalculateScoreWeightedSum(pool);
             }
             _leaderboardInfo = new PPPLeaderboardInfo(leaderboard);
@@ -41,10 +47,33 @@ namespace PPPredictor.Core.Calculator
 
         internal void RecalculateScoreWeightedSum(PPPMapPool mapPool)
         {
-            mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
-            mapPool.DctScorePositionLookup.Clear();
-            if (mapPool.LsScores != null)
+            try
             {
+                mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
+                mapPool.DctScorePositionLookup.Clear();
+                // mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
+                // mapPool.DctScorePositionLookup.Clear();
+                // if (mapPool.LsScores != null)
+                // {
+                //     double weightedSum = 0;
+                //     for (int i = mapPool.LsScores.Count - 1; i >= 0; i--)
+                //     {
+                //         ShortScore score = mapPool.LsScores[i];
+                //         score.PPWeighted = WeightPP(score.Pp, i + 1, mapPool);
+                //         weightedSum += score.PPWeighted;
+                //         score.WeightedSum = weightedSum;
+                //     
+                //         // if (_leaderboardInfo.Leaderboard == Leaderboard.AccSaberReloaded)
+                //         // {
+                //             Logging.DebugNetworkPrint($"Score {_leaderboardInfo.Leaderboard} {score.Searchstring} WeightedSum: {score.Pp} {score.WeightedSum} {score.PPWeighted} {mapPool.WeightingInfo.AccumulationConstant}", _leaderboardInfo.Leaderboard);
+                //         // }
+                //     }
+                //     //Calculate position lookup
+                //     for (int i = 0; i < mapPool.LsScores.Count; i++)
+                //     {
+                //         mapPool.DctScorePositionLookup[mapPool.LsScores[i].Searchstring] = i;
+                //     }
+                // }
                 double weightedSum = 0;
                 for (int i = 0; i < mapPool.LsScores.Count; i++)
                 {
@@ -53,6 +82,11 @@ namespace PPPredictor.Core.Calculator
                     score.WeightedSum = weightedSum;
                     mapPool.DctScorePositionLookup[score.Searchstring] = i;
                 }
+                mapPool.TotalWeightedSum = weightedSum;
+            }
+            catch (Exception e)
+            {
+                Logging.ErrorPrint($"PPPredictor RecalculateScoreWeightedSum Error: {e.Message}");
             }
         }
 
@@ -71,20 +105,20 @@ namespace PPPredictor.Core.Calculator
         {
             PPPPlayer player = await GetProfile(mapPool);
             mapPool.CurrentPlayer = player;
-            if (doResetSession || mapPool.SessionPlayer == null || NeedsResetSession())
+            if (doResetSession || mapPool.SessionPlayer == null || NeedsResetSession(mapPool))
             {
-                _settings.LastSessionReset = DateTime.Now;
+                mapPool.LastSessionReset = DateTime.Now;
                 mapPool.SessionPlayer = player;
             }
             return (mapPool.SessionPlayer, mapPool.CurrentPlayer);
         }
 
-        private bool NeedsResetSession()
+        private bool NeedsResetSession(PPPMapPool mapPool)
         {
             return
                 _settings.ResetSessionHours > 0
-                && ((DateTime.Now - _settings.LastSessionReset).TotalHours > _settings.ResetSessionHours
-                || (DateTime.Now - _settings.LastSessionReset).TotalMinutes < 1); //Parallel reset of multiple scoreboards
+                && ((DateTime.Now - mapPool.LastSessionReset).TotalHours > _settings.ResetSessionHours
+                || (DateTime.Now - mapPool.LastSessionReset).TotalMinutes < 1); //Parallel reset of multiple scoreboards
         }
 
         internal async Task<PPPPlayer> GetProfile(PPPMapPool mapPool)
@@ -116,12 +150,12 @@ namespace PPPredictor.Core.Calculator
                 string userId = GetUserId(mapPool);
                 bool hasNoScores = false;
                 bool hasMoreData = true;
-                int page = 1;
+                int page = _leaderboardInfo.PlayerScoresFirstPageIndex;
                 List<ShortScore> lsNewScores = new List<ShortScore>();
                 DateTimeOffset dtNewLastScoreSet = new DateTime(2000, 1, 1);
                 while (hasMoreData)
                 {
-                    if (mapPool.LsScores == null) mapPool.LsScores = new List<ShortScore>();
+                    //if (mapPool.LsScores == null) mapPool.LsScores = new List<ShortScore>();
                     PPPScoreCollection playerscores = null;
                     hasNoScores = mapPool.LsScores.Count == 0;
                     if (_leaderboardInfo.HasGetAllScoresFunctionality && (!_leaderboardInfo.HasGetRecentScoresFunctionality || hasNoScores))
@@ -364,10 +398,20 @@ namespace PPPredictor.Core.Calculator
 
         internal double CalculatePPatPercentage(PPPBeatMapInfo _currentBeatMapInfo, PPPMapPool mapPool, double percentage, bool failed, bool paused)
         {
+            return InternalCalculatePPatPercentage(_currentBeatMapInfo, mapPool, percentage, failed, paused);
+        }
+        
+        internal virtual double InternalCalculatePPatPercentage(PPPBeatMapInfo _currentBeatMapInfo, PPPMapPool mapPool, double percentage, bool failed, bool paused)
+        {
             return mapPool.Curve.CalculatePPatPercentage(_currentBeatMapInfo, percentage, failed, paused, mapPool.LeaderboardContext);
         }
 
         internal double CalculateMaxPP(PPPBeatMapInfo _currentBeatMapInfo, PPPMapPool mapPool)
+        {
+            return InternalCalculateMaxPP(_currentBeatMapInfo, mapPool);
+        }
+        
+        internal virtual double InternalCalculateMaxPP(PPPBeatMapInfo _currentBeatMapInfo, PPPMapPool mapPool)
         {
             return mapPool.Curve.CalculateMaxPP(_currentBeatMapInfo, mapPool.LeaderboardContext);
         }

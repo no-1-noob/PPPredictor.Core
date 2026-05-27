@@ -10,7 +10,7 @@ namespace PPPredictor.Core.Interface
         Task<List<AccSaberReloadedMapPool>> GetAccSaberMapPools();
         Task<List<AccSaberReloadedMap>> GetRankedMaps(string mapPoolId);
         Task<List<AccSaberReloadedPlayer>> GetPlayerListForMapPool(double page, string mapPoolId);
-        Task<AccSaberReloadedPlayer> GetAccSaberUserByPool(long userId, string mapPoolId);
+        Task<AccSaberReloadedUser> GetAccSaberUser(long userId);
         Task<AccSaberReloadedScorePage> GetRecentScores(string userId, string poolId, int page, int pageSize);
     }
 }

@@ -24,7 +24,23 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             public string hmd { get; set; }
             public DateTimeOffset lastActiveTime { get; set; }
             public DateTimeOffset createdAt { get; set; }
-            public List<AccSaberReloadedPlayer> statistics { get; set; } = new List<AccSaberReloadedPlayer>();
+            public List<AccSaberReloadedUserCategoryStatistics> statistics { get; set; } = new List<AccSaberReloadedUserCategoryStatistics>();
+        }
+
+        internal class AccSaberReloadedUserCategoryStatistics
+        {
+            public string id { get; set; }
+            public string userId { get; set; }
+            public string categoryId { get; set; }
+            public int ranking { get; set; }
+            public int countryRanking { get; set; }
+            public double ap { get; set; }
+            public double scoreXp { get; set; }
+            public double averageAcc { get; set; }
+            public double averageAp { get; set; }
+            public int rankedPlays { get; set; }
+            public string topPlayId { get; set; }
+            public DateTimeOffset createdAt { get; set; }
         }
 
         internal class AccSaberReloadedPlayer
@@ -139,12 +155,12 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             public double scale { get; set; }
             public double shift { get; set; }
             public List<AccSaberReloadedCurvePoint> points { get; set; } = new List<AccSaberReloadedCurvePoint>();
-            public string xparameterName { get; set; }
-            public double xparameterValue { get; set; }
-            public string yparameterName { get; set; }
-            public double yparameterValue { get; set; }
-            public string zparameterName { get; set; }
-            public double zparameterValue { get; set; }
+            public string xParameterName { get; set; }
+            public double xParameterValue { get; set; }
+            public string yParameterName { get; set; }
+            public double yParameterValue { get; set; }
+            public string zParameterName { get; set; }
+            public double zParameterValue { get; set; }
 
             internal List<(double, double)> GetPointsAsTuples()
             {

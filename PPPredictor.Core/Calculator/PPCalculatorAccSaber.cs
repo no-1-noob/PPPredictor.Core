@@ -106,7 +106,7 @@ namespace PPPredictor.Core.Calculator
                     //Special case for overall leaderboard need the scores seperated
                     List<AccSaberScores> lsAccSaberScores = await accsaberapi.GetAllScores(userId);
                     //Clean old scores for overall function
-                    mapPool.LsScores = new List<ShortScore>();
+                    // mapPool.LsScores = new List<ShortScore>();
                     dctScores.Clear();
                     dctScoresSum.Clear();
                     foreach (var group in lsAccSaberScores.GroupBy(x => x.categoryDisplayName))
@@ -138,7 +138,7 @@ namespace PPPredictor.Core.Calculator
             try
             {
                 if (mapPool.Id == unsetPoolId) return;
-                mapPool.LsMapPoolEntries.Clear();
+                mapPool.LsLeaderboadInfo.Clear();
                 List<AccSaberRankedMap> rankedSongs = new List<AccSaberRankedMap>();
                 if (mapPool.MapPoolType != MapPoolType.Default)
                 {

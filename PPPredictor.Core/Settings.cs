@@ -9,7 +9,6 @@ namespace PPPredictor.Core
         private MapPoolSorting hitbloqMapPoolSorting;
         private string platformUserId;
         private int refetchMapInfoAfterDays;
-        private DateTime lastSessionReset;
         private int resetSessionHours;
 
         private bool isScoreSaberEnabled;
@@ -19,7 +18,7 @@ namespace PPPredictor.Core
         private bool isAccSaberReloadedEnabled;
         private string userId;
 
-        public Settings(bool isScoreSaberEnabled, bool isBeatLeaderEnabled, bool isHitbloqEnabled, bool isAccSaberEnabled, bool isAccSaberReloadedEnabled, string userId, PPGainCalculationType ppGainCalculationType, MapPoolSorting hitbloqMapPoolSorting, string platformUserId, int refetchMapInfoAfterDays, DateTime lastSessionReset, int resetSessionHours)
+        public Settings(bool isScoreSaberEnabled, bool isBeatLeaderEnabled, bool isHitbloqEnabled, bool isAccSaberEnabled, bool isAccSaberReloadedEnabled, string userId, PPGainCalculationType ppGainCalculationType, MapPoolSorting hitbloqMapPoolSorting, string platformUserId, int refetchMapInfoAfterDays, int resetSessionHours)
         {
             this.isScoreSaberEnabled = isScoreSaberEnabled;
             this.isBeatLeaderEnabled = isBeatLeaderEnabled;
@@ -31,7 +30,6 @@ namespace PPPredictor.Core
             this.hitbloqMapPoolSorting = hitbloqMapPoolSorting;
             this.platformUserId = platformUserId;
             this.refetchMapInfoAfterDays = refetchMapInfoAfterDays;
-            this.lastSessionReset = lastSessionReset;
             this.resetSessionHours = resetSessionHours;
         }
 
@@ -41,7 +39,6 @@ namespace PPPredictor.Core
         public bool IsAccSaberEnabled { get => isAccSaberEnabled; set => isAccSaberEnabled = value; }
         public bool IsAccSaberReloadedEnabled { get => isAccSaberReloadedEnabled; set => isAccSaberReloadedEnabled = value; }
         public string UserId { get => userId; set => userId = value; }
-        public DateTime LastSessionReset { get => lastSessionReset; set => lastSessionReset = value; }
         public int ResetSessionHours { get => resetSessionHours; set => resetSessionHours = value; }
         internal PPGainCalculationType PpGainCalculationType { get => ppGainCalculationType; set => ppGainCalculationType = value; }
         internal MapPoolSorting HitbloqMapPoolSorting { get => hitbloqMapPoolSorting; set => hitbloqMapPoolSorting = value; }

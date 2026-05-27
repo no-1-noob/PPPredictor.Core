@@ -9,6 +9,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
         private string _leaderboardIcon;
         private string _ppSuffix;
         private int _leaderboardFirstPageIndex;
+        private int _playerScoresFirstPageIndex;
         private bool _isCountryRankEnabled;
         private int _largePageSize;
         private int _playerPerPages = 0;
@@ -24,6 +25,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
         public string LeaderboardIcon { get => _leaderboardIcon; }
         public string PpSuffix { get => _ppSuffix; }
         public int LeaderboardFirstPageIndex { get => _leaderboardFirstPageIndex; }
+        public int PlayerScoresFirstPageIndex { get => _playerScoresFirstPageIndex; }
         public bool IsCountryRankEnabled { get => _isCountryRankEnabled; }
         public int LargePageSize { get => _largePageSize; }
         public int PlayerPerPages { get => _playerPerPages; }
@@ -46,6 +48,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             _leaderboardFirstPageIndex = 1;
             _isCountryRankEnabled = true;
             _largePageSize = 10;
+            _playerScoresFirstPageIndex = 1;
 
             switch (leaderboard)
             {
@@ -87,6 +90,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _largePageSize = 100;
                     _playerPerPages = 50;
                     _hasGetAllScoresFunctionality = false;
+                    _playerScoresFirstPageIndex = 0;
                     break;
             }
         }

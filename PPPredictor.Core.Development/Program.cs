@@ -24,20 +24,33 @@ namespace PPPredictor.Core.Development
 
         static async Task MainAsync(string[] args)
         {
-            CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<ScoresaberAPI, BeatleaderAPI, HitbloqAPI, AccSaberApi>(
-                new Settings(false, true, false, false, "76561197980340660", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
-                new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
-                null
-                );
+            
+            ScoresaberAPI scoresaberAPI = new ScoresaberAPI();
+            var v = await scoresaberAPI.GetPlayer(76561197980340660);
+            var v2 = await scoresaberAPI.GetPlayerScores("76561197980340660", 1, 1);
 
-            //await ci.GetPlayerScores(Enums.Leaderboard.BeatLeader, "73", 1, 100);
-            await ci.GetPlayerScores(Enums.Leaderboard.BeatLeader, "68", 1, 100);
-            await ci.UpdatePlayer(Enums.Leaderboard.BeatLeader, "68", false);
+            Console.WriteLine(v.pp);
+
             while (true)
             {
-                var pp = 337.21;
-                var gain = ci.GetPlayerScorePPGain(Enums.Leaderboard.BeatLeader, "68", "3402AA430181F7C254007A28E15FC397C48086B0_SOLOSTANDARD_7".ToUpper(), pp);
+                
             }
+
+            // CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<ScoresaberAPI, BeatleaderAPI, HitbloqAPI, AccSaberApi, AccSaberReloadedApi>(
+            //     new Settings(false, false, false, false, true, "76561197980340660", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
+            //     new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
+            //     null
+            //     );
+
+            // await ci.UpdateMapPoolDetails(Enums.Leaderboard.BeatLeader, "68");
+            // //await ci.GetPlayerScores(Enums.Leaderboard.BeatLeader, "73", 1, 100);
+            // await ci.GetPlayerScores(Enums.Leaderboard.AccSaberReloaded, "68", 1, 100);
+            // await ci.UpdatePlayer(Enums.Leaderboard.BeatLeader, "68", false);
+            // while (true)
+            // {
+            //     var pp = 337.21;
+            //     var gain = ci.GetPlayerScorePPGain(Enums.Leaderboard.BeatLeader, "68", "3402AA430181F7C254007A28E15FC397C48086B0_SOLOSTANDARD_7".ToUpper(), pp);
+            // }
             //
         }
 

@@ -14,7 +14,7 @@ namespace PPPredictor.Core.DataType.MapPool
         private string _playListId;
         private MapPoolType _mapPoolType;
         private string _mapPoolName;
-        // private float _accumulationConstant;
+        private float _accumulationConstant;
         private PPPWeightingInfo _weightingInfo;
         private int _sortIndex;
         private IPPPCurve _curve;
@@ -22,7 +22,6 @@ namespace PPPredictor.Core.DataType.MapPool
         private PPPPlayer _currentPlayer;
         private List<ShortScore> _lsScores;
         private List<ShortScore> _lsLeaderboardInfo;
-        private List<PPPMapPoolEntry> _lsMapPoolEntries;
         private List<PPPPlayer> _lsPlayerRankings;
         private DateTime _dtUtcLastRefresh;
         private DateTimeOffset _dtLastScoreSet;
@@ -32,13 +31,27 @@ namespace PPPredictor.Core.DataType.MapPool
         private string _syncUrl;
         private LeaderboardContext _leaderboardContext;
         private bool isPlayerFound;
-        private Dictionary<int, double> dctWeightLookup;
+        private Dictionary<int, double> _dctWeightLookup;
         private Dictionary<string, int> _dctScorePositionLookup = new Dictionary<string, int>();
         private string _customLeaderboardUserId;
+        private double _totalWeightedSum = 0;
+        private DateTime _lastSessionReset;
 
         public string MapPoolName { get => _mapPoolName; set => _mapPoolName = value; }
-        // public float AccumulationConstant { get => _accumulationConstant; set => _accumulationConstant = value; }
-        public PPPWeightingInfo WeightingInfo { get => _weightingInfo; set => _weightingInfo = value; }
+        public float AccumulationConstant { get => _accumulationConstant; set => _accumulationConstant = value; }
+        public bool ShouldSerializeAccumulationConstant()
+        {
+            return false;
+        }
+        public PPPWeightingInfo WeightingInfo
+        {
+            get => _weightingInfo;
+            set
+            {
+                _weightingInfo = value;
+                _dctWeightLookup = new Dictionary<int, double>();
+            } 
+        }
         public int SortIndex { get => _sortIndex; set => _sortIndex = value; }
         public List<ShortScore> LsScores
         {
@@ -52,7 +65,6 @@ namespace PPPredictor.Core.DataType.MapPool
             }
         }
         public List<ShortScore> LsLeaderboadInfo { get => _lsLeaderboardInfo; set => _lsLeaderboardInfo = value; }
-        public List<PPPMapPoolEntry> LsMapPoolEntries { get => _lsMapPoolEntries; set => _lsMapPoolEntries = value; }
         public MapPoolType MapPoolType { get => _mapPoolType; set => _mapPoolType = value; }
         internal IPPPCurve Curve { get => _curve; set => _curve = value; }
         public CurveInfo CurveInfo { get => _curve.IsDummy ? null : _curve.ToCurveInfo(); set => _curve = CurveParser.ParseToCurve(value); }
@@ -72,18 +84,22 @@ namespace PPPredictor.Core.DataType.MapPool
         public LeaderboardContext LeaderboardContext { get => _leaderboardContext; }
         public bool IsPlayerFound { get => isPlayerFound; set => isPlayerFound = value; }
         [JsonIgnore]
-        public Dictionary<int, double> DctWeightLookup { get => dctWeightLookup; }
+        public Dictionary<int, double> DctWeightLookup { get => _dctWeightLookup; }
         public string CustomLeaderboardUserId { get => _customLeaderboardUserId; set => _customLeaderboardUserId = value; }
+        [JsonIgnore]
         public Dictionary<string, int> DctScorePositionLookup { get => _dctScorePositionLookup; set => _dctScorePositionLookup = value; }
+        [JsonIgnore]
+        public double TotalWeightedSum { get => _totalWeightedSum; set => _totalWeightedSum = value; }
+        public DateTime LastSessionReset { get => _lastSessionReset; set => _lastSessionReset = value; }
 
+        
         [JsonConstructor]
-
         public PPPMapPool()
         {
+            Logging.LogToFile("PPPMapPool JsonConstructor");
             _currentPlayer = new PPPPlayer();
             _lsScores = new List<ShortScore>();
             LsLeaderboadInfo = new List<ShortScore>();
-            _lsMapPoolEntries = new List<PPPMapPoolEntry>();
             _lsPlayerRankings = new List<PPPPlayer>();
             _dtUtcLastRefresh = new DateTime(2000, 1, 1);
             _curve = CustomPPPCurve.CreateDummyPPPCurve();
@@ -91,7 +107,7 @@ namespace PPPredictor.Core.DataType.MapPool
             _playListId = "-1";
             _mapPoolType = MapPoolType.Custom;
             _mapPoolName = string.Empty;
-            // _accumulationConstant = 0;
+            _accumulationConstant = 0;
             _weightingInfo = new PPPWeightingInfo();
             _sortIndex = -1;
             _dtLastScoreSet = new DateTime(2000, 1, 1);
@@ -99,11 +115,11 @@ namespace PPPredictor.Core.DataType.MapPool
             _syncUrl = string.Empty;
             _leaderboardContext = LeaderboardContext.None;
             isPlayerFound = true;
-            dctWeightLookup = new Dictionary<int, double>();
+            _dctWeightLookup = new Dictionary<int, double>();
             _customLeaderboardUserId = string.Empty;
             _dctScorePositionLookup = new Dictionary<string, int>();
         }
-
+        
         public PPPMapPool(string id, string playListId, MapPoolType mapPoolType, string mapPoolName, PPPWeightingInfo weightingInfo, int sortIndex, IPPPCurve curve, string iconUrl, double popularity = 0, string syncUrl = "", LeaderboardContext leaderboardContext = LeaderboardContext.None) : this()
         {
             _id = id;

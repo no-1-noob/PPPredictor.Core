@@ -115,11 +115,11 @@ namespace PPPredictor.Core.Calculator
                 if (!string.IsNullOrEmpty(beatMapInfo.CustomLevelHash))
                 {
                     string searchString = CreateSeachString(beatMapInfo.CustomLevelHash, "SOLO" + beatMapInfo.BeatmapKey.serializedName, ParsingUtil.ParseDifficultyNameToInt(beatMapInfo.BeatmapKey.difficulty.ToString()));
-                    if(mapPool.MapPoolType == MapPoolType.Custom && !mapPool.LsMapPoolEntries.Where(x => x.Searchstring == searchString).Any())
+                    if(mapPool.MapPoolType == MapPoolType.Custom && mapPool.LsLeaderboadInfo.All(x => x.Searchstring != searchString))
                     {
                         return new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(0)); //Currently selected map is not contained in selected MapPool
                     }
-                    ShortScore cachedInfo = mapPool.LsLeaderboadInfo?.FirstOrDefault(x => x.Searchstring == searchString);
+                    ShortScore cachedInfo = mapPool.LsLeaderboadInfo?.FirstOrDefault(x => x.Searchstring == searchString && !x.IsPlaceHolder);
                     bool refetchInfo = cachedInfo != null && cachedInfo.FetchTime < DateTime.Now.AddDays(_settings.RefetchMapInfoAfterDays);
                     if (cachedInfo == null || refetchInfo)
                     {
@@ -241,18 +241,18 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        override internal async Task InternalUpdateMapPoolDetails(PPPMapPool mapPool)
+        internal override async Task InternalUpdateMapPoolDetails(PPPMapPool mapPool)
         {
             if (mapPool.MapPoolType != MapPoolType.Default)
             {
-                mapPool.LsMapPoolEntries.Clear();
+                mapPool.LsLeaderboadInfo.Clear();
                 BeatLeaderPlayListSongList lsPlayList = await this.beatleaderapi.GetSongsInPlaylistById(long.Parse(mapPool.PlayListId));
                 foreach (BeatLeaderSong song in lsPlayList.data)
                 {
                     foreach (BeatLeaderDifficulty diff in song.difficulties)
                     {
                         string searchString = CreateSeachString(song.hash, "SOLO" + diff.modeName, diff.value);
-                        mapPool.LsMapPoolEntries.Add(new PPPMapPoolEntry(searchString));
+                        mapPool.LsLeaderboadInfo.Add(new ShortScore(searchString, true));
                     }
                 }
             }

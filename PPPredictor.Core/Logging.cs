@@ -1,11 +1,33 @@
 ﻿using System;
+using System.IO;
 using static PPPredictor.Core.DataType.Enums;
 
 namespace PPPredictor.Core
 {
     internal class Logging
     {
+        private const string LogFilePath = "/var/home/nub/.local/share/Steam/steamapps/common/BeatSaberDev/1_40_7/Beat Saber/UserData/PPPLog.txt";
+        private static readonly object LogFileLock = new object();
+
         public static event EventHandler<LoggingMessage> OnMessage;
+
+        
+        //TODO Remove
+        internal static void LogToFile(string message)
+        {
+            var logDirectory = Path.GetDirectoryName(LogFilePath);
+            var timestampedMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {message}{Environment.NewLine}";
+
+            lock (LogFileLock)
+            {
+                if (!string.IsNullOrEmpty(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
+                File.AppendAllText(LogFilePath, timestampedMessage);
+            }
+        }
 
         internal static void ErrorPrint(string message)
         {

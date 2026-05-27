@@ -17,8 +17,6 @@ namespace PPPredictor.Core.Calculator
     {
         private readonly ASRAPI accSaberReloadedApi;
         private readonly string unsetPoolId = "-1";
-        private Dictionary<string, List<ShortScore>> dctScores = new Dictionary<string, List<ShortScore>>();
-        private Dictionary<string, double> dctScoresSum = new Dictionary<string, double>();
 
         public PPCalculatorAccSaberReloaded(Dictionary<string, PPPMapPool> dctMapPool, Settings settings) : base(dctMapPool, settings, Leaderboard.AccSaberReloaded)
         {
@@ -30,8 +28,19 @@ namespace PPPredictor.Core.Calculator
             try
             {
                 if (mapPool.Id == unsetPoolId) return new PPPPlayer(true);
-                AccSaberReloadedPlayer player = await accSaberReloadedApi.GetAccSaberUserByPool(userId, mapPool.Id);
-                return new PPPPlayer(player);
+                AccSaberReloadedUser player = await accSaberReloadedApi.GetAccSaberUser(userId);
+                if (player == null)
+                {
+                    Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetPlayerInfo PlayerNotFound: {userId}");
+                    return new PPPPlayer(true);
+                }
+                AccSaberReloadedUserCategoryStatistics stats = player.statistics?.FirstOrDefault(x => x.categoryId == mapPool.Id);
+                if (stats == null)
+                {
+                    Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetPlayerInfo No Stats for Player {userId} in pool {mapPool.Id}");
+                    return new PPPPlayer(true);
+                }
+                return new PPPPlayer(player, stats);
             }
             catch (Exception ex)
             {
@@ -54,6 +63,7 @@ namespace PPPredictor.Core.Calculator
                 return new PPPScoreCollection();
             }
         }
+        
         internal override Task<PPPScoreCollection> GetAllScores(string userId, PPPMapPool mapPool)
         {
             return Task.FromResult(new PPPScoreCollection());
@@ -85,6 +95,18 @@ namespace PPPredictor.Core.Calculator
                 {
                     string searchString = CreateSeachString(beatMapInfo.CustomLevelHash, beatMapInfo.BeatmapKey);
                     var cachedInfo = mapPool.LsLeaderboadInfo.FirstOrDefault(x => x.Searchstring == searchString);
+                    //Search in all pools if mapPool is default
+                    if (mapPool.MapPoolType == MapPoolType.Default)
+                    {
+                        foreach (var keyValuePair in _dctMapPool)
+                        {
+                            if (keyValuePair.Value.LsLeaderboadInfo.Exists(x => x.Searchstring == searchString))
+                            {
+                                cachedInfo = keyValuePair.Value.LsLeaderboadInfo.FirstOrDefault(x => x.Searchstring == searchString);
+                                break;
+                            }
+                        }
+                    }
                     if(cachedInfo != null)
                     {
                         return Task.FromResult(new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(cachedInfo.StarRating.Stars)));
@@ -99,13 +121,15 @@ namespace PPPredictor.Core.Calculator
                 return Task.FromResult(new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(-1)));
             }
         }
-        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
+        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
         {
             beatMapInfo.ModifiedStarRating = new PPPStarRating(beatMapInfo.BaseStarRating.Stars);
             return beatMapInfo;
         }
-        public override string CreateSeachString(string hash, BeatmapKey beatmapKey)
+        public override string CreateSeachString(string hash, DataType.BeatSaberEncapsulation.BeatmapKey beatmapKey)
         {
+            if(hash == null) return string.Empty;
+            if(beatmapKey == null) return hash.ToUpper();
             return $"{hash}_SOLO{beatmapKey.serializedName}_{ParsingUtil.ParseDifficultyNameToInt(beatmapKey.difficulty.ToString())}".ToUpper();
         }
 
@@ -115,7 +139,7 @@ namespace PPPredictor.Core.Calculator
             try
             {
                 if (mapPool.Id == unsetPoolId) return;
-                mapPool.LsMapPoolEntries.Clear();
+                mapPool.LsLeaderboadInfo.Clear();
                 List<AccSaberReloadedMap> rankedMaps = await this.accSaberReloadedApi.GetRankedMaps(mapPool.Id);
 
                 List<AccSaberReloadedRankedMap> rankedSongs = FlattenRankedMaps(rankedMaps, mapPool.Id);
@@ -123,6 +147,7 @@ namespace PPPredictor.Core.Calculator
                 {
                     mapPool.LsLeaderboadInfo.Add(new ShortScore(CreateSeachString(song.songHash, "SoloStandard", (int)ParsingUtil.ParseDifficultyNameToInt(song.difficulty)), new PPPStarRating(song.complexity), DateTime.Now, song.categoryId));
                 }
+                await GetPlayerScores(mapPool, 10, _leaderboardInfo.LargePageSize, false);
             }
             catch (Exception ex)
             {
@@ -138,9 +163,9 @@ namespace PPPredictor.Core.Calculator
                 var defaultMapPool = new PPPMapPool(MapPoolType.Default, $"☞ Select a map pool ☜", new PPPWeightingInfo(0), 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaberReloaded)), 0);
                 if (!_dctMapPool.ContainsKey(defaultMapPool.Id)) _dctMapPool.Add(defaultMapPool.Id, defaultMapPool);
 
-                List<AccSaberReloadedMapPool> mapPool = await accSaberReloadedApi.GetAccSaberMapPools();
+                List<AccSaberReloadedMapPool> lsMapPool = await accSaberReloadedApi.GetAccSaberMapPools();
                 //check if this map pool is already in list
-                foreach (AccSaberReloadedMapPool newMapPool in mapPool)
+                foreach (AccSaberReloadedMapPool newMapPool in lsMapPool)
                 {
                     AccSaberReloadedCurve curvePoints =  lsCurves.FirstOrDefault(x => x.id == newMapPool.scoreCurve.id);
                     if (curvePoints == null && newMapPool.countForOverall)
@@ -148,19 +173,25 @@ namespace PPPredictor.Core.Calculator
                         Logging.ErrorPrint($"PPCalculatorAccSaberReloaded UpdateAvailableMapPools Error: Curve {newMapPool.scoreCurve.id} not found");
                         continue;
                     }
-                    IPPPCurve newCurve = CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaberReloaded, curvePoints.GetPointsAsTuples(), newMapPool.scoreCurve.scale, newMapPool.scoreCurve.shift));
-                    PPPWeightingInfo weightInfo = new PPPWeightingInfo(newMapPool.weightCurve.xparameterValue, newMapPool.weightCurve.yparameterValue, newMapPool.weightCurve.zparameterValue);
-                    if (_dctMapPool.TryGetValue(newMapPool.id, out PPPMapPool oldPool))
+                    List<(double, double)> lsCurvePoints = curvePoints?.GetPointsAsTuples() ?? new List<(double, double)>();
+                    lsCurvePoints.Reverse();
+                    IPPPCurve newCurve = CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaberReloaded, lsCurvePoints, newMapPool.scoreCurve.scale, -newMapPool.scoreCurve.shift));
+                    PPPWeightingInfo weightInfo = new PPPWeightingInfo(newMapPool.weightCurve.xParameterValue, newMapPool.weightCurve.yParameterValue, newMapPool.weightCurve.zParameterValue);
+                    if (_dctMapPool.TryGetValue(newMapPool.id, out PPPMapPool mapPool))
                     {
-                        oldPool.Curve = newCurve;
+                        mapPool.Curve = newCurve;
+                        mapPool.WeightingInfo = weightInfo;
                     }
                     else
                     {
                         int sortindex = Array.IndexOf(new object[4] { "overall", "standard_acc", "true_acc", "tech_acc" }, newMapPool.code) + 1;
                         MapPoolType mapPoolType = newMapPool.countForOverall ? MapPoolType.Custom : MapPoolType.Default;
-                        oldPool = new PPPMapPool(newMapPool.id, newMapPool.code, mapPoolType, newMapPool.description, weightInfo, sortindex, newCurve, string.Empty, syncUrl: $"https://api.accsaberreloaded.com/v1/playlists/{newMapPool.code}");
-                        if (!_dctMapPool.ContainsKey(oldPool.Id)) _dctMapPool.Add(oldPool.Id, oldPool);
+                        string description = newMapPool.code == "overall" ? "Overall" : newMapPool.description;
+                        mapPool = new PPPMapPool(newMapPool.id, newMapPool.code, mapPoolType, description, weightInfo, sortindex, newCurve, string.Empty, syncUrl: $"https://api.accsaberreloaded.com/v1/playlists/{newMapPool.code}");
+                        if (!_dctMapPool.ContainsKey(mapPool.Id)) _dctMapPool.Add(mapPool.Id, mapPool);
                     }
+                    await InternalUpdateMapPoolDetails(mapPool);
+                    await UpdatePlayer(mapPool, true);
                 }
                 SendMapPoolRefreshed();
             }
@@ -178,12 +209,24 @@ namespace PPPredictor.Core.Calculator
             }
             else
             {
-                var rankedMapInfo = mapPool.LsLeaderboadInfo.FirstOrDefault(x => x.Searchstring == mapSearchString);
-                if (rankedMapInfo != null)
+                var mapPoolEntry = GetMapPoolWithBeatMapInfo(mapSearchString);
+                if (mapPoolEntry != null)
                 {
-                    PPGainResult ppGain = GetPlayerScorePPGainInternal(dctScores[rankedMapInfo.Category], mapSearchString, pp, dctScoresSum[rankedMapInfo.Category], mapPool);
-                    double otherSum = dctScoresSum.Where(kvp => kvp.Key != rankedMapInfo.Category).Sum(kvp => kvp.Value);
-                    return new PPGainResult(ppGain.PpTotal + otherSum, ppGain.PpGainWeighted, ppGain.PpGainRaw, _settings.PpGainCalculationType);
+                    var rankedMapInfo = mapPoolEntry.LsLeaderboadInfo.FirstOrDefault(x => x.Searchstring == mapSearchString);
+                    if (rankedMapInfo != null)
+                    {
+                        PPGainResult ppGain = GetPlayerScorePPGainInternal(mapPoolEntry.LsScores, mapSearchString, pp, mapPoolEntry.TotalWeightedSum, mapPoolEntry);
+                        double otherSum = 0;
+                        foreach (var kvpPool in _dctMapPool)
+                        {
+                            if (kvpPool.Value.MapPoolType != MapPoolType.Default && kvpPool.Value.Id != rankedMapInfo.Category)
+                            {
+                                otherSum += kvpPool.Value.TotalWeightedSum;
+                            }
+                        }
+                        return new PPGainResult(ppGain.PpTotal + otherSum, ppGain.PpGainWeighted, ppGain.PpGainRaw, _settings.PpGainCalculationType);
+                    }
+                    return new PPGainResult(mapPoolEntry.CurrentPlayer.Pp, pp, pp, _settings.PpGainCalculationType);
                 }
                 return new PPGainResult(mapPool.CurrentPlayer.Pp, pp, pp, _settings.PpGainCalculationType);
             }
@@ -191,7 +234,18 @@ namespace PPPredictor.Core.Calculator
         
         internal override bool IsScoreSetOnCurrentMapPool(PPPMapPool mapPool, PPPScoreSetData score)
         {
-            return mapPool.LsLeaderboadInfo.Exists(x => x.Searchstring.Contains(score.hash.ToUpper()));
+            if (mapPool.MapPoolType != MapPoolType.Default)
+            {
+                return mapPool.LsLeaderboadInfo.Exists(x => x.Searchstring.Contains(score.hash.ToUpper()));
+            }
+            foreach (var keyValuePair in _dctMapPool)
+            {
+                if (keyValuePair.Value.LsLeaderboadInfo.Exists(x => x.Searchstring.Contains(score.hash.ToUpper())))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         
         internal override List<PPPMapPoolShort> GetMapPools()
@@ -235,8 +289,46 @@ namespace PPPredictor.Core.Calculator
             double y1 = weightingInfo.YParameter;
             double x1 = weightingInfo.ZParameter;
             double k = weightingInfo.XParameter;
+            Logging.ErrorPrint($"PPCalculatorAccSaberReloaded CalculateWeightMulitplier: {y1} {x1} {k}");
             double x0 = -(Math.Log((1 - y1) / (y1 * Math.Exp(k * x1) - 1)) / k);
             return (1 + Math.Exp(-k * x0)) / (1 + Math.Exp(k * (index - 1 - x0)));
+        }
+        
+        internal override double InternalCalculatePPatPercentage(PPPBeatMapInfo _currentBeatMapInfo, PPPMapPool mapPool, double percentage, bool failed, bool paused)
+        {
+            if (mapPool.MapPoolType != MapPoolType.Default)
+            {
+                return mapPool.Curve.CalculatePPatPercentage(_currentBeatMapInfo, percentage, failed, paused, mapPool.LeaderboardContext);    
+            }
+            return GetMapPoolWithBeatMapInfo(_currentBeatMapInfo)?.Curve?.CalculatePPatPercentage(_currentBeatMapInfo, percentage, failed, paused, mapPool.LeaderboardContext) ?? -2;
+        }
+        
+        internal override double InternalCalculateMaxPP(PPPBeatMapInfo _currentBeatMapInfo, PPPMapPool mapPool)
+        {
+                if (mapPool.MapPoolType != MapPoolType.Default)
+                {
+                    return mapPool.Curve.CalculateMaxPP(_currentBeatMapInfo, mapPool.LeaderboardContext);    
+                }
+                return GetMapPoolWithBeatMapInfo(_currentBeatMapInfo)?.Curve?.CalculateMaxPP(_currentBeatMapInfo, mapPool.LeaderboardContext) ?? -2;
+        }
+
+        private PPPMapPool GetMapPoolWithBeatMapInfo(PPPBeatMapInfo beatMapInfo)
+        {
+            return GetMapPoolWithBeatMapInfo(CreateSeachString(beatMapInfo?.CustomLevelHash, beatMapInfo?.BeatmapKey));
+        }
+        private PPPMapPool GetMapPoolWithBeatMapInfo(string searchString)
+        {
+            if(string.IsNullOrEmpty(searchString)) return null;
+            if(_dctMapPool == null) return null;
+            foreach (var keyValuePair in _dctMapPool)
+            {
+                if(keyValuePair.Value.LsLeaderboadInfo == null) continue;
+                if (keyValuePair.Value.LsLeaderboadInfo.Exists(x => x.Searchstring.Contains(searchString.ToUpper())))
+                {
+                    return keyValuePair.Value;
+                }
+            }
+            return null;
         }
     }
 }

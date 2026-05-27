@@ -24,7 +24,7 @@ namespace UnitTests.Data
             Assert.AreEqual(mapPool.Id, "-1", "Id should be -1");
             Assert.AreEqual(mapPool.PlayListId, "-1", "PlayListId should be -1");
             Assert.AreEqual(mapPool.MapPoolType, MapPoolType.Custom, "MapPoolType should be Custom");
-            Assert.AreEqual(mapPool.AccumulationConstant, 0, "AccumulationConstant should be 0");
+            Assert.AreEqual(mapPool.WeightingInfo.AccumulationConstant, 0, "AccumulationConstant should be 0");
             Assert.AreEqual(mapPool.SortIndex, -1, "SortIndex should be -1");
             Assert.AreEqual(mapPool.DtLastScoreSet, new DateTime(2000, 1, 1), "DtLastScoreSet should match");
             Assert.AreEqual(mapPool.Popularity, 0, "Popularity should be 0");
@@ -36,7 +36,7 @@ namespace UnitTests.Data
             Assert.AreEqual(mapPool.ToString(), string.Empty);
 
             mapPool.MapPoolName = "Test";
-            mapPool.AccumulationConstant = 1;
+            mapPool.WeightingInfo = new PPPWeightingInfo(1);
             mapPool.SortIndex = 1;
             mapPool.LsScores = null;
             mapPool.LsLeaderboadInfo = null;
@@ -66,7 +66,7 @@ namespace UnitTests.Data
             Assert.AreNotEqual(mapPool.Id, "-1", "Id should not be -1");
             Assert.AreNotEqual(mapPool.PlayListId, "-1", "PlayListId should not be -1");
             Assert.AreNotEqual(mapPool.MapPoolType, MapPoolType.Custom, "MapPoolType should not be Custom");
-            Assert.AreNotEqual(mapPool.AccumulationConstant, 0, "AccumulationConstant should not be 0");
+            Assert.AreNotEqual(mapPool.WeightingInfo.AccumulationConstant, 0, "AccumulationConstant should not be 0");
             Assert.AreNotEqual(mapPool.SortIndex, -1, "SortIndex should not be -1");
             Assert.AreNotEqual(mapPool.DtLastScoreSet, new DateTime(2000, 1, 1), "DtLastScoreSet should not match");
             Assert.AreNotEqual(mapPool.Popularity, 0, "Popularity should not be 0");
@@ -103,20 +103,20 @@ namespace UnitTests.Data
             int popularity = 4;
             string syncUrl = "SyncURL";
             IPPPCurve curve = new BeatLeaderPPPCurve();
-            PPPMapPool mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, mapPoolName, accConstant, sortIndex, curve, iconUrl);
+            PPPMapPool mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, mapPoolName, new PPPWeightingInfo(accConstant), sortIndex, curve, iconUrl);
             Assert.AreEqual(mapPool.MapPoolType, MapPoolType.Default, "MapPoolType should be Default");
             Assert.AreEqual(mapPool.MapPoolName, mapPoolName, "MapPoolName should be mapPoolName");
-            Assert.AreEqual(mapPool.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
+            Assert.AreEqual(mapPool.WeightingInfo.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
             Assert.AreEqual(mapPool.SortIndex, sortIndex, "SortIndex should be sortIndex");
             Assert.AreEqual(mapPool.Curve, curve, "Curve should match");
             Assert.AreEqual(mapPool.IconUrl, iconUrl, "IconUrl should match");
             Assert.AreEqual(mapPool.Popularity, 0, "Popularity should be 0");
             Assert.AreEqual(mapPool.SyncUrl, string.Empty, "SyncUrl should be empty");
 
-            mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, mapPoolName, accConstant, sortIndex, curve, iconUrl, popularity, syncUrl, LeaderboardContext.BeatLeaderNoModifiers);
+            mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, mapPoolName, new PPPWeightingInfo(accConstant), sortIndex, curve, iconUrl, popularity, syncUrl, LeaderboardContext.BeatLeaderNoModifiers);
             Assert.AreEqual(mapPool.MapPoolType, MapPoolType.Default, "MapPoolType should be Default");
             Assert.AreEqual(mapPool.MapPoolName, mapPoolName, "MapPoolName should be mapPoolName");
-            Assert.AreEqual(mapPool.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
+            Assert.AreEqual(mapPool.WeightingInfo.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
             Assert.AreEqual(mapPool.SortIndex, sortIndex, "SortIndex should be sortIndex");
             Assert.AreEqual(mapPool.Curve, curve, "Curve should match");
             Assert.AreEqual(mapPool.IconUrl, iconUrl, "IconUrl should match");
@@ -142,10 +142,10 @@ namespace UnitTests.Data
             float accConstant = 1.23f;
             int sortIndex = 123;
             IPPPCurve curve = new BeatLeaderPPPCurve();
-            PPPMapPool mapPool = new PPPMapPool(MapPoolType.Default, mapPoolName, accConstant, sortIndex, curve);
+            PPPMapPool mapPool = new PPPMapPool(MapPoolType.Default, mapPoolName, new PPPWeightingInfo(accConstant), sortIndex, curve);
             Assert.AreEqual(mapPool.MapPoolType, MapPoolType.Default, "MapPoolType should be Default");
             Assert.AreEqual(mapPool.MapPoolName, mapPoolName, "MapPoolName should be mapPoolName");
-            Assert.AreEqual(mapPool.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
+            Assert.AreEqual(mapPool.WeightingInfo.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
             Assert.AreEqual(mapPool.SortIndex, sortIndex, "SortIndex should be sortIndex");
             Assert.AreEqual(mapPool.Curve, curve, "Curve should match");
         }
@@ -157,10 +157,10 @@ namespace UnitTests.Data
             float accConstant = 1.23f;
             int sortIndex = 123;
             IPPPCurve curve = new BeatLeaderPPPCurve();
-            PPPMapPool mapPool = new PPPMapPool("-1", MapPoolType.Default, mapPoolName, accConstant, sortIndex, curve);
+            PPPMapPool mapPool = new PPPMapPool("-1", MapPoolType.Default, mapPoolName, new PPPWeightingInfo(accConstant), sortIndex, curve);
             Assert.AreEqual(mapPool.MapPoolType, MapPoolType.Default, "MapPoolType should be Default");
             Assert.AreEqual(mapPool.MapPoolName, mapPoolName, "MapPoolName should be mapPoolName");
-            Assert.AreEqual(mapPool.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
+            Assert.AreEqual(mapPool.WeightingInfo.AccumulationConstant, accConstant, "AccumulationConstant should be accConstant");
             Assert.AreEqual(mapPool.SortIndex, sortIndex, "SortIndex should be sortIndex");
             Assert.AreEqual(mapPool.Curve, curve, "Curve should match");
             Assert.AreEqual(mapPool.Id, "-1", "Id should match");
@@ -189,7 +189,7 @@ namespace UnitTests.Data
             int popularity = 4;
             string syncUrl = "SyncURL";
             IPPPCurve curve = new BeatLeaderPPPCurve();
-            PPPMapPoolShort mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, mapPoolName, accConstant, sortIndex, curve, iconUrl, popularity, syncUrl);
+            PPPMapPoolShort mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, mapPoolName, new PPPWeightingInfo(accConstant), sortIndex, curve, iconUrl, popularity, syncUrl);
             var iconData = new byte[] { };
             mapPool.IconData = iconData;
             Assert.AreEqual(mapPool.MapPoolName, mapPoolName, "MapPoolName should be mapPoolName");
@@ -199,7 +199,7 @@ namespace UnitTests.Data
             Assert.AreEqual(mapPool.Id, id, "id should match");
 
             Assert.AreEqual(mapPool.ToString(), mapPoolName, "ToString should match mapPoolName");
-            mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, null, accConstant, sortIndex, curve, iconUrl, popularity, syncUrl);
+            mapPool = new PPPMapPool(id, playListId, MapPoolType.Default, null, new PPPWeightingInfo(accConstant), sortIndex, curve, iconUrl, popularity, syncUrl);
             Assert.AreEqual(mapPool.ToString(), "", "ToString should be empty");
 
             Assert.IsFalse(mapPool.SelectedByLoading, "Selected by loading should be false");
