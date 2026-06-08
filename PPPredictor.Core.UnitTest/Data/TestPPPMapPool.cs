@@ -16,7 +16,6 @@ namespace UnitTests.Data
             Assert.IsNotNull(mapPool.CurrentPlayer);
             Assert.IsNotNull(mapPool.LsScores);
             Assert.IsNotNull(mapPool.LsLeaderboadInfo);
-            Assert.IsNotNull(mapPool.LsMapPoolEntries);
             Assert.IsNotNull(mapPool.LsPlayerRankings);
             Assert.AreEqual(mapPool.DtUtcLastRefresh, new DateTime(2000, 1, 1), "DtUtcLastRefresh should match");
             Assert.IsNotNull(mapPool.Curve);
@@ -40,7 +39,6 @@ namespace UnitTests.Data
             mapPool.SortIndex = 1;
             mapPool.LsScores = null;
             mapPool.LsLeaderboadInfo = null;
-            mapPool.LsMapPoolEntries = null;
             mapPool.MapPoolType = MapPoolType.Default;
             mapPool.Curve = new BeatLeaderPPPCurve();
             mapPool.SessionPlayer = new PPPPlayer();
@@ -58,7 +56,6 @@ namespace UnitTests.Data
             Assert.IsNull(mapPool.CurrentPlayer);
             Assert.IsNull(mapPool.LsScores);
             Assert.IsNull(mapPool.LsLeaderboadInfo);
-            Assert.IsNull(mapPool.LsMapPoolEntries);
             Assert.IsNull(mapPool.LsPlayerRankings);
             Assert.AreNotEqual(mapPool.DtUtcLastRefresh, new DateTime(2000, 1, 1), "DtUtcLastRefresh should not match");
             Assert.IsNotNull(mapPool.Curve);

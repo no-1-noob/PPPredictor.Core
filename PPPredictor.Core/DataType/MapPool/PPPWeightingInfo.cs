@@ -46,8 +46,6 @@ namespace PPPredictor.Core.DataType.MapPool
 
         public PPPWeightingInfo()
         {
-            _zParameter = 11;
-            _accumulationConstant = 0.11f;
         }
     }
 }

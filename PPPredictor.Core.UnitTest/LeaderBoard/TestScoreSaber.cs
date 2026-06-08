@@ -23,7 +23,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         public async Task InstanceCreationErrorWithoutLookup()
         {
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7,  12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 null
                 );
@@ -33,7 +33,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         public async Task InstanceCreationWithLookup()
         {
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7,  12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo) => new PPPBeatMapInfo()
                 );
@@ -43,7 +43,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         public async Task TestPPCalculation()
         {
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7,  12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo) => new PPPBeatMapInfo()
                 );
@@ -63,7 +63,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         {
             List<PPPBeatMapInfo>? lsBeatMapInfos = new List<PPPBeatMapInfo>();
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo x) =>
                 {
@@ -94,7 +94,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         public async Task TestUpdateMapPoolDetails()
         {
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
                 );
@@ -105,7 +105,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         public async Task TestIsScoreSetOnCurrentMapPool()
         {
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7,  12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
                 );
@@ -117,7 +117,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         public async Task TestGetMapPools()
         {
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
                 );
@@ -144,7 +144,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
 
             List<PPPBeatMapInfo> lsBeatMapInfos = new List<PPPBeatMapInfo>();
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7,  12),
                 new Dictionary<string, DataType.LeaderBoard.LeaderboardData>(),
                 (PPPBeatMapInfo x) =>
                 {
@@ -158,7 +158,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.AreEqual(gain.PpGainWeighted, 100);
 
             ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7,  12),
                 dct,
                 (PPPBeatMapInfo x) =>
                 {
@@ -192,7 +192,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
 
             dctMapPool["-1"].LsScores = null;
             ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 dct,
                 (PPPBeatMapInfo x) =>
                 {
@@ -224,13 +224,13 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             dct.Add(Enums.Leaderboard.ScoreSaber.ToString(), new DataType.LeaderBoard.LeaderboardData() { DctMapPool = dctMapPool });
 
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now.AddHours(-1), 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 dct,
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
             );
 
             (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", false);
-            Assert.AreEqual(2100, sessionPlayer.Rank);
+            Assert.AreEqual(2000, sessionPlayer.Rank);
             Assert.AreEqual(2000, currentPlayer.Rank);
 
             (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", true);
@@ -238,7 +238,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.AreEqual(2000, currentPlayer.Rank);
 
             ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false,"123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now, 12),
+                new Settings(true, false, false, false, false,"123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 dct,
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
             );
@@ -268,7 +268,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             dct.Add(Enums.Leaderboard.ScoreSaber.ToString(), new DataType.LeaderBoard.LeaderboardData() { DctMapPool = dctMapPool });
 
             CalculatorInstance ci = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
-                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, DateTime.Now.AddHours(-1), 12),
+                new Settings(true, false, false, false, false, "123", DataType.Enums.PPGainCalculationType.Raw, DataType.Enums.MapPoolSorting.Alphabetical, "", 7, 12),
                 dct,
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
             );
