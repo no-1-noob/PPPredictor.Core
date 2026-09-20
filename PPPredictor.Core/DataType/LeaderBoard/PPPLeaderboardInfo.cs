@@ -53,21 +53,21 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             switch (leaderboard)
             {
                 case Leaderboard.ScoreSaber:
-                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.ScoreSaber.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.ScoreSaber.png";
                     _playerPerPages = 50;
                     _hasOldDotRanking = false;
                     break;
                 case Leaderboard.BeatLeader:
-                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.BeatLeader.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.BeatLeader.png";
                     _largePageSize = 100;
                     _playerPerPages = 50;
                     _taskDelayValue = 1100;
                     break;
                 case Leaderboard.NoLeaderboard:
-                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.Empty.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.Empty.png";
                     break;
                 case Leaderboard.HitBloq:
-                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.HitBloq.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.HitBloq.png";
                     _ppSuffix = "cr";
                     _isCountryRankEnabled = false;
                     _leaderboardFirstPageIndex = 0;
@@ -76,7 +76,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _hasPPToRankFunctionality = true;
                     break;
                 case Leaderboard.AccSaber:
-                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.AccSaber.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.AccSaber.png";
                     _ppSuffix = "ap";
                     _isCountryRankEnabled = false;
                     _leaderboardFirstPageIndex = 0;
@@ -84,7 +84,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _hasGetRecentScoresFunctionality = false;
                     break;
                 case Leaderboard.AccSaberReloaded:
-                    _leaderboardIcon = "PPPredictor.Resources.LeaderBoardLogos.AccSaberReloaded.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.AccSaberReloaded.png";
                     _ppSuffix = "ap";
                     _leaderboardFirstPageIndex = 0;
                     _largePageSize = 100;
