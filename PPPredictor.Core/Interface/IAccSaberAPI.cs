@@ -6,12 +6,11 @@ namespace PPPredictor.Core.Interface
 {
     internal interface IAccSaberAPI
     {
-        Task<List<AccSaberRankedMap>> GetAllRankedMaps();
-        Task<List<AccSaberRankedMap>> GetRankedMaps(string mapPool);
+        Task<List<AccSaberCurve>> GetAccSaberCurves();
         Task<List<AccSaberMapPool>> GetAccSaberMapPools();
-        Task<AccSaberPlayer> GetAccSaberUserByPool(long userId, string poolIdent);
+        Task<List<AccSaberMap>> GetRankedMaps(string mapPoolId);
         Task<List<AccSaberPlayer>> GetPlayerListForMapPool(double page, string mapPoolId);
-        Task<List<AccSaberScores>> GetAllScores(string userId);
-        Task<List<AccSaberScores>> GetAllScoresByPool(string userId, string poolId);
+        Task<AccSaberUser> GetAccSaberUser(long userId);
+        Task<AccSaberScorePage> GetRecentScores(string userId, string poolId, int page, int pageSize);
     }
 }

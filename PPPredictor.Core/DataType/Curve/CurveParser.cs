@@ -115,9 +115,7 @@ namespace PPPredictor.Core.DataType.Curve
                 case CurveType.Basic:
                     return CustomPPPCurve.CreateBasicPPPCurve(curveInfo.BasePPMultiplier.GetValueOrDefault(), curveInfo.Baseline, curveInfo.Exponential, curveInfo.Cutoff);
                 case CurveType.AccSaber:
-                    return new CustomPPPCurve(arrPPCurveAccSaber, CurveType.AccSaber, 61, starOffest: 18);
-                case CurveType.AccSaberReloaded:
-                    return new CustomPPPCurve(curveInfo.ArrPPCurve, CurveType.AccSaberReloaded, curveInfo.BasePPMultiplier.GetValueOrDefault(), starOffest: curveInfo.StarOffest.GetValueOrDefault());
+                    return new CustomPPPCurve(curveInfo.ArrPPCurve, CurveType.AccSaber, curveInfo.BasePPMultiplier.GetValueOrDefault(), starOffest: curveInfo.StarOffest.GetValueOrDefault());
                 default:
                     return CustomPPPCurve.CreateDummyPPPCurve();
             }

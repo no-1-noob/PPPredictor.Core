@@ -1,5 +1,4 @@
 ﻿using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
-using static PPPredictor.Core.DataType.LeaderBoard.AccSaberReloadedDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.BeatLeaderDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.HitBloqDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.ScoreSaberDataTypes;
@@ -61,28 +60,20 @@ namespace PPPredictor.Core.DataType
             country = string.Empty;
         }
 
-        internal PPPPlayer(AccSaberPlayer accSaberPlayer)
+        internal PPPPlayer(AccSaberUser accSaberUser, AccSaberUserCategoryStatistics accSaberUserCategoryStatistics)
         {
-            rank = accSaberPlayer.rank;
-            countryRank = 0;
-            pp = accSaberPlayer.ap;
-            country = string.Empty;
-        }
-
-        internal PPPPlayer(AccSaberReloadedUser accSaberReloadedUser, AccSaberReloadedUserCategoryStatistics accSaberReloadedUserCategoryStatistics)
-        {
-            rank = accSaberReloadedUserCategoryStatistics.ranking;
-            countryRank = accSaberReloadedUserCategoryStatistics.countryRanking;
-            pp = accSaberReloadedUserCategoryStatistics.ap;
-            country = accSaberReloadedUser.country ?? string.Empty;
+            rank = accSaberUserCategoryStatistics.ranking;
+            countryRank = accSaberUserCategoryStatistics.countryRanking;
+            pp = accSaberUserCategoryStatistics.ap;
+            country = accSaberUser.country ?? string.Empty;
         }
         
-        internal PPPPlayer(AccSaberReloadedPlayer accSaberReloadedPlayer)
+        internal PPPPlayer(AccSaberPlayer accSaberPlayer)
         {
-            rank = accSaberReloadedPlayer.ranking;
-            countryRank = accSaberReloadedPlayer.countryRanking;
-            pp = accSaberReloadedPlayer.ap;
-            country = accSaberReloadedPlayer.country ?? string.Empty;
+            rank = accSaberPlayer.ranking;
+            countryRank = accSaberPlayer.countryRanking;
+            pp = accSaberPlayer.ap;
+            country = accSaberPlayer.country ?? string.Empty;
         }
         
 

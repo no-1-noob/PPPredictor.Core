@@ -28,18 +28,18 @@ namespace PPPredictor.Core
         public static async Task<CalculatorInstance> CreateAsync(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction)
         {
             var instance = new CalculatorInstance(settings);
-            await instance.InitializeAsync<ScoresaberAPI, BeatleaderAPI, HitbloqAPI, AccSaberApi, AccSaberReloadedApi>(settings, dctLeaderboardData, scoreSaberLookUpFunction);
+            await instance.InitializeAsync<ScoresaberAPI, BeatleaderAPI, HitbloqAPI, AccSaberAPI>(settings, dctLeaderboardData, scoreSaberLookUpFunction);
             return instance;
         }
 
-        internal static async Task<CalculatorInstance> CreateAsyncMock<SSAPI, BLAPI, HBAPI, ASAPI, ASRAPI>(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction) where SSAPI : IScoresaberAPI, new() where BLAPI : IBeatLeaderAPI, new() where HBAPI : IHitBloqAPI, new() where ASAPI : IAccSaberAPI, new() where ASRAPI : IAccSaberReloadedAPI, new()
+        internal static async Task<CalculatorInstance> CreateAsyncMock<SSAPI, BLAPI, HBAPI, ASAPI>(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction) where SSAPI : IScoresaberAPI, new() where BLAPI : IBeatLeaderAPI, new() where HBAPI : IHitBloqAPI, new() where ASAPI : IAccSaberAPI, new()
         {
             var instance = new CalculatorInstance(settings);
-            await instance.InitializeAsync<SSAPI, BLAPI, HBAPI, ASAPI, ASRAPI>(settings, dctLeaderboardData, scoreSaberLookUpFunction);
+            await instance.InitializeAsync<SSAPI, BLAPI, HBAPI, ASAPI>(settings, dctLeaderboardData, scoreSaberLookUpFunction);
             return instance;
         }
 
-        private async Task InitializeAsync<SSAPI, BLAPI, HBAPI, ASAPI, ASRAPI>(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction) where SSAPI : IScoresaberAPI, new() where BLAPI : IBeatLeaderAPI, new() where HBAPI : IHitBloqAPI, new() where ASAPI : IAccSaberAPI, new() where ASRAPI : IAccSaberReloadedAPI, new()
+        private async Task InitializeAsync<SSAPI, BLAPI, HBAPI, ASAPI>(Settings settings, Dictionary<string, LeaderboardData> dctLeaderboardData, Func<PPPBeatMapInfo, PPPBeatMapInfo> scoreSaberLookUpFunction) where SSAPI : IScoresaberAPI, new() where BLAPI : IBeatLeaderAPI, new() where HBAPI : IHitBloqAPI, new() where ASAPI : IAccSaberAPI, new()
         {
 
             if (settings.IsScoreSaberEnabled)
@@ -62,11 +62,6 @@ namespace PPPredictor.Core
             {
                 var v = new PPCalculatorAccSaber<ASAPI>(dctLeaderboardData.TryGetValue(Leaderboard.AccSaber.ToString(), out var result) ? result.DctMapPool : null, settings);
                 dctCalculator.Add(Leaderboard.AccSaber, v);
-            }
-            if (settings.IsAccSaberReloadedEnabled)
-            {
-                var v = new PPCalculatorAccSaberReloaded<ASRAPI>(dctLeaderboardData.TryGetValue(Leaderboard.AccSaberReloaded.ToString(), out var result) ? result.DctMapPool : null, settings);
-                dctCalculator.Add(Leaderboard.AccSaberReloaded, v);
             }
             if(dctCalculator.Count == 0)
             {

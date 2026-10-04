@@ -76,14 +76,6 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _hasPPToRankFunctionality = true;
                     break;
                 case Leaderboard.AccSaber:
-                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.AccSaber.png";
-                    _ppSuffix = "ap";
-                    _isCountryRankEnabled = false;
-                    _leaderboardFirstPageIndex = 0;
-                    _hasGetAllScoresFunctionality = true;
-                    _hasGetRecentScoresFunctionality = false;
-                    break;
-                case Leaderboard.AccSaberReloaded:
                     _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.AccSaberReloaded.png";
                     _ppSuffix = "ap";
                     _leaderboardFirstPageIndex = 0;

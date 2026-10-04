@@ -3,7 +3,6 @@ using PPPredictor.Core.Calculator;
 using System;
 using static PPPredictor.Core.DataType.Enums;
 using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
-using static PPPredictor.Core.DataType.LeaderBoard.AccSaberReloadedDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.BeatLeaderDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.HitBloqDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.ScoreSaberDataTypes;
@@ -61,16 +60,7 @@ namespace PPPredictor.Core.DataType.Score
             gameMode = mode;
         }
 
-        public PPPScore(AccSaberScores playerScore)
-        {
-            timeSet = playerScore.timeSet;
-            pp = playerScore.ap;
-            songHash = playerScore.songHash?.ToUpper();
-            difficulty = ParsingUtil.ParseDifficultyNameToInt(playerScore.difficulty);
-            gameMode = "SoloStandard";
-        }
-
-        public PPPScore(AccSaberReloadedScore playerScore)
+        public PPPScore(AccSaberScore playerScore)
         {
             timeSet = playerScore.timeSet;
             pp = playerScore.ap;

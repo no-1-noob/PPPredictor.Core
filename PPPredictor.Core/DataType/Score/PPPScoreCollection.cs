@@ -3,7 +3,6 @@ using static PPPredictor.Core.DataType.LeaderBoard.BeatLeaderDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.HitBloqDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.ScoreSaberDataTypes;
 using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
-using static PPPredictor.Core.DataType.LeaderBoard.AccSaberReloadedDataTypes;
 
 namespace PPPredictor.Core.DataType.Score
 {
@@ -60,23 +59,12 @@ namespace PPPredictor.Core.DataType.Score
             }
         }
 
-        public PPPScoreCollection(List<AccSaberScores> lsHitBloqScores, int page)
+        public PPPScoreCollection(AccSaberScorePage accSaberScorePage)
         {
-            this.page = page;
-            itemsPerPage = 10;
-            total = lsHitBloqScores.Count > 0 ? page * itemsPerPage + 1 : 0;
-            foreach (var playerScore in lsHitBloqScores)
-            {
-                lsPPPScore.Add(new PPPScore(playerScore));
-            }
-        }
-
-        public PPPScoreCollection(AccSaberReloadedScorePage accSaberReloadedScorePage)
-        {
-            page = accSaberReloadedScorePage.pageable.pageNumber;
-            itemsPerPage = accSaberReloadedScorePage.pageable.pageSize;
-            total = accSaberReloadedScorePage.totalElements;
-            foreach (AccSaberReloadedScore playerScore in accSaberReloadedScorePage.content)
+            page = accSaberScorePage.pageable.pageNumber;
+            itemsPerPage = accSaberScorePage.pageable.pageSize;
+            total = accSaberScorePage.totalElements;
+            foreach (AccSaberScore playerScore in accSaberScorePage.content)
             {
                 lsPPPScore.Add(new PPPScore(playerScore));
             }
