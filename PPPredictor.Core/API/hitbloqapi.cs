@@ -14,7 +14,12 @@ namespace PPPredictor.Core.API
     [ExcludeFromCodeCoverage]
     class HitbloqAPI : IHitBloqAPI
     {
+#if !MOCK_API
         private static readonly string baseUrl = "https://hitbloq.com";
+#else
+        private static readonly string baseUrl = "http://localhost:5080";
+#endif
+        
         private readonly HttpClient client;
 
         public HitbloqAPI()

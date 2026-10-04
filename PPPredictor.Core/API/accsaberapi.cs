@@ -12,7 +12,12 @@ namespace PPPredictor.Core.API
     [ExcludeFromCodeCoverage]
     internal class AccSaberApi : IAccSaberAPI
     {
+#if !MOCK_API
         private static readonly string baseUrl = "http://api.accsaber.com";
+#else
+        private static readonly string baseUrl = "http://localhost:5080";
+#endif
+        
         private readonly HttpClient client;
 
         public AccSaberApi()

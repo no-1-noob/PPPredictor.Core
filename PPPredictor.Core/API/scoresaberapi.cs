@@ -11,7 +11,12 @@ namespace PPPredictor.Core.API
     [ExcludeFromCodeCoverage]
     internal class ScoresaberAPI : IScoresaberAPI
     {
+#if !MOCK_API
         private static readonly string baseUrl = "https://scoresaber.com/api/";
+#else
+        private static readonly string baseUrl = "http://localhost:5080/api/";
+#endif
+        
         private readonly HttpClient client;
 
         public ScoresaberAPI()

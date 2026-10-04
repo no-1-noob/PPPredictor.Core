@@ -11,7 +11,11 @@ namespace PPPredictor.Core.API
     [ExcludeFromCodeCoverage]
     class BeatleaderAPI : IBeatLeaderAPI
     {
+#if !MOCK_API
         private static readonly string baseUrl = "https://api.beatleader.com";
+#else
+        private static readonly string baseUrl = "http://localhost:5080";
+#endif
         private readonly HttpClient client;
 
         public BeatleaderAPI()

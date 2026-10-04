@@ -12,7 +12,12 @@ namespace PPPredictor.Core.API
     [ExcludeFromCodeCoverage]
     internal class AccSaberReloadedApi : IAccSaberReloadedAPI
     {
-        private static readonly string baseUrl = "https://api.accsaberreloaded.com";
+#if !MOCK_API
+        private static readonly string baseUrl = "https://api.accsaber.com";
+#else
+        private static readonly string baseUrl = "http://localhost:5080";
+#endif
+        
         private const int RankedMapsPageSize = 250;
         private const int LeaderboardPageSize = 50;
         private readonly HttpClient client;
