@@ -53,10 +53,13 @@ namespace PPPredictor.Core.DataType.LeaderBoard
             public double? passRating { get; set; }
             public double? accRating { get; set; }
             public double? techRating { get; set; }
+            public double? sliderPercentage { get; set; }
+            public double? noteSpan { get; set; }
+            public int notes { get; set; }
             public int status { get; set; }
             public string modeName { get; set; }
-            public Dictionary<string, double> modifierValues { get; set; }
-            public Dictionary<string, double> modifiersRating { get; set; }
+            public Dictionary<string, double> modifierValues { get; set; } = new Dictionary<string, double>();
+            public Dictionary<string, double> modifiersRating { get; set; } = new Dictionary<string, double>();
         }
 
         public class BeatLeaderPlayerList

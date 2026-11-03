@@ -20,6 +20,8 @@ namespace PPPredictor.Core.Calculator
         private const string AccRating = "AccRating";
         private const string PassRating = "PassRating";
         private const string TechRating = "TechRating";
+        private const string SliderPercentage = "SliderPercentage";
+        private const string PredictedAcc = "PredictedAcc";
         private string _userName = string.Empty;
 
         public PPCalculatorBeatLeader(Dictionary<string, PPPMapPool> dctMapPool, Settings settings) : base(dctMapPool, settings, Leaderboard.BeatLeader) 
@@ -168,6 +170,9 @@ namespace PPPredictor.Core.Calculator
             double accRating = beatMapInfo.BaseStarRating.AccRating;
             double passRating = beatMapInfo.BaseStarRating.PassRating;
             double techRating = beatMapInfo.BaseStarRating.TechRating;
+            double sliderPercentage = beatMapInfo.BaseStarRating.SliderPercentage;
+            double predictedAcc = beatMapInfo.BaseStarRating.PredictedAcc;
+            double noteSpanMult = 1;
             if (beatMapInfo.BaseStarRating.ModifiersRating != null)
             {
                 foreach (string modifier in lsModifiers.Select(x => x.ToLower()))
@@ -177,12 +182,30 @@ namespace PPPredictor.Core.Calculator
                         accRating = beatMapInfo.BaseStarRating.ModifiersRating[modifier + AccRating];
                         passRating = beatMapInfo.BaseStarRating.ModifiersRating[modifier + PassRating];
                         techRating = beatMapInfo.BaseStarRating.ModifiersRating[modifier + TechRating];
-
+                        sliderPercentage = beatMapInfo.BaseStarRating.ModifiersRating[modifier + SliderPercentage];
+                        predictedAcc = beatMapInfo.BaseStarRating.ModifiersRating[modifier + PredictedAcc];
+                        switch (modifier)
+                        {
+                            case "ss":
+                                noteSpanMult = 0.85f;
+                                break;
+                            case "fs":
+                                noteSpanMult = 1.2f;
+                                break;
+                            case "sf":
+                                noteSpanMult = 1.5f;
+                                break;
+                        }
                         break;
                     }
                 }
             }
-            beatMapInfo.ModifiedStarRating = new PPPStarRating(GenerateModifierMultiplier(lsModifiers, beatMapInfo, mapPool, levelFailed, levelPaused, beatMapInfo.BaseStarRating.ModifiersRating != null), accRating, passRating, techRating, beatMapInfo.BaseStarRating.RankedBeatLeader);
+            double multiplier = GenerateModifierMultiplier(lsModifiers, beatMapInfo, mapPool, levelFailed, levelPaused, beatMapInfo.BaseStarRating.ModifiersRating != null);
+            if (!levelFailed) lsModifiers.Remove("NF");
+            beatMapInfo.Modifiers = String.Join(";", lsModifiers);
+            beatMapInfo.ModifiedStarRating = new PPPStarRating(multiplier, 
+                accRating, passRating, techRating, predictedAcc, sliderPercentage, beatMapInfo.BaseStarRating.Notes, beatMapInfo.BaseStarRating.NoteSpan,
+                noteSpanMult, beatMapInfo.BaseStarRating.RankedBeatLeader);
             return beatMapInfo;
         }
 
@@ -221,10 +244,13 @@ namespace PPPredictor.Core.Calculator
             {
                 double multiplier = 1;
                 if (mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderSCPM && !(lsModifier.Contains("SC") && lsModifier.Contains("PM"))) return 0;
+                if(mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderNoPauses && levelPaused) return 0;
+                if(levelFailed && !lsModifier.Contains("NF")) return 0;
                 foreach (string modifier in lsModifier)
                 {
+                    if (!levelFailed && modifier == "NF") continue; //Ignore nofail until the map is actually failed in gameplay and applied
                     if (mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderNoModifiers && !(modifier == "BE" || modifier == "IF")) return 0;
-                    if (!levelFailed && modifier == "NF") continue; //Ignore nofail until the map is failed in gameplay
+                    if(mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderSCPM && (modifier == "SC" || modifier == "PM")) continue;
                     if (ignoreSpeedMultiplier && (modifier == "SF" || modifier == "SS" || modifier == "FS")) continue; //Ignore speed multies and use the precomputed values from backend
                     if(beatMapInfo.BaseStarRating.ModifierValues.TryGetValue(modifier.ToLower(), out double value))
                     {

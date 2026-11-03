@@ -27,22 +27,28 @@ namespace PPPredictor.Core.Performance
 
         static async Task MainAsync(string[] args)
         {
-            Dictionary<string, LeaderboardData> dctData = new Dictionary<string, LeaderboardData>();
-            ProfileInfo p = JsonConvert.DeserializeObject<ProfileInfo>(File.ReadAllText("../../../Data/PPPredictorProfileInfo.json"));
-            dctData = p.DctleaderBoardData;
-            Settings settings = new Settings(false, true, false, false, false, "", PPGainCalculationType.Weighted, MapPoolSorting.Alphabetical, "", 7, 48);
+            Dictionary<string, LeaderboardData> dctData = args.Length > 0
+                ? JsonConvert.DeserializeObject<ProfileInfo>(File.ReadAllText(args[0]))?.DctleaderBoardData
+                    ?? throw new InvalidDataException("The profile must contain leaderboard data.")
+                : new Dictionary<string, LeaderboardData>();
+            Settings settings = new Settings(false, true, false, false, "123", PPGainCalculationType.Weighted, MapPoolSorting.Alphabetical, 7, 48);
 
-            CalculatorInstance calculatorInstance = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
+            CalculatorInstance calculatorInstance = await CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber>(
                 settings,
                 dctData,
                 null
             );
 
             string mappool = "-1";
+            if (args.Length == 0)
+            {
+                await calculatorInstance.GetPlayerScores(Leaderboard.BeatLeader, mappool, 10, 100, true);
+            }
+            dctData = calculatorInstance.GetSaveData();
             double maxPP = 500;
             double stepSize = 10;
             double maxRounds = 5;
-            bool foundData = true;
+            bool foundData = false;
 
             List<string> lsHashMaps = new List<string>();
             if (dctData.TryGetValue(Leaderboard.BeatLeader.ToString(), out var leaderboardData))
@@ -51,6 +57,7 @@ namespace PPPredictor.Core.Performance
 
                 if (leaderboardData.DctMapPool.TryGetValue(mappool, out var pPPMapPool))
                 {
+                    foundData = true;
                     lsHashMaps = PPGainCalculation(calculatorInstance, mappool, maxPP, stepSize, maxRounds, pPPMapPool);
 
                     //PPPBeatMapInfo beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(), new PPPStarRating(1, 11.82055, 7.9189496, 5.424088, true));
@@ -118,7 +125,7 @@ namespace PPPredictor.Core.Performance
             int callCount = 0;
             List<PPGainResult> lsGains = new List<PPGainResult>();
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            Stopwatch stopwatch = new Stopwatch();
 
             for (int rounds = 0; rounds < maxRounds; rounds++)
             {
@@ -151,8 +158,9 @@ namespace PPPredictor.Core.Performance
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string filename = $"OUT_{timestamp}.json";
 
-            string outFileName = Path.Combine("../../../Data", filename);
+            string outFileName = Path.Combine(AppContext.BaseDirectory, filename);
             File.WriteAllText(outFileName, jsonString);
+            Console.WriteLine($"Results: {outFileName}");
             return lsHashMaps;
         }
 
@@ -205,7 +213,8 @@ namespace PPPredictor.Core.Performance
                 // Write JSON string to file
                 File.WriteAllText(filename, jsonString);
 
-                List<PPGainResult> lsOldGains = JsonConvert.DeserializeObject<List<PPGainResult>>(File.ReadAllText("Old.json"));
+                List<PPGainResult> lsOldGains = JsonConvert.DeserializeObject<List<PPGainResult>>(File.ReadAllText("Old.json"))
+                    ?? throw new InvalidDataException("Old.json must contain gain results.");
 
                 int Differences = 0;
                 for (int i = 0; i < lsGains.Count; i++)
@@ -242,7 +251,7 @@ namespace PPPredictor.Core.Performance
 
         class ProfileInfo
         {
-            public Dictionary<string, LeaderboardData> DctleaderBoardData { get; set; }
+            public Dictionary<string, LeaderboardData>? DctleaderBoardData { get; set; }
         }
     }
 }

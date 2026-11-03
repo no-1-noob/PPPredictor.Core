@@ -76,7 +76,7 @@ namespace UnitTests.Data
         [TestMethod]
         public void AccSaberUserConstuctor()
         {
-            AccSaberPlayer accSaberPlayer = new AccSaberPlayer() { rank = 123, ap = 345 };
+            AccSaberPlayer accSaberPlayer = new AccSaberPlayer() { ranking = 123, ap = 345 };
             PPPPlayer ppPlayer = new PPPPlayer(accSaberPlayer);
             Assert.IsTrue(ppPlayer.Rank == 123, "RankGlobal should be 1");
             Assert.IsTrue(ppPlayer.CountryRank == 0, "CountryRank should be 0");

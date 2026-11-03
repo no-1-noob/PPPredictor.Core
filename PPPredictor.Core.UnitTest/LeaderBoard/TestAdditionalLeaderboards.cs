@@ -16,7 +16,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         [TestMethod]
         public async Task NoLeaderboardCoversFallbackCalculator()
         {
-            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, "", 7, 12));
+            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12));
 
             List<PPPMapPoolShort> pools = ci.GetMapPools(Leaderboard.NoLeaderboard);
             Assert.AreEqual(1, pools.Count);
@@ -42,10 +42,10 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         [TestMethod]
         public async Task AccSaberCoversCustomAndOverallPoolFlows()
         {
-            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, true, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, "", 7, 12));
+            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, true, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12));
 
             List<PPPMapPoolShort> pools = ci.GetMapPools(Leaderboard.AccSaber);
-            Assert.AreEqual(5, pools.Count);
+            Assert.AreEqual(4, pools.Count);
             Assert.IsTrue(pools.Exists(x => x.Id == "standard"));
 
             await ci.UpdateMapPoolDetails(Leaderboard.AccSaber, "standard");
@@ -70,35 +70,35 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.IsTrue(gain.PpGainWeighted > 0);
 
             RankGainResult rankGain = await ci.GetPlayerRankGain(Leaderboard.AccSaber, "standard", 700);
-            Assert.AreEqual(-1, rankGain.RankGlobal);
+            Assert.IsTrue(rankGain.RankGlobal > 0);
         }
 
         [TestMethod]
-        public async Task AccSaberReloadedCoversPoolDiscoveryScoresAndOverallLookup()
+        public async Task AccSaberCoversPoolDiscoveryScoresAndOverallLookup()
         {
-            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, false, true, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, "", 7, 12));
+            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, true, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12));
 
-            List<PPPMapPoolShort> pools = ci.GetMapPools(Leaderboard.AccSaberReloaded);
+            List<PPPMapPoolShort> pools = ci.GetMapPools(Leaderboard.AccSaber);
             Assert.AreEqual(4, pools.Count);
-            Assert.IsNotNull(ci.FindPoolWithSyncURL(Leaderboard.AccSaberReloaded, "https://api.accsaberreloaded.com/v1/playlists/standard_acc"));
+            Assert.IsNotNull(ci.FindPoolWithSyncURL(Leaderboard.AccSaber, "https://api.accsaber.com/v1/playlists/standard_acc"));
 
-            PPPBeatMapInfo standardInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaberReloaded, "standard", MapInfo("ASRHASH", BeatMapDifficulty.ExpertPlus, 0));
-            Assert.AreEqual(14.2, standardInfo.ModifiedStarRating.Stars);
-            PPPBeatMapInfo overallInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaberReloaded, "overall", MapInfo("ASRHASH", BeatMapDifficulty.ExpertPlus, 0));
-            Assert.AreEqual(14.2, overallInfo.ModifiedStarRating.Stars);
+            PPPBeatMapInfo standardInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("ACCHASH", BeatMapDifficulty.ExpertPlus, 0));
+            Assert.AreEqual(13.5, standardInfo.ModifiedStarRating.Stars);
+            PPPBeatMapInfo overallInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "overall", MapInfo("ACCHASH", BeatMapDifficulty.ExpertPlus, 0));
+            Assert.AreEqual(13.5, overallInfo.ModifiedStarRating.Stars);
 
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaberReloaded, "standard", true);
-            Assert.AreEqual(42, sessionPlayer.Rank);
-            Assert.AreEqual(720, currentPlayer.Pp);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "standard", true);
+            Assert.AreEqual(50, sessionPlayer.Rank);
+            Assert.AreEqual(600, currentPlayer.Pp);
 
-            await ci.GetPlayerScores(Leaderboard.AccSaberReloaded, "standard", 10, 100, true);
-            Assert.AreEqual(320, ci.GetPersonalBest(Leaderboard.AccSaberReloaded, "standard", "ASRHASH_SOLOSTANDARD_9"));
-            Assert.IsTrue(ci.IsScoreSetOnCurrentMapPool(Leaderboard.AccSaberReloaded, "overall", new PPPScoreSetData { hash = "ASRHASH" }));
+            await ci.GetPlayerScores(Leaderboard.AccSaber, "standard", 10, 100, true);
+            Assert.AreEqual(300, ci.GetPersonalBest(Leaderboard.AccSaber, "standard", "ACCHASH_SOLOSTANDARD_9"));
+            Assert.IsTrue(ci.IsScoreSetOnCurrentMapPool(Leaderboard.AccSaber, "overall", new PPPScoreSetData { hash = "ACCHASH" }));
 
-            PPGainResult gain = ci.GetPlayerScorePPGain(Leaderboard.AccSaberReloaded, "overall", "ASRHASH_SOLOSTANDARD_9", 350);
+            PPGainResult gain = ci.GetPlayerScorePPGain(Leaderboard.AccSaber, "overall", "ACCHASH_SOLOSTANDARD_9", 350);
             Assert.IsTrue(gain.PpGainWeighted > 0);
-            Assert.AreNotEqual(-2, ci.CalculatePPatPercentage(Leaderboard.AccSaberReloaded, "standard", standardInfo, 95, false, false));
-            Assert.AreNotEqual(-2, ci.CalculateMaxPP(Leaderboard.AccSaberReloaded, "standard", standardInfo));
+            Assert.IsTrue(ci.CalculatePPatPercentage(Leaderboard.AccSaber, "standard", standardInfo, 95, false, false) > 0);
+            Assert.IsTrue(ci.CalculateMaxPP(Leaderboard.AccSaber, "standard", standardInfo) > 0);
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             {
                 { Leaderboard.BeatLeader.ToString(), new LeaderboardData { DctMapPool = customPools } }
             };
-            CalculatorInstance ci = await CreateCalculator(new Settings(false, true, false, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, "", 7, 12), savedData);
+            CalculatorInstance ci = await CreateCalculator(new Settings(false, true, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12), savedData);
 
             Assert.AreEqual(6, ci.GetMapPools(Leaderboard.BeatLeader).Count);
             Assert.IsNotNull(ci.FindPoolWithPlayListId(Leaderboard.BeatLeader, "654"));
@@ -150,7 +150,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         [TestMethod]
         public async Task HitBloqCoversPoolSortingScoresAndRankLookup()
         {
-            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, true, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Popularity, "765", 7, 12));
+            CalculatorInstance ci = await CreateCalculator(new Settings(false, false, true, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Popularity, 7, 12));
 
             List<PPPMapPoolShort> pools = ci.GetMapPools(Leaderboard.HitBloq);
             Assert.AreEqual(3, pools.Count);
@@ -176,7 +176,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
 
         private static Task<CalculatorInstance> CreateCalculator(Settings settings, Dictionary<string, LeaderboardData>? data = null)
         {
-            return CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber, MockAccSaberReloaded>(
+            return CalculatorInstance.CreateAsyncMock<MockScoreSaberApi, MockBeatLeader, MockHitBloq, MockAccSaber>(
                 settings,
                 data ?? new Dictionary<string, LeaderboardData>(),
                 _ => new PPPBeatMapInfo());

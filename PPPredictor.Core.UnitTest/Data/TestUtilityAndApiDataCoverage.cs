@@ -10,16 +10,16 @@ namespace UnitTests.Data
     public class TestUtilityAndApiDataCoverage
     {
         [TestMethod]
-        public void AccSaberReloadedApiDataTypesPropertiesRoundTrip()
+        public void AccSaberApiDataTypesPropertiesRoundTrip()
         {
-            RoundTripNestedTypeProperties(typeof(AccSaberReloadedDataTypes));
+            RoundTripNestedTypeProperties(typeof(AccSaberDataTypes));
 
-            AccSaberReloadedDataTypes.AccSaberReloadedCurve curve = new AccSaberReloadedDataTypes.AccSaberReloadedCurve
+            AccSaberDataTypes.AccSaberCurve curve = new AccSaberDataTypes.AccSaberCurve
             {
-                points = new List<AccSaberReloadedDataTypes.AccSaberReloadedCurvePoint>
+                points = new List<AccSaberDataTypes.AccSaberCurvePoint>
                 {
-                    new AccSaberReloadedDataTypes.AccSaberReloadedCurvePoint { x = 1.25, y = 2.5 },
-                    new AccSaberReloadedDataTypes.AccSaberReloadedCurvePoint { x = 3.75, y = 4.5 }
+                    new AccSaberDataTypes.AccSaberCurvePoint { x = 1.25, y = 2.5 },
+                    new AccSaberDataTypes.AccSaberCurvePoint { x = 3.75, y = 4.5 }
                 }
             };
 
@@ -47,9 +47,9 @@ namespace UnitTests.Data
         public async Task NetworkUtilReturnsDeserializedDataAndFallbackData()
         {
             HttpClient successClient = new HttpClient(new StubHttpHandler(HttpStatusCode.OK, "{\"id\":\"curve-id\",\"scale\":2.5}"));
-            AccSaberReloadedDataTypes.AccSaberReloadedCurve curve = await NetworkUtil.GetDataAsync<AccSaberReloadedDataTypes.AccSaberReloadedCurve>(
+            AccSaberDataTypes.AccSaberCurve curve = await NetworkUtil.GetDataAsync<AccSaberDataTypes.AccSaberCurve>(
                 successClient,
-                Leaderboard.AccSaberReloaded,
+                Leaderboard.AccSaber,
                 nameof(NetworkUtilReturnsDeserializedDataAndFallbackData),
                 "https://mock/curve");
 
@@ -57,9 +57,9 @@ namespace UnitTests.Data
             Assert.AreEqual(2.5, curve.scale);
 
             HttpClient failedClient = new HttpClient(new StubHttpHandler(HttpStatusCode.InternalServerError, "{}"));
-            AccSaberReloadedDataTypes.AccSaberReloadedCurve fallback = await NetworkUtil.GetDataAsync<AccSaberReloadedDataTypes.AccSaberReloadedCurve>(
+            AccSaberDataTypes.AccSaberCurve fallback = await NetworkUtil.GetDataAsync<AccSaberDataTypes.AccSaberCurve>(
                 failedClient,
-                Leaderboard.AccSaberReloaded,
+                Leaderboard.AccSaber,
                 nameof(NetworkUtilReturnsDeserializedDataAndFallbackData),
                 "https://mock/fail");
 
@@ -71,9 +71,9 @@ namespace UnitTests.Data
         public async Task NetworkUtilReturnsFallbackOnException()
         {
             HttpClient throwingClient = new HttpClient(new ThrowingHttpHandler());
-            AccSaberReloadedDataTypes.AccSaberReloadedCurve fallback = await NetworkUtil.GetDataAsync<AccSaberReloadedDataTypes.AccSaberReloadedCurve>(
+            AccSaberDataTypes.AccSaberCurve fallback = await NetworkUtil.GetDataAsync<AccSaberDataTypes.AccSaberCurve>(
                 throwingClient,
-                Leaderboard.AccSaberReloaded,
+                Leaderboard.AccSaber,
                 nameof(NetworkUtilReturnsFallbackOnException),
                 "https://mock/throw");
 
@@ -96,9 +96,9 @@ namespace UnitTests.Data
         [TestMethod]
         public void LoggingMessagesAreRaisedForAllMessageTypes()
         {
-            List<LoggingMessage> messages = new List<LoggingMessage>();
-            CalculatorInstance ci = new CalculatorInstance(new Settings(false, false, false, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, "", 7, 12));
-            ci.OnMessage += (_, message) => messages.Add(message);
+            System.Collections.Concurrent.ConcurrentQueue<LoggingMessage> messages = new System.Collections.Concurrent.ConcurrentQueue<LoggingMessage>();
+            CalculatorInstance ci = new CalculatorInstance(new Settings(false, false, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12));
+            ci.OnMessage += (_, message) => messages.Enqueue(message);
 
             Logging.ErrorPrint("error");
             Logging.LoadingStatusPrint(Leaderboard.BeatLeader, "loading");

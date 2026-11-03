@@ -15,12 +15,12 @@ namespace PPPredictor.Core.Calculator
 {
     class PPCalculatorAccSaber<ASRAPI> : PPCalculator where ASRAPI : IAccSaberAPI, new()
     {
-        private readonly ASRAPI accSaberReloadedApi;
+        private readonly ASRAPI accSaberApi;
         private readonly string unsetPoolId = "-1";
 
         public PPCalculatorAccSaber(Dictionary<string, PPPMapPool> dctMapPool, Settings settings) : base(dctMapPool, settings, Leaderboard.AccSaber)
         {
-            accSaberReloadedApi = new ASRAPI();
+            accSaberApi = new ASRAPI();
         }
         
         internal override async Task<PPPPlayer> GetPlayerInfo(long userId, PPPMapPool mapPool)
@@ -28,16 +28,16 @@ namespace PPPredictor.Core.Calculator
             try
             {
                 if (mapPool.Id == unsetPoolId) return new PPPPlayer(true);
-                AccSaberUser player = await accSaberReloadedApi.GetAccSaberUser(userId);
+                AccSaberUser player = await accSaberApi.GetAccSaberUser(userId);
                 if (player == null)
                 {
-                    Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetPlayerInfo PlayerNotFound: {userId}");
+                    Logging.ErrorPrint($"PPCalculatorAccSaber GetPlayerInfo PlayerNotFound: {userId}");
                     return new PPPPlayer(true);
                 }
                 AccSaberUserCategoryStatistics stats = player.statistics?.FirstOrDefault(x => x.categoryId == mapPool.Id);
                 if (stats == null)
                 {
-                    Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetPlayerInfo No Stats for Player {userId} in pool {mapPool.Id}");
+                    Logging.ErrorPrint($"PPCalculatorAccSaber GetPlayerInfo No Stats for Player {userId} in pool {mapPool.Id}");
                     return new PPPPlayer(true);
                 }
                 return new PPPPlayer(player, stats);
@@ -45,7 +45,7 @@ namespace PPPredictor.Core.Calculator
             catch (Exception ex)
             {
                 mapPool.IsPlayerFound = false;
-                Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetPlayerInfo Error: {ex.Message}");
+                Logging.ErrorPrint($"PPCalculatorAccSaber GetPlayerInfo Error: {ex.Message}");
                 return new PPPPlayer(true);
             }
         }
@@ -54,12 +54,12 @@ namespace PPPredictor.Core.Calculator
             try
             {
                 if (mapPool.Id == unsetPoolId) return new PPPScoreCollection();
-                AccSaberScorePage accSaberScorePage = await accSaberReloadedApi.GetRecentScores(userId, mapPool.Id, page, pageSize);
+                AccSaberScorePage accSaberScorePage = await accSaberApi.GetRecentScores(userId, mapPool.Id, page, pageSize);
                 return new PPPScoreCollection(accSaberScorePage);
             }
             catch (Exception ex)
             {
-                Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetAllScores Error: {ex.Message}");
+                Logging.ErrorPrint($"PPCalculatorAccSaber GetAllScores Error: {ex.Message}");
                 return new PPPScoreCollection();
             }
         }
@@ -74,7 +74,7 @@ namespace PPPredictor.Core.Calculator
             {
                 List<PPPPlayer> lsPlayer = new List<PPPPlayer>();
                 if (mapPool.Id == unsetPoolId) return lsPlayer;
-                List<AccSaberPlayer> lsAccPlayer = await accSaberReloadedApi.GetPlayerListForMapPool(fetchIndexPage, mapPool.Id);
+                List<AccSaberPlayer> lsAccPlayer = await accSaberApi.GetPlayerListForMapPool(fetchIndexPage, mapPool.Id);
                 foreach (AccSaberPlayer accPlayer in lsAccPlayer)
                 {
                     lsPlayer.Add(new PPPPlayer(accPlayer));
@@ -83,7 +83,7 @@ namespace PPPredictor.Core.Calculator
             }
             catch (Exception ex)
             {
-                Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetPlayers Error: {ex.Message}");
+                Logging.ErrorPrint($"PPCalculatorAccSaber GetPlayers Error: {ex.Message}");
                 return new List<PPPPlayer>();
             }
         }
@@ -117,7 +117,7 @@ namespace PPPredictor.Core.Calculator
             }
             catch (Exception ex)
             {
-                Logging.ErrorPrint($"PPCalculatorAccSaberReloaded GetBeatMapInfoAsync Error: {ex.Message}");
+                Logging.ErrorPrint($"PPCalculatorAccSaber GetBeatMapInfoAsync Error: {ex.Message}");
                 return Task.FromResult(new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(-1)));
             }
         }
@@ -140,7 +140,7 @@ namespace PPPredictor.Core.Calculator
             {
                 if (mapPool.Id == unsetPoolId) return;
                 mapPool.LsLeaderboadInfo.Clear();
-                List<AccSaberMap> rankedMaps = await this.accSaberReloadedApi.GetRankedMaps(mapPool.Id);
+                List<AccSaberMap> rankedMaps = await this.accSaberApi.GetRankedMaps(mapPool.Id);
 
                 List<AccSaberRankedMap> rankedSongs = FlattenRankedMaps(rankedMaps, mapPool.Id);
                 foreach (AccSaberRankedMap song in rankedSongs)
@@ -151,26 +151,26 @@ namespace PPPredictor.Core.Calculator
             }
             catch (Exception ex)
             {
-                Logging.ErrorPrint($"PPCalculatorAccSaberReloaded UpdateMapPoolDetails Error: {ex.Message}");
+                Logging.ErrorPrint($"PPCalculatorAccSaber UpdateMapPoolDetails Error: {ex.Message}");
             }
         }
         public override async Task UpdateAvailableMapPools()
         {
             try
             {
-                List<AccSaberCurve> lsCurves = await accSaberReloadedApi.GetAccSaberCurves();
+                List<AccSaberCurve> lsCurves = await accSaberApi.GetAccSaberCurves();
                 
                 var defaultMapPool = new PPPMapPool(MapPoolType.Default, $"☞ Select a map pool ☜", new PPPWeightingInfo(0), 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), 0);
                 if (!_dctMapPool.ContainsKey(defaultMapPool.Id)) _dctMapPool.Add(defaultMapPool.Id, defaultMapPool);
 
-                List<AccSaberMapPool> lsMapPool = await accSaberReloadedApi.GetAccSaberMapPools();
+                List<AccSaberMapPool> lsMapPool = await accSaberApi.GetAccSaberMapPools();
                 //check if this map pool is already in list
                 foreach (AccSaberMapPool newMapPool in lsMapPool)
                 {
                     AccSaberCurve curvePoints =  lsCurves.FirstOrDefault(x => x.id == newMapPool.scoreCurve.id);
                     if (curvePoints == null && newMapPool.countForOverall)
                     {
-                        Logging.ErrorPrint($"PPCalculatorAccSaberReloaded UpdateAvailableMapPools Error: Curve {newMapPool.scoreCurve.id} not found");
+                        Logging.ErrorPrint($"PPCalculatorAccSaber UpdateAvailableMapPools Error: Curve {newMapPool.scoreCurve.id} not found");
                         continue;
                     }
                     List<(double, double)> lsCurvePoints = curvePoints?.GetPointsAsTuples() ?? new List<(double, double)>();
@@ -187,9 +187,10 @@ namespace PPPredictor.Core.Calculator
                         int sortindex = Array.IndexOf(new object[4] { "overall", "standard_acc", "true_acc", "tech_acc" }, newMapPool.code) + 1;
                         MapPoolType mapPoolType = newMapPool.countForOverall ? MapPoolType.Custom : MapPoolType.Default;
                         string description = newMapPool.code == "overall" ? "Overall" : newMapPool.description;
-                        mapPool = new PPPMapPool(newMapPool.id, newMapPool.code, mapPoolType, description, weightInfo, sortindex, newCurve, string.Empty, syncUrl: $"https://api.accsaberreloaded.com/v1/playlists/{newMapPool.code}");
+                        mapPool = new PPPMapPool(newMapPool.id, newMapPool.code, mapPoolType, description, weightInfo, sortindex, newCurve, string.Empty, syncUrl: $"https://api.accsaber.com/v1/playlists/{newMapPool.code}");
                         if (!_dctMapPool.ContainsKey(mapPool.Id)) _dctMapPool.Add(mapPool.Id, mapPool);
                     }
+                    //Refresh all Pools since the combined pool has no info about all scores so they have to be combined from all others
                     await InternalUpdateMapPoolDetails(mapPool);
                     await UpdatePlayer(mapPool, true);
                 }
@@ -197,7 +198,7 @@ namespace PPPredictor.Core.Calculator
             }
             catch (Exception ex)
             {
-                Logging.ErrorPrint($"PPCalculatorAccSaberReloaded UpdateAvailableMapPools Error: {ex.Message}");
+                Logging.ErrorPrint($"PPCalculatorAccSaber UpdateAvailableMapPools Error: {ex.Message}");
             }
         }
         
@@ -234,6 +235,7 @@ namespace PPPredictor.Core.Calculator
         
         internal override bool IsScoreSetOnCurrentMapPool(PPPMapPool mapPool, PPPScoreSetData score)
         {
+            //Macht das sinn?
             if (mapPool.MapPoolType != MapPoolType.Default)
             {
                 return mapPool.LsLeaderboadInfo.Exists(x => x.Searchstring.Contains(score.hash.ToUpper()));
@@ -289,7 +291,7 @@ namespace PPPredictor.Core.Calculator
             double y1 = weightingInfo.YParameter;
             double x1 = weightingInfo.ZParameter;
             double k = weightingInfo.XParameter;
-            Logging.ErrorPrint($"PPCalculatorAccSaberReloaded CalculateWeightMulitplier: {y1} {x1} {k}");
+            Logging.ErrorPrint($"PPCalculatorAccSaber CalculateWeightMulitplier: {y1} {x1} {k}");
             double x0 = -(Math.Log((1 - y1) / (y1 * Math.Exp(k * x1) - 1)) / k);
             return (1 + Math.Exp(-k * x0)) / (1 + Math.Exp(k * (index - 1 - x0)));
         }

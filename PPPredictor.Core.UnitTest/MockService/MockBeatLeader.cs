@@ -158,7 +158,9 @@ namespace PPPredictor.Core.UnitTest.MockService
                 {
                     { "fsAccRating", 5.1 },
                     { "fsPassRating", 6.1 },
-                    { "fsTechRating", 7.1 }
+                    { "fsTechRating", 7.1 },
+                    { "fsSliderPercentage", 0.2 },
+                    { "fsPredictedAcc", 0.95 }
                 }
             };
         }

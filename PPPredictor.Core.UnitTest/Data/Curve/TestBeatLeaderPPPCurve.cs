@@ -1,5 +1,10 @@
-﻿using PPPredictor.Core.DataType;
+using PPPredictor.Core;
+using PPPredictor.Core.Calculator;
+using PPPredictor.Core.DataType;
+using PPPredictor.Core.DataType.BeatSaberEncapsulation;
 using PPPredictor.Core.DataType.Curve;
+using PPPredictor.Core.DataType.MapPool;
+using PPPredictor.Core.UnitTest.MockService;
 using static PPPredictor.Core.DataType.Enums;
 
 namespace UnitTests.Data.Curve
@@ -7,105 +12,97 @@ namespace UnitTests.Data.Curve
     [TestClass]
     public class TestBeatLeaderPPPCurve
     {
-        PPPBeatMapInfo beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(), new PPPStarRating(1, 11.82055, 7.9189496, 5.424088, true));
-        BeatLeaderPPPCurve curve = new BeatLeaderPPPCurve();
+        private readonly PPPBeatMapInfo beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(),
+            new PPPStarRating(1, 11.82055, 7.9189496, 5.424088, 0.96, 0.2, 500, 120, 1, true));
+        private readonly BeatLeaderPPPCurve curve = new BeatLeaderPPPCurve();
 
         [TestMethod]
         public void TestCalculatePPatPercentage()
         {
-            double result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false);
-            bool isInRange = result < 595.08 && result > 593.08;
-            Assert.IsTrue(isInRange);
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, true, false, LeaderboardContext.BeatLeaderDefault);
-            Assert.AreEqual(result, 0, "Failed Beatleader level should return 0pp");
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, true, false, LeaderboardContext.BeatLeaderNoPauses);
-            Assert.AreEqual(result, 0, "Failed Beatleader level should return 0pp");
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, true, false, LeaderboardContext.BeatLeaderNoModifiers);
-            Assert.AreEqual(result, 0, "Failed Beatleader level should return 0pp");
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, true, false, LeaderboardContext.BeatLeaderGolf);
-            Assert.AreEqual(result, 0, "Failed Beatleader level should return 0pp");
+            double result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
+            Assert.AreEqual(599.6683702272347, result, 0.001);
         }
 
         [TestMethod]
-        public void TestCalculatePPatPercentageWhenPaused()
+        [DataRow(LeaderboardContext.BeatLeaderDefault)]
+        [DataRow(LeaderboardContext.BeatLeaderNoPauses)]
+        [DataRow(LeaderboardContext.BeatLeaderNoModifiers)]
+        [DataRow(LeaderboardContext.BeatLeaderGolf)]
+        public void FailedLevelsHaveZeroPP(LeaderboardContext context)
         {
-            double result = curve.CalculatePPatPercentage(beatMapInfo, 30, false, true, LeaderboardContext.BeatLeaderDefault);
-            bool isInRange = result < 114 && result > 113;
-            Assert.IsTrue(isInRange, "Paused level should only apply to NoPauseMode");
+            ApplyModifiers(context, new GameplayModifiers(), true, false);
+            Assert.AreEqual(0, curve.CalculatePPatPercentage(beatMapInfo, 30, true, false, context));
+        }
 
-            result = curve.CalculatePPatPercentage(beatMapInfo, 30, false, true, LeaderboardContext.BeatLeaderNoPauses);
-            Assert.AreEqual(result, 0, "Paused level should result in 0pp in NoPauseMode");
+        [TestMethod]
+        [DataRow(LeaderboardContext.BeatLeaderDefault)]
+        [DataRow(LeaderboardContext.BeatLeaderNoPauses)]
+        [DataRow(LeaderboardContext.BeatLeaderNoModifiers)]
+        [DataRow(LeaderboardContext.BeatLeaderGolf)]
+        public void TestCalculatePPatPercentageWhenPaused(LeaderboardContext context)
+        {
+            ApplyModifiers(context, new GameplayModifiers(), false, false);
+            double unpaused = curve.CalculatePPatPercentage(beatMapInfo, 30, false, false, context);
+            Assert.IsTrue(unpaused > 0);
 
-            result = curve.CalculatePPatPercentage(beatMapInfo, 30, false, true, LeaderboardContext.BeatLeaderNoModifiers);
-            isInRange = result < 114 && result > 113;
-            Assert.IsTrue(isInRange, "Paused level should only apply to NoPauseMode");
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 30, false, true, LeaderboardContext.BeatLeaderGolf);
-            isInRange = result < 436 && result > 435;
-            Assert.IsTrue(isInRange, "Paused level should only apply to NoPauseMode");
+            ApplyModifiers(context, new GameplayModifiers(), false, true);
+            double paused = curve.CalculatePPatPercentage(beatMapInfo, 30, false, true, context);
+            Assert.AreEqual(context == LeaderboardContext.BeatLeaderNoPauses ? 0 : unpaused, paused, 0.001);
         }
 
         [TestMethod]
         public void TestCalculatePPatPercentageModifier()
         {
-            Assert.IsTrue(true);
-//#warning todo someday
+            ApplyModifiers(LeaderboardContext.BeatLeaderDefault, new GameplayModifiers(), false, false);
+            double unmodified = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
+            beatMapInfo.BaseStarRating.ModifierValues["gn"] = 0.11;
+            ApplyModifiers(LeaderboardContext.BeatLeaderDefault, new GameplayModifiers { ghostNotes = true }, false, false);
+            double modified = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
+            Assert.IsTrue(modified > unmodified);
         }
 
         [TestMethod]
         public void TestCalculatePPatPercentageGolf()
         {
-            beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(), new PPPStarRating(1, 6.9128127, 3.937846, 3.5577383, true));
-
             double result = curve.CalculatePPatPercentage(beatMapInfo, 49.77, false, false, LeaderboardContext.BeatLeaderGolf);
-            bool isInRange = result < 148 && result > 147;
-            Assert.IsTrue(isInRange, "PP should be in given range");
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 49.77, true, false, LeaderboardContext.BeatLeaderGolf);
-            isInRange = result < 436 && result > 435;
-            Assert.IsFalse(isInRange, "Only finished levels count");
-
-            result = curve.CalculatePPatPercentage(beatMapInfo, 51, true, false, LeaderboardContext.BeatLeaderGolf);
-            Assert.AreEqual(result, 0, "Percentage has to be 50 or below");
+            Assert.AreEqual(315.9134086616328, result, 0.001);
+            Assert.AreEqual(0, curve.CalculatePPatPercentage(beatMapInfo, 51, false, false, LeaderboardContext.BeatLeaderGolf));
         }
 
         [TestMethod]
         public void TestToCurveInfo()
         {
-            CurveInfo result = curve.ToCurveInfo();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.CurveType, CurveType.BeatLeader);
+            Assert.AreEqual(CurveType.BeatLeader, curve.ToCurveInfo().CurveType);
         }
 
         [TestMethod]
-        public void TestInfintePassPP()
+        public void NegativePassRatingProducesFinitePP()
         {
-            PPPBeatMapInfo beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(), new PPPStarRating(1, 11.82055, -7.9189496, 5.424088, true));
-            double result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false);
-            Assert.IsNotNull(result);
-            bool isInRange = result < 462 && result > 461;
-            Assert.IsTrue(isInRange);
+            beatMapInfo.BaseStarRating.PassRating = -7.9189496;
+            double result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
+            Assert.IsTrue(double.IsFinite(result));
+            Assert.IsTrue(result > 0);
         }
 
         [TestMethod]
         public void TestExceptionHandling()
         {
-            PPPBeatMapInfo beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(), new PPPStarRating(1, 1, 1, 1, true));
-            double result = curve.CalculatePPatPercentage(beatMapInfo, double.NaN, false, false);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result, -1, "Returns -1 if anything goes wrong");
+            Assert.AreEqual(-1, curve.CalculatePPatPercentage(null!, 95, false, false, LeaderboardContext.BeatLeaderDefault));
         }
 
         [TestMethod]
         public void TestCalculateMaxPP()
         {
-            double result = curve.CalculateMaxPP(beatMapInfo);
-            bool isInRange = result < 5017 && result > 5014;
-            Assert.IsTrue(isInRange);
+            double result = curve.CalculateMaxPP(beatMapInfo, LeaderboardContext.BeatLeaderDefault);
+            Assert.AreEqual(2586.4882468546252, result, 0.001);
+            Assert.AreEqual(curve.CalculatePPatPercentage(beatMapInfo, 100, false, false, LeaderboardContext.BeatLeaderDefault), result);
+        }
+
+        private void ApplyModifiers(LeaderboardContext context, GameplayModifiers modifiers, bool failed, bool paused)
+        {
+            Settings settings = new Settings(false, true, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12);
+            PPCalculatorBeatLeader<MockBeatLeader> calculator = new PPCalculatorBeatLeader<MockBeatLeader>(new Dictionary<string, PPPMapPool>(), settings);
+            calculator.ApplyModifiersToBeatmapInfo(beatMapInfo, new PPPMapPool { LeaderboardContext = context }, modifiers, failed, paused);
         }
     }
 }

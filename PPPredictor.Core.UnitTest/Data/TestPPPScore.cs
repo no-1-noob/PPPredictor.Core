@@ -84,7 +84,7 @@ namespace UnitTests.Data
         public void AccSaberScoresConstructor()
         {
             string testDifficultyAccSaber = "expert";
-            AccSaberScores playerScore = new AccSaberScores();
+            AccSaberScore playerScore = new AccSaberScore();
             playerScore.timeSet = dtTest.Date;
             playerScore.ap = testPP;
             playerScore.songHash = testHash;
@@ -97,7 +97,7 @@ namespace UnitTests.Data
             Assert.IsTrue(score.Difficulty1 == 7, "Difficulty1 should match");
             Assert.IsTrue(score.GameMode == testGameMode, "GameMode should match");
 
-            playerScore = new AccSaberScores();
+            playerScore = new AccSaberScore();
             playerScore.timeSet = dtTest.Date;
             playerScore.ap = testPP;
             playerScore.songHash = null;

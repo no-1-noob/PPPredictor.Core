@@ -1,98 +1,124 @@
-﻿using PPPredictor.Core.DataType.LeaderBoard;
 using PPPredictor.Core.Interface;
+using static PPPredictor.Core.DataType.LeaderBoard.AccSaberDataTypes;
 
-namespace PPPredictor.Core.UnitTest.MockService
+namespace PPPredictor.Core.UnitTest.MockService;
+
+internal class MockAccSaber : IAccSaberAPI
 {
-    internal class MockAccSaber : IAccSaberAPI
+    public Task<List<AccSaberCurve>> GetAccSaberCurves()
     {
-        public Task<List<AccSaberDataTypes.AccSaberMapPool>> GetAccSaberMapPools()
+        return Task.FromResult(new List<AccSaberCurve>
         {
-            return Task.FromResult(new List<AccSaberDataTypes.AccSaberMapPool>
+            new AccSaberCurve
             {
-                new AccSaberDataTypes.AccSaberMapPool { categoryName = "standard", categoryDisplayName = "Standard" },
-                new AccSaberDataTypes.AccSaberMapPool { categoryName = "tech", categoryDisplayName = "Tech" },
-                new AccSaberDataTypes.AccSaberMapPool { categoryName = "true", categoryDisplayName = "True Acc" }
-            });
-        }
+                id = "score-curve",
+                points = new List<AccSaberCurvePoint>
+                {
+                    new AccSaberCurvePoint { x = 0, y = 0 },
+                    new AccSaberCurvePoint { x = 0.9, y = 300 },
+                    new AccSaberCurvePoint { x = 1, y = 500 }
+                }
+            }
+        });
+    }
 
-        public Task<AccSaberDataTypes.AccSaberPlayer> GetAccSaberUserByPool(long userId, string poolIdent)
+    public Task<List<AccSaberMapPool>> GetAccSaberMapPools()
+    {
+        return Task.FromResult(new List<AccSaberMapPool>
         {
-            return Task.FromResult(new AccSaberDataTypes.AccSaberPlayer
-            {
-                rank = poolIdent == "tech" ? 75 : 50,
-                ap = poolIdent == "tech" ? 450 : 600
-            });
-        }
+            Pool("overall", "overall", "Overall", false),
+            Pool("standard_acc", "standard", "Standard", true),
+            Pool("tech_acc", "tech", "Tech", true)
+        });
+    }
 
-        public Task<List<AccSaberDataTypes.AccSaberRankedMap>> GetAllRankedMaps()
+    public Task<List<AccSaberMap>> GetRankedMaps(string mapPoolId)
+    {
+        return Task.FromResult(new List<AccSaberMap>
         {
-            return Task.FromResult(new List<AccSaberDataTypes.AccSaberRankedMap>
+            new AccSaberMap
             {
-                RankedMap("ACCHASH", "ExpertPlus", 13.5, "Standard"),
-                RankedMap("TECHHASH", "Expert", 9.25, "Tech"),
-                RankedMap("TRUEHASH", "Hard", 7.75, "True Acc")
-            });
-        }
+                songHash = "ACCHASH",
+                difficulties = new List<AccSaberRankedMap>
+                {
+                    new AccSaberRankedMap
+                    {
+                        categoryId = mapPoolId,
+                        difficulty = "ExpertPlus",
+                        complexity = mapPoolId == "tech" ? 11.1 : 13.5
+                    },
+                    new AccSaberRankedMap
+                    {
+                        categoryId = "other",
+                        difficulty = "Hard",
+                        complexity = 3.5
+                    }
+                }
+            },
+            new AccSaberMap { songHash = "EMPTY", difficulties = null! }
+        });
+    }
 
-        public Task<List<AccSaberDataTypes.AccSaberScores>> GetAllScores(string userId)
+    public Task<List<AccSaberPlayer>> GetPlayerListForMapPool(double page, string mapPoolId)
+    {
+        return Task.FromResult(Enumerable.Range(0, 50).Select(i => new AccSaberPlayer
         {
-            return Task.FromResult(new List<AccSaberDataTypes.AccSaberScores>
-            {
-                Score("ACCHASH", "ExpertPlus", 300, 300, "Standard", 10),
-                Score("TECHHASH", "Expert", 200, 180, "Tech", 20),
-                Score("TRUEHASH", "Hard", 100, 90, "True Acc", 30)
-            });
-        }
+            categoryId = mapPoolId,
+            ranking = (int)page * 50 + i + 1,
+            countryRanking = (int)page * 50 + i + 1,
+            ap = 900 - ((int)page * 50 + i) * 4,
+            country = "DE"
+        }).ToList());
+    }
 
-        public Task<List<AccSaberDataTypes.AccSaberScores>> GetAllScoresByPool(string userId, string poolId)
+    public Task<AccSaberUser> GetAccSaberUser(long userId)
+    {
+        return Task.FromResult(new AccSaberUser
         {
-            return Task.FromResult(new List<AccSaberDataTypes.AccSaberScores>
+            id = userId.ToString(),
+            name = "Mock AccSaber Player",
+            country = "DE",
+            statistics = new List<AccSaberUserCategoryStatistics>
             {
-                Score("ACCHASH", "ExpertPlus", 300, 300, "Standard", 10),
-                Score("ACCHASH2", "Expert", 240, 216, "Standard", 20)
-            });
-        }
+                new AccSaberUserCategoryStatistics { categoryId = "standard", ranking = 50, countryRanking = 7, ap = 600 },
+                new AccSaberUserCategoryStatistics { categoryId = "tech", ranking = 75, countryRanking = 12, ap = 450 }
+            }
+        });
+    }
 
-        public Task<List<AccSaberDataTypes.AccSaberPlayer>> GetPlayerListForMapPool(double page, string mapPoolId)
+    public Task<AccSaberScorePage> GetRecentScores(string userId, string poolId, int page, int pageSize)
+    {
+        List<AccSaberScore> scores = new List<AccSaberScore>
         {
-            return Task.FromResult(Enumerable.Range(0, 50).Select(i => new AccSaberDataTypes.AccSaberPlayer
+            new AccSaberScore
             {
-                rank = ((int)page - 1) * 50 + i + 1,
-                ap = 1000 - (((int)page - 1) * 50 + i) * 5
-            }).ToList());
-        }
+                songHash = "ACCHASH", difficulty = "ExpertPlus", ap = 300, weightedAp = 300,
+                categoryId = poolId, timeSet = new DateTimeOffset(2024, 2, 1, 0, 0, 0, TimeSpan.Zero)
+            },
+            new AccSaberScore
+            {
+                songHash = "ACCHASH2", difficulty = "Expert", ap = 240, weightedAp = 216,
+                categoryId = poolId, timeSet = new DateTimeOffset(2024, 2, 2, 0, 0, 0, TimeSpan.Zero)
+            }
+        };
+        return Task.FromResult(new AccSaberScorePage
+        {
+            totalElements = scores.Count,
+            pageable = new AccSaberPageable { pageNumber = page, pageSize = pageSize },
+            content = scores.Skip(page * pageSize).Take(pageSize).ToList()
+        });
+    }
 
-        public Task<List<AccSaberDataTypes.AccSaberRankedMap>> GetRankedMaps(string mapPool)
+    private static AccSaberMapPool Pool(string code, string id, string description, bool countForOverall)
+    {
+        return new AccSaberMapPool
         {
-            return Task.FromResult(new List<AccSaberDataTypes.AccSaberRankedMap>
-            {
-                RankedMap("ACCHASH", "ExpertPlus", 13.5, "Standard"),
-                RankedMap("ACCHASH2", "Expert", 10.25, "Standard")
-            });
-        }
-
-        private static AccSaberDataTypes.AccSaberRankedMap RankedMap(string hash, string difficulty, double complexity, string category)
-        {
-            return new AccSaberDataTypes.AccSaberRankedMap
-            {
-                songHash = hash,
-                difficulty = difficulty,
-                complexity = complexity,
-                categoryDisplayName = category
-            };
-        }
-
-        private static AccSaberDataTypes.AccSaberScores Score(string hash, string difficulty, double ap, double weightedAp, string category, int day)
-        {
-            return new AccSaberDataTypes.AccSaberScores
-            {
-                songHash = hash,
-                difficulty = difficulty,
-                ap = ap,
-                weightedAp = weightedAp,
-                categoryDisplayName = category,
-                timeSet = new DateTime(2024, 1, day)
-            };
-        }
+            code = code,
+            id = id,
+            description = description,
+            countForOverall = countForOverall,
+            scoreCurve = new AccSaberCurve { id = "score-curve", scale = 1 },
+            weightCurve = new AccSaberCurve { xParameterValue = 0.4, yParameterValue = 0.1, zParameterValue = 15 }
+        };
     }
 }

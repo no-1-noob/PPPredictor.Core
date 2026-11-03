@@ -67,8 +67,8 @@ namespace UnitTests.Data
             Assert.AreEqual(starRating.PassRating, 0);
             Assert.AreEqual(starRating.AccRating, 0);
             Assert.AreEqual(starRating.TechRating, 0);
-            Assert.IsNull(starRating.ModifiersRating);
-            Assert.IsNull(starRating.ModifierValues);
+            Assert.AreEqual(0, starRating.ModifiersRating.Count);
+            Assert.AreEqual(0, starRating.ModifierValues.Count);
 
             //Unranked
             beatLeaderDifficulty = new BeatLeaderDifficulty() {
@@ -122,18 +122,22 @@ namespace UnitTests.Data
             double passRating = 7;
             double accRating = 8;
             double techRating = 9;
-            PPPStarRating starRating = new PPPStarRating(multi, accRating, passRating, techRating, true);
+            PPPStarRating starRating = new PPPStarRating(multi, accRating, passRating, techRating, 0.96, 0.2, 500, 120, 1.5, true);
             Assert.AreEqual(starRating.Stars, star);
             Assert.AreEqual(starRating.Multiplier, multi);
             Assert.AreEqual(starRating.PassRating, passRating);
             Assert.AreEqual(starRating.AccRating, accRating);
             Assert.AreEqual(starRating.TechRating, techRating);
+            Assert.AreEqual(0.96, starRating.PredictedAcc);
+            Assert.AreEqual(0.2, starRating.SliderPercentage);
+            Assert.AreEqual(500, starRating.Notes);
+            Assert.AreEqual(120, starRating.NoteSpan);
+            Assert.AreEqual(1.5, starRating.NoteSpanMult);
             Assert.IsTrue(starRating.RankedBeatLeader, "RankedBeatLeader should be true");
-            starRating = new PPPStarRating(multi, accRating, passRating, techRating, false);
+            starRating = new PPPStarRating(multi, accRating, passRating, techRating, 0, 0, 0, 0, 1, false);
             Assert.IsFalse(starRating.RankedBeatLeader, "RankedBeatLeader should be false");
             starRating.RankedBeatLeader = true;
             Assert.IsTrue(starRating.RankedBeatLeader, "RankedBeatLeader should be false");
         }
     }
 }
-

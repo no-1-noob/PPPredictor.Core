@@ -9,6 +9,7 @@
         double _maxPP = -1;
         string _selectedMapSearchString;
         bool _oldDotsEnabled;
+        string _modifiers = string.Empty;
 
         public PPPStarRating BaseStarRating { get => _baseStarRating; set => _baseStarRating = value; }
         internal PPPStarRating ModifiedStarRating { get => _modifiedStarRating; set => _modifiedStarRating = value; }
@@ -17,6 +18,7 @@
         public string SelectedMapSearchString { get => _selectedMapSearchString; set => _selectedMapSearchString = value; }
         public bool OldDotsEnabled { get => _oldDotsEnabled; set => _oldDotsEnabled = value; }
         public string CustomLevelHash { get => _customLevelHash; set => _customLevelHash = value; }
+        public string Modifiers { get => _modifiers; set => _modifiers = value; }
 
         public PPPBeatMapInfo()
         {

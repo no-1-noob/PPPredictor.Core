@@ -7,7 +7,6 @@ namespace PPPredictor.Core
     {
         private PPGainCalculationType ppGainCalculationType;
         private MapPoolSorting hitbloqMapPoolSorting;
-        private string platformUserId;
         private int refetchMapInfoAfterDays;
         private int resetSessionHours;
 
@@ -17,7 +16,7 @@ namespace PPPredictor.Core
         private bool isAccSaberEnabled;
         private string userId;
 
-        public Settings(bool isScoreSaberEnabled, bool isBeatLeaderEnabled, bool isHitbloqEnabled, bool isAccSaberEnabled, string userId, PPGainCalculationType ppGainCalculationType, MapPoolSorting hitbloqMapPoolSorting, string platformUserId, int refetchMapInfoAfterDays, int resetSessionHours)
+        public Settings(bool isScoreSaberEnabled, bool isBeatLeaderEnabled, bool isHitbloqEnabled, bool isAccSaberEnabled, string userId, PPGainCalculationType ppGainCalculationType, MapPoolSorting hitbloqMapPoolSorting, int refetchMapInfoAfterDays, int resetSessionHours)
         {
             this.isScoreSaberEnabled = isScoreSaberEnabled;
             this.isBeatLeaderEnabled = isBeatLeaderEnabled;
@@ -26,7 +25,6 @@ namespace PPPredictor.Core
             this.userId = userId;
             this.ppGainCalculationType = ppGainCalculationType;
             this.hitbloqMapPoolSorting = hitbloqMapPoolSorting;
-            this.platformUserId = platformUserId;
             this.refetchMapInfoAfterDays = refetchMapInfoAfterDays;
             this.resetSessionHours = resetSessionHours;
         }
@@ -39,7 +37,6 @@ namespace PPPredictor.Core
         public int ResetSessionHours { get => resetSessionHours; set => resetSessionHours = value; }
         internal PPGainCalculationType PpGainCalculationType { get => ppGainCalculationType; set => ppGainCalculationType = value; }
         internal MapPoolSorting HitbloqMapPoolSorting { get => hitbloqMapPoolSorting; set => hitbloqMapPoolSorting = value; }
-        internal string PlatformUserId { get => platformUserId; set => platformUserId = value; }
         internal int RefetchMapInfoAfterDays { get => refetchMapInfoAfterDays; set => refetchMapInfoAfterDays = value; }
     }
 }

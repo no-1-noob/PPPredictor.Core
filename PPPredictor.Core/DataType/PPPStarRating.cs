@@ -12,6 +12,10 @@ namespace PPPredictor.Core.DataType
         private double _passRating = 0;
         private double _accRating = 0;
         private double _techRating = 0;
+        private double _sliderPercentage = 0;
+        private double _noteSpan = 0;
+        private int _notes = 0;
+        private double _noteSpanMult = 1;
         private bool? _rankedBeatLeader = null;
         private Dictionary<string, double> _modifiersRating = new Dictionary<string, double>();
         private Dictionary<string, double> _modifierValues = new Dictionary<string, double>();
@@ -28,6 +32,14 @@ namespace PPPredictor.Core.DataType
         public double AccRating { get => _accRating; set => _accRating = value; }
         [DefaultValue(0d)]
         public double TechRating { get => _techRating; set => _techRating = value; }
+        [DefaultValue(0d)] 
+        public double SliderPercentage { get => _sliderPercentage; set => _sliderPercentage = value; }
+        [DefaultValue(0d)] 
+        public double NoteSpan { get => _noteSpan; set => _noteSpan = value; }
+        [DefaultValue(0d)] 
+        public int Notes { get => _notes; set => _notes = value; }
+        [DefaultValue(1d)] 
+        public double NoteSpanMult { get => _noteSpanMult; set => _noteSpanMult = value; }
         [DefaultValue(null)]
         public Dictionary<string, double> ModifiersRating { get => _modifiersRating; set => _modifiersRating = value; }
         [DefaultValue(null)]
@@ -59,17 +71,26 @@ namespace PPPredictor.Core.DataType
             _passRating = beatLeaderDifficulty.passRating.GetValueOrDefault();
             _accRating = beatLeaderDifficulty.accRating.GetValueOrDefault();
             _techRating = beatLeaderDifficulty.techRating.GetValueOrDefault();
-            _modifiersRating = beatLeaderDifficulty.modifiersRating ?? null;
-            _modifierValues = beatLeaderDifficulty.modifierValues ?? null;
+            _sliderPercentage = beatLeaderDifficulty.sliderPercentage.GetValueOrDefault();
+            _notes = beatLeaderDifficulty.notes;
+            _noteSpan = beatLeaderDifficulty.noteSpan.GetValueOrDefault();
+            _noteSpanMult = 1;
+            _modifiersRating = beatLeaderDifficulty.modifiersRating ?? new Dictionary<string, double>();
+            _modifierValues = beatLeaderDifficulty.modifierValues ?? new Dictionary<string, double>();
         }
 
-        internal PPPStarRating(double mulitplier, double accRating, double passRating, double techRating, bool? rankedBeatLeader)
+        internal PPPStarRating(double mulitplier, double accRating, double passRating, double techRating, double predictedAcc, double sliderPercentage, int notes, double noteSpan, double noteSpanMult, bool? rankedBeatLeader)
         {
             _rankedBeatLeader = rankedBeatLeader;
             _multiplier = mulitplier;
             _accRating = accRating;
             _passRating = passRating;
             _techRating = techRating;
+            _predictedAcc = predictedAcc;
+            _sliderPercentage = sliderPercentage;
+            _notes = notes;
+            _noteSpan = noteSpan;
+            _noteSpanMult = noteSpanMult;
         }
 
         public bool IsRanked()
@@ -79,6 +100,11 @@ namespace PPPredictor.Core.DataType
             }
 
             return _predictedAcc > 0 || _passRating > 0 || _accRating > 0 || _techRating > 0 || _stars > 0;      
+        }
+
+        public override string ToString()
+        {
+            return $"PPPStarRating: Stars {Stars} Multiplier {Multiplier} PredictedAcc {PredictedAcc} PassRating {PassRating} AccRating {AccRating} TechRating {TechRating} SliderPercentage {SliderPercentage} NoteSpan {NoteSpan} Notes {Notes} NoteSpanMult {NoteSpanMult} ModifiersRating {ModifiersRating} ModifierValues {ModifierValues}";
         }
     }
 }

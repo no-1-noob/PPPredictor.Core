@@ -76,7 +76,7 @@ namespace PPPredictor.Core.DataType.LeaderBoard
                     _hasPPToRankFunctionality = true;
                     break;
                 case Leaderboard.AccSaber:
-                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.AccSaberReloaded.png";
+                    _leaderboardIcon = "PPPredictor.Shared.Resources.LeaderBoardLogos.AccSaber.png";
                     _ppSuffix = "ap";
                     _leaderboardFirstPageIndex = 0;
                     _largePageSize = 100;

@@ -63,7 +63,7 @@ namespace PPPredictor.Core.Calculator
                 //         weightedSum += score.PPWeighted;
                 //         score.WeightedSum = weightedSum;
                 //     
-                //         // if (_leaderboardInfo.Leaderboard == Leaderboard.AccSaberReloaded)
+                //         // if (_leaderboardInfo.Leaderboard == Leaderboard.AccSaber)
                 //         // {
                 //             Logging.DebugNetworkPrint($"Score {_leaderboardInfo.Leaderboard} {score.Searchstring} WeightedSum: {score.Pp} {score.WeightedSum} {score.PPWeighted} {mapPool.WeightingInfo.AccumulationConstant}", _leaderboardInfo.Leaderboard);
                 //         // }

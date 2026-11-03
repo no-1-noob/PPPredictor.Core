@@ -84,24 +84,29 @@ namespace UnitTests.Data
         [TestMethod]
         public void AccSaberScoresConstructor()
         {
-            List<AccSaberScores> scoreList = new List<AccSaberScores>
+            List<AccSaberScore> scoreList = new List<AccSaberScore>
             {
-                new AccSaberScores()
+                new AccSaberScore()
                 {
                     timeSet = new DateTime(1970,1,1)
                 },
-                new AccSaberScores()
+                new AccSaberScore()
                 {
                     timeSet = new DateTime(1970,1,1)
                 }
             };
-            PPPScoreCollection pPPScoreCollection = new PPPScoreCollection(scoreList, 1);
+            PPPScoreCollection pPPScoreCollection = new PPPScoreCollection(new AccSaberScorePage
+            {
+                content = scoreList,
+                pageable = new AccSaberPageable { pageNumber = 1, pageSize = 10 },
+                totalElements = 12
+            });
             Assert.IsNotNull(pPPScoreCollection.LsPPPScore, "LsPPPScore should exist");
             Assert.IsTrue(pPPScoreCollection.LsPPPScore.Count == scoreList.Count, "LsPPPScore length should match");
             Assert.IsTrue(pPPScoreCollection.Page == 1, "Page should be 1");
             Assert.IsTrue(pPPScoreCollection.ItemsPerPage == 10, "ItemsPerPage should be 2");
-            Assert.IsTrue(pPPScoreCollection.Total == 11, "Total should be 11");
-            pPPScoreCollection = new PPPScoreCollection(new List<AccSaberScores>(), 1);
+            Assert.IsTrue(pPPScoreCollection.Total == 12, "Total should match API metadata");
+            pPPScoreCollection = new PPPScoreCollection(new AccSaberScorePage());
             Assert.IsTrue(pPPScoreCollection.Total == 0, "Total should be 0");
         }
     }
