@@ -100,24 +100,21 @@ namespace PPPredictor.Core.DataType.Curve
                     {
                         case LeaderboardContext.BeatLeaderDefault:
                             return PpFromScore(percentage, leaderboardContext, beatMapInfo.Modifiers, beatMapInfo, GetCurveInputs(beatMapInfo), false).Item1;
-                            break;
                         case LeaderboardContext.BeatLeaderNoPauses:
                             if (beatMapInfo.ModifiedStarRating.Multiplier == 0) return 0; 
                             return PpFromScore(percentage, leaderboardContext, beatMapInfo.Modifiers, beatMapInfo, GetCurveInputs(beatMapInfo), false).Item1;
-                            break;
                         case LeaderboardContext.BeatLeaderGolf:
                             if (percentage > 0.5f) return 0;
                             if (beatMapInfo.ModifiedStarRating.Multiplier == 0) return 0;
                             return PpFromScore(1-percentage, leaderboardContext, beatMapInfo.Modifiers, beatMapInfo, GetCurveInputs(beatMapInfo), false).Item1;
-                            break;
                         case LeaderboardContext.BeatLeaderNoModifiers:
                             if (beatMapInfo.ModifiedStarRating.Multiplier == 0) return 0;
                             return PpFromScore(percentage, leaderboardContext, beatMapInfo.Modifiers, beatMapInfo, GetCurveInputs(beatMapInfo), false).Item1;
-                            break;
                         case LeaderboardContext.BeatLeaderSCPM:
                             if (beatMapInfo.ModifiedStarRating.Multiplier == 0) return 0;
                             return PpFromScore(percentage, leaderboardContext, beatMapInfo.Modifiers, beatMapInfo, GetCurveInputs(beatMapInfo), false).Item1;
-                            break;
+                        default:
+                            return 0;
                     }
                     
                     // if (leaderboardContext == LeaderboardContext.BeatLeaderGolf)
