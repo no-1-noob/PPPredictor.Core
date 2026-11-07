@@ -17,11 +17,6 @@ namespace PPPredictor.Core.Calculator
         private readonly BLAPI beatleaderapi;
         internal static float accumulationConstant = 0.965f;
         private const float accumulationConstantEvent = 0.925f;
-        private const string AccRating = "AccRating";
-        private const string PassRating = "PassRating";
-        private const string TechRating = "TechRating";
-        private const string SliderPercentage = "SliderPercentage";
-        private const string PredictedAcc = "PredictedAcc";
         private string _userName = string.Empty;
 
         public PPCalculatorBeatLeader(Dictionary<string, PPPMapPool> dctMapPool, Settings settings) : base(dctMapPool, settings, Leaderboard.BeatLeader) 
@@ -110,7 +105,7 @@ namespace PPPredictor.Core.Calculator
             return Task.FromResult(new PPPScoreCollection());
         }
 
-        internal override async Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool)
+        internal override async Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers)
         {
             try
             {
@@ -137,14 +132,14 @@ namespace PPPredictor.Core.Calculator
                                 {
                                     if (diff.stars.HasValue)
                                     {
-                                        return new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(diff, true));
+                                        return new PPPBeatMapInfo(beatMapInfo, await GetPPCurve(new PPPStarRating(diff, true), gameplayModifiers, mapPool));
                                     }
                                 }
                                 else
                                 {
                                     if (diff.stars.HasValue && diff.status == (int)BeatLeaderDifficultyStatus.ranked)
                                     {
-                                        return new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(diff));
+                                        return new PPPBeatMapInfo(beatMapInfo, await GetPPCurve(new PPPStarRating(diff), gameplayModifiers, mapPool));
                                     }
                                 }
                             }
@@ -152,7 +147,7 @@ namespace PPPredictor.Core.Calculator
                     }
                     else
                     {
-                        return new PPPBeatMapInfo(beatMapInfo, cachedInfo.StarRating);
+                        return new PPPBeatMapInfo(beatMapInfo, await GetPPCurve(cachedInfo.StarRating, gameplayModifiers, mapPool));
                     }
                 }
                 return beatMapInfo;
@@ -164,49 +159,72 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed, bool levelPaused)
+        private async Task<PPPStarRating> GetPPCurve(PPPStarRating pppStarRating, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, PPPMapPool mapPool)
         {
-            List<string> lsModifiers = ParseModifiers(gameplayModifiers);
-            double accRating = beatMapInfo.BaseStarRating.AccRating;
-            double passRating = beatMapInfo.BaseStarRating.PassRating;
-            double techRating = beatMapInfo.BaseStarRating.TechRating;
-            double sliderPercentage = beatMapInfo.BaseStarRating.SliderPercentage;
-            double predictedAcc = beatMapInfo.BaseStarRating.PredictedAcc;
-            double noteSpanMult = 1;
-            if (beatMapInfo.BaseStarRating.ModifiersRating != null)
+            try
             {
-                foreach (string modifier in lsModifiers.Select(x => x.ToLower()))
+                if(!pppStarRating.IsRanked()) return pppStarRating;
+                string modifierString = String.Join(",", ParseModifiers(gameplayModifiers).Where(x => x != "NF"));
+                if (pppStarRating.DctCurves.TryGetValue(modifierString, out CurveInfo curve))
                 {
-                    if (beatMapInfo.BaseStarRating.ModifiersRating.ContainsKey(modifier + AccRating))
+                    if (curve.LastUpdated < DateTime.Now.AddDays(_settings.RefetchMapInfoAfterDays))
                     {
-                        accRating = beatMapInfo.BaseStarRating.ModifiersRating[modifier + AccRating];
-                        passRating = beatMapInfo.BaseStarRating.ModifiersRating[modifier + PassRating];
-                        techRating = beatMapInfo.BaseStarRating.ModifiersRating[modifier + TechRating];
-                        sliderPercentage = beatMapInfo.BaseStarRating.ModifiersRating[modifier + SliderPercentage];
-                        predictedAcc = beatMapInfo.BaseStarRating.ModifiersRating[modifier + PredictedAcc];
-                        switch (modifier)
-                        {
-                            case "ss":
-                                noteSpanMult = 0.85f;
-                                break;
-                            case "fs":
-                                noteSpanMult = 1.2f;
-                                break;
-                            case "sf":
-                                noteSpanMult = 1.5f;
-                                break;
-                        }
-                        break;
+                        return pppStarRating;
                     }
+                    pppStarRating.DctCurves.Remove(modifierString);
                 }
+                string leaderboardId = $"{pppStarRating.SongId}{pppStarRating.Value}{pppStarRating.Mode}";
+                BeatLeaderCurve blCurve = await beatleaderapi.GetCurveByLeaderboardId(leaderboardId, modifierString, GetLeaderboardContextId(mapPool.LeaderboardContext));
+                var curvePoints = blCurve.points?.Reverse().Select(p => (p[0], p[1])).ToList() ?? new List<(double, double)>();
+                curve = new CurveInfo(CurveType.Linear, curvePoints, 0);
+                curve.LastUpdated = DateTime.Now;
+            
+                pppStarRating.DctCurves.Add(modifierString, curve);
+                return pppStarRating;
             }
-            double multiplier = GenerateModifierMultiplier(lsModifiers, beatMapInfo, mapPool, levelFailed, levelPaused, beatMapInfo.BaseStarRating.ModifiersRating != null);
-            if (!levelFailed) lsModifiers.Remove("NF");
-            beatMapInfo.Modifiers = String.Join(";", lsModifiers);
-            beatMapInfo.ModifiedStarRating = new PPPStarRating(multiplier, 
-                accRating, passRating, techRating, predictedAcc, sliderPercentage, beatMapInfo.BaseStarRating.Notes, beatMapInfo.BaseStarRating.NoteSpan,
-                noteSpanMult, beatMapInfo.BaseStarRating.RankedBeatLeader);
-            return beatMapInfo;
+            catch (Exception e)
+            {
+                Logging.ErrorPrint($"PPCalculatorBeatLeader GetPPCurve Error: {e.Message}");
+                return pppStarRating;
+            }
+        }
+
+        internal override async Task<PPPBeatMapInfo> ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed, bool levelPaused)
+        {
+            try
+            {
+                beatMapInfo.BaseStarRating = await GetPPCurve(beatMapInfo.BaseStarRating, gameplayModifiers, mapPool);
+                double accRating = beatMapInfo.BaseStarRating.AccRating;
+                double passRating = beatMapInfo.BaseStarRating.PassRating;
+                double techRating = beatMapInfo.BaseStarRating.TechRating;
+                double predictedAcc = beatMapInfo.BaseStarRating.PredictedAcc;
+                
+                List<string> lsModifiers = ParseModifiers(gameplayModifiers);
+                double multiplier = GenerateModifierMultiplier(lsModifiers, beatMapInfo, mapPool, levelFailed, levelPaused, beatMapInfo.BaseStarRating.ModifiersRating != null);
+                beatMapInfo.Modifiers = GenerateModifierString(lsModifiers, mapPool);
+                beatMapInfo.ModifiedStarRating = new PPPStarRating(multiplier, 
+                    accRating, passRating, techRating, predictedAcc,
+                    beatMapInfo.BaseStarRating.Mode, beatMapInfo.BaseStarRating.Value, beatMapInfo.BaseStarRating.SongId, beatMapInfo.BaseStarRating.DctCurves,
+                    beatMapInfo.BaseStarRating.RankedBeatLeader);
+                return beatMapInfo;
+            }
+            catch (Exception e)
+            {
+                Logging.ErrorPrint($"PPCalculatorBeatLeader ApplyModifiersToBeatmapInfo Error: {e.Message}");
+                return beatMapInfo;
+            }
+        }
+
+        private string GenerateModifierString(List<string> lsModifiers, PPPMapPool mapPool)
+        {
+            List<string> lsModifiersExculded = new List<string>();
+            if (mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderSCPM)
+            {
+                lsModifiersExculded.Add("SC");
+                lsModifiersExculded.Add("PM");
+            }
+            lsModifiersExculded.Add("NF");
+            return String.Join(",", lsModifiers.Where(x => lsModifiersExculded.All(y => y != x)));
         }
 
         private List<string> ParseModifiers(DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers)
@@ -245,7 +263,7 @@ namespace PPPredictor.Core.Calculator
                 double multiplier = 1;
                 if (mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderSCPM && !(lsModifier.Contains("SC") && lsModifier.Contains("PM"))) return 0;
                 if(mapPool.LeaderboardContext == LeaderboardContext.BeatLeaderNoPauses && levelPaused) return 0;
-                if(levelFailed && !lsModifier.Contains("NF")) return 0;
+                if(levelFailed) return 0;
                 foreach (string modifier in lsModifier)
                 {
                     if (!levelFailed && modifier == "NF") continue; //Ignore nofail until the map is actually failed in gameplay and applied

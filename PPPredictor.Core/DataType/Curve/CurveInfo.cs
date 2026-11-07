@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using static PPPredictor.Core.DataType.Enums;
 
@@ -13,6 +14,7 @@ namespace PPPredictor.Core.DataType.Curve
         private double? exponential;
         private double? cutoff;
         private double? staroffset;
+        private DateTime? lastUpdated;
 
         public List<(double, double)> ArrPPCurve { get => _arrPPCurve; set => _arrPPCurve = value; }
         [DefaultValue(null)]
@@ -26,6 +28,8 @@ namespace PPPredictor.Core.DataType.Curve
         public double? Cutoff { get => cutoff; set => cutoff = value; }
         [DefaultValue(null)]
         public double? StarOffest { get => staroffset; set => staroffset = value; }
+        [DefaultValue(null)]
+        public DateTime? LastUpdated { get => lastUpdated; set => lastUpdated = value; }
 
         public CurveInfo()
         {

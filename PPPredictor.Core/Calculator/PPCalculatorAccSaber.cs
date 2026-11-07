@@ -87,7 +87,7 @@ namespace PPPredictor.Core.Calculator
                 return new List<PPPPlayer>();
             }
         }
-        internal override Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool)
+        internal override Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers)
         {
             try
             {
@@ -121,10 +121,10 @@ namespace PPPredictor.Core.Calculator
                 return Task.FromResult(new PPPBeatMapInfo(beatMapInfo, new PPPStarRating(-1)));
             }
         }
-        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
+        internal override Task<PPPBeatMapInfo> ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
         {
             beatMapInfo.ModifiedStarRating = new PPPStarRating(beatMapInfo.BaseStarRating.Stars);
-            return beatMapInfo;
+            return Task.FromResult(beatMapInfo);
         }
         public override string CreateSeachString(string hash, DataType.BeatSaberEncapsulation.BeatmapKey beatmapKey)
         {

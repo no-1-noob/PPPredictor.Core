@@ -48,14 +48,13 @@ namespace PPPredictor.Core.DataType.LeaderBoard
         public class BeatLeaderDifficulty
         {
             public int value { get; set; }
+            public int mode { get; set; }
+            public string songId { get; set; }
             public double? stars { get; set; }
             public double? predictedAcc { get; set; }
             public double? passRating { get; set; }
             public double? accRating { get; set; }
             public double? techRating { get; set; }
-            public double? sliderPercentage { get; set; }
-            public double? noteSpan { get; set; }
-            public int notes { get; set; }
             public int status { get; set; }
             public string modeName { get; set; }
             public Dictionary<string, double> modifierValues { get; set; } = new Dictionary<string, double>();
@@ -142,6 +141,11 @@ namespace PPPredictor.Core.DataType.LeaderBoard
         {
             public Enums.BeatMapDifficulty name { get; set; }
             public string characteristic { get; set; }
+        }
+
+        public class BeatLeaderCurve
+        {
+            public double[][] points = new double[2][];
         }
     }
 #pragma warning restore IDE1006 // Naming Styles; api dictates them...

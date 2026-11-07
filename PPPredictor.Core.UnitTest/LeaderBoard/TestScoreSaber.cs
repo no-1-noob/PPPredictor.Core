@@ -73,20 +73,20 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
 
             lsBeatMapInfos.Add(new PPPBeatMapInfo(new PPPBeatMapInfo("HASH", new BeatmapKey()), new PPPStarRating(10)));
 
-            PPPBeatMapInfo returnInfo = await ci.GetBeatMapInfoAsync(Enums.Leaderboard.ScoreSaber, "-1", new PPPBeatMapInfo("HASH", new BeatmapKey()));
+            PPPBeatMapInfo returnInfo = await ci.GetBeatMapInfoAsync(Enums.Leaderboard.ScoreSaber, "-1", new PPPBeatMapInfo("HASH", new BeatmapKey()), new GameplayModifiers());
             Assert.IsNotNull(returnInfo);
             Assert.AreEqual(10, returnInfo.ModifiedStarRating.Stars);
-            returnInfo = ci.ApplyModifiersToBeatmapInfo(Enums.Leaderboard.ScoreSaber, "-1", returnInfo, new GameplayModifiers(), true, true);
+            returnInfo = await ci.ApplyModifiersToBeatmapInfo(Enums.Leaderboard.ScoreSaber, "-1", returnInfo, new GameplayModifiers(), true, true);
             Assert.AreEqual(10, returnInfo.ModifiedStarRating.Stars);
             returnInfo.OldDotsEnabled = true;
-            returnInfo = ci.ApplyModifiersToBeatmapInfo(Enums.Leaderboard.ScoreSaber, "-1", returnInfo, new GameplayModifiers(), true, true);
+            returnInfo = await ci.ApplyModifiersToBeatmapInfo(Enums.Leaderboard.ScoreSaber, "-1", returnInfo, new GameplayModifiers(), true, true);
             Assert.AreEqual(0, returnInfo.ModifiedStarRating.Stars);
 
-            returnInfo = await ci.GetBeatMapInfoAsync(Enums.Leaderboard.ScoreSaber, "-1", new PPPBeatMapInfo("", new BeatmapKey()));
+            returnInfo = await ci.GetBeatMapInfoAsync(Enums.Leaderboard.ScoreSaber, "-1", new PPPBeatMapInfo("", new BeatmapKey()), new GameplayModifiers());
             Assert.AreEqual(0, returnInfo.ModifiedStarRating.Stars);
 
             lsBeatMapInfos = null;
-            returnInfo = await ci.GetBeatMapInfoAsync(Enums.Leaderboard.ScoreSaber, "-1", new PPPBeatMapInfo("HASH", new BeatmapKey()));
+            returnInfo = await ci.GetBeatMapInfoAsync(Enums.Leaderboard.ScoreSaber, "-1", new PPPBeatMapInfo("HASH", new BeatmapKey()), new GameplayModifiers());
             Assert.AreEqual(-1, returnInfo.ModifiedStarRating.Stars);
         }
 

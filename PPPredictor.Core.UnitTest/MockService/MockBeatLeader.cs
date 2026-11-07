@@ -101,6 +101,17 @@ namespace PPPredictor.Core.UnitTest.MockService
             });
         }
 
+        public Task<BeatLeaderDataTypes.BeatLeaderCurve> GetCurveByLeaderboardId(string leaderboardId, string modifiers, long leaderboardContextId)
+        {
+            double multiplier = modifiers.Contains("GN") ? 1.11 : 1;
+            return Task.FromResult(new BeatLeaderDataTypes.BeatLeaderCurve
+            {
+                points = leaderboardContextId == 16
+                    ? new[] { new[] { 0d, 400d * multiplier }, new[] { 1d, 0d } }
+                    : new[] { new[] { 0d, 0d }, new[] { 1d, 1000d * multiplier } }
+            });
+        }
+
         public Task<BeatLeaderDataTypes.BeatLeaderPlayListSongList> GetSongsInPlaylistById(long playListId)
         {
             return Task.FromResult(new BeatLeaderDataTypes.BeatLeaderPlayListSongList

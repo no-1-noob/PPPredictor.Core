@@ -13,14 +13,17 @@ namespace UnitTests.Data.Curve
     public class TestBeatLeaderPPPCurve
     {
         private readonly PPPBeatMapInfo beatMapInfo = new PPPBeatMapInfo(new PPPBeatMapInfo(),
-            new PPPStarRating(1, 11.82055, 7.9189496, 5.424088, 0.96, 0.2, 500, 120, 1, true));
+            new PPPStarRating(1, 11.82055, 7.9189496, 5.424088, 0.96, 1, 9, "mock", new Dictionary<string, CurveInfo>
+            {
+                { string.Empty, new CurveInfo(CurveType.Linear, new List<(double, double)> { (1, 1000), (0, 0) }, 0) }
+            }, true));
         private readonly BeatLeaderPPPCurve curve = new BeatLeaderPPPCurve();
 
         [TestMethod]
         public void TestCalculatePPatPercentage()
         {
             double result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
-            Assert.AreEqual(599.6683702272347, result, 0.001);
+            Assert.AreEqual(963.9, result, 0.001);
         }
 
         [TestMethod]
@@ -28,9 +31,9 @@ namespace UnitTests.Data.Curve
         [DataRow(LeaderboardContext.BeatLeaderNoPauses)]
         [DataRow(LeaderboardContext.BeatLeaderNoModifiers)]
         [DataRow(LeaderboardContext.BeatLeaderGolf)]
-        public void FailedLevelsHaveZeroPP(LeaderboardContext context)
+        public async Task FailedLevelsHaveZeroPP(LeaderboardContext context)
         {
-            ApplyModifiers(context, new GameplayModifiers(), true, false);
+            await ApplyModifiers(context, new GameplayModifiers(), true, false);
             Assert.AreEqual(0, curve.CalculatePPatPercentage(beatMapInfo, 30, true, false, context));
         }
 
@@ -39,34 +42,47 @@ namespace UnitTests.Data.Curve
         [DataRow(LeaderboardContext.BeatLeaderNoPauses)]
         [DataRow(LeaderboardContext.BeatLeaderNoModifiers)]
         [DataRow(LeaderboardContext.BeatLeaderGolf)]
-        public void TestCalculatePPatPercentageWhenPaused(LeaderboardContext context)
+        public async Task TestCalculatePPatPercentageWhenPaused(LeaderboardContext context)
         {
-            ApplyModifiers(context, new GameplayModifiers(), false, false);
+            await ApplyModifiers(context, new GameplayModifiers(), false, false);
             double unpaused = curve.CalculatePPatPercentage(beatMapInfo, 30, false, false, context);
             Assert.IsTrue(unpaused > 0);
 
-            ApplyModifiers(context, new GameplayModifiers(), false, true);
+            await ApplyModifiers(context, new GameplayModifiers(), false, true);
             double paused = curve.CalculatePPatPercentage(beatMapInfo, 30, false, true, context);
             Assert.AreEqual(context == LeaderboardContext.BeatLeaderNoPauses ? 0 : unpaused, paused, 0.001);
         }
 
         [TestMethod]
-        public void TestCalculatePPatPercentageModifier()
+        public async Task TestCalculatePPatPercentageModifier()
         {
-            ApplyModifiers(LeaderboardContext.BeatLeaderDefault, new GameplayModifiers(), false, false);
+            await ApplyModifiers(LeaderboardContext.BeatLeaderDefault, new GameplayModifiers(), false, false);
             double unmodified = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
             beatMapInfo.BaseStarRating.ModifierValues["gn"] = 0.11;
-            ApplyModifiers(LeaderboardContext.BeatLeaderDefault, new GameplayModifiers { ghostNotes = true }, false, false);
+            await ApplyModifiers(LeaderboardContext.BeatLeaderDefault, new GameplayModifiers { ghostNotes = true }, false, false);
             double modified = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
             Assert.IsTrue(modified > unmodified);
         }
 
         [TestMethod]
-        public void TestCalculatePPatPercentageGolf()
+        public async Task TestCalculatePPatPercentageGolf()
         {
+            beatMapInfo.BaseStarRating.DctCurves.Clear();
+            await ApplyModifiers(LeaderboardContext.BeatLeaderGolf, new GameplayModifiers(), false, false);
             double result = curve.CalculatePPatPercentage(beatMapInfo, 49.77, false, false, LeaderboardContext.BeatLeaderGolf);
-            Assert.AreEqual(315.9134086616328, result, 0.001);
+            Assert.AreEqual(200.92, result, 0.001);
             Assert.AreEqual(0, curve.CalculatePPatPercentage(beatMapInfo, 51, false, false, LeaderboardContext.BeatLeaderGolf));
+        }
+
+        [TestMethod]
+        public void GolfCurveUsesOriginalAccuracy()
+        {
+            // Snapshot of the Golf API curve for leaderboard 13b2b11, without modifiers.
+            beatMapInfo.ModifiedStarRating.DctCurves[string.Empty] = new CurveInfo(
+                CurveType.Linear, new List<(double, double)> { (0.35, 240.8), (0.3, 256.11) }, 0);
+
+            double result = curve.CalculatePPatPercentage(beatMapInfo, 30.82, false, false, LeaderboardContext.BeatLeaderGolf);
+            Assert.AreEqual(253.60, result, 0.01);
         }
 
         [TestMethod]
@@ -76,12 +92,11 @@ namespace UnitTests.Data.Curve
         }
 
         [TestMethod]
-        public void NegativePassRatingProducesFinitePP()
+        public void NegativePassRatingDoesNotAffectFetchedCurve()
         {
             beatMapInfo.BaseStarRating.PassRating = -7.9189496;
             double result = curve.CalculatePPatPercentage(beatMapInfo, 96.39, false, false, LeaderboardContext.BeatLeaderDefault);
-            Assert.IsTrue(double.IsFinite(result));
-            Assert.IsTrue(result > 0);
+            Assert.AreEqual(963.9, result, 0.001);
         }
 
         [TestMethod]
@@ -94,15 +109,15 @@ namespace UnitTests.Data.Curve
         public void TestCalculateMaxPP()
         {
             double result = curve.CalculateMaxPP(beatMapInfo, LeaderboardContext.BeatLeaderDefault);
-            Assert.AreEqual(2586.4882468546252, result, 0.001);
+            Assert.AreEqual(1000, result, 0.001);
             Assert.AreEqual(curve.CalculatePPatPercentage(beatMapInfo, 100, false, false, LeaderboardContext.BeatLeaderDefault), result);
         }
 
-        private void ApplyModifiers(LeaderboardContext context, GameplayModifiers modifiers, bool failed, bool paused)
+        private async Task ApplyModifiers(LeaderboardContext context, GameplayModifiers modifiers, bool failed, bool paused)
         {
             Settings settings = new Settings(false, true, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12);
             PPCalculatorBeatLeader<MockBeatLeader> calculator = new PPCalculatorBeatLeader<MockBeatLeader>(new Dictionary<string, PPPMapPool>(), settings);
-            calculator.ApplyModifiersToBeatmapInfo(beatMapInfo, new PPPMapPool { LeaderboardContext = context }, modifiers, failed, paused);
+            await calculator.ApplyModifiersToBeatmapInfo(beatMapInfo, new PPPMapPool { LeaderboardContext = context }, modifiers, failed, paused);
         }
     }
 }

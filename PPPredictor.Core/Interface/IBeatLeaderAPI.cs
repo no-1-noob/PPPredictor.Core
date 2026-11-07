@@ -9,6 +9,8 @@ namespace PPPredictor.Core.Interface
 
         Task<BeatLeaderSong> GetSongByHash(string hash);
 
+        Task<BeatLeaderCurve> GetCurveByLeaderboardId(string leaderboardId, string modifiers, long leaderboardContextId);
+
         Task<BeatLeaderPlayer> GetPlayer(long userId, long leaderboardContextId);
 
         Task<BeatLeaderPlayerList> GetPlayerForEvent(string eventId, string userName);

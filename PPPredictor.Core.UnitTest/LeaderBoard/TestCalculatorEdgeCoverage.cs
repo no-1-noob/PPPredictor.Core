@@ -17,11 +17,11 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
         {
             CalculatorInstance ci = await CreateCalculator(new Settings(false, true, false, false, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12));
 
-            PPPBeatMapInfo first = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "-1", MapInfo("BLHASH", BeatMapDifficulty.ExpertPlus, 0));
-            PPPBeatMapInfo cached = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "-1", MapInfo("BLHASH", BeatMapDifficulty.ExpertPlus, 0));
+            PPPBeatMapInfo first = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "-1", MapInfo("BLHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
+            PPPBeatMapInfo cached = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "-1", MapInfo("BLHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
             Assert.AreEqual(first.ModifiedStarRating.PassRating, cached.ModifiedStarRating.PassRating);
 
-            PPPBeatMapInfo notRanked = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "-1", MapInfo("BLHASH", BeatMapDifficulty.Expert, 0));
+            PPPBeatMapInfo notRanked = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "-1", MapInfo("BLHASH", BeatMapDifficulty.Expert, 0), new GameplayModifiers());
             Assert.AreEqual(0, notRanked.ModifiedStarRating.Stars);
 
             PPPBeatMapInfo baseInfo = MapInfo("BLHASH", BeatMapDifficulty.ExpertPlus, 10);
@@ -59,12 +59,12 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
                 zenMode = true
             };
 
-            Assert.AreEqual(0, ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-2", baseInfo, allModifiers).ModifiedStarRating.Multiplier);
-            Assert.AreEqual(0, ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-4", baseInfo, new GameplayModifiers { songSpeed = GameplayModifiers.SongSpeed.Slower }).ModifiedStarRating.Multiplier);
-            Assert.AreEqual(0, ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-5", baseInfo, new GameplayModifiers { smallCubes = true }).ModifiedStarRating.Multiplier);
-            Assert.AreEqual(1, ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-5", baseInfo, new GameplayModifiers { smallCubes = true, proMode = true }).ModifiedStarRating.Multiplier);
-            double failedMultiplier = ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-1", baseInfo, allModifiers, true).ModifiedStarRating.Multiplier;
-            double passedMultiplier = ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-1", baseInfo, allModifiers, false).ModifiedStarRating.Multiplier;
+            Assert.AreEqual(0, (await ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-2", baseInfo, allModifiers)).ModifiedStarRating.Multiplier);
+            Assert.AreEqual(0, (await ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-4", baseInfo, new GameplayModifiers { songSpeed = GameplayModifiers.SongSpeed.Slower })).ModifiedStarRating.Multiplier);
+            Assert.AreEqual(0, (await ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-5", baseInfo, new GameplayModifiers { smallCubes = true })).ModifiedStarRating.Multiplier);
+            Assert.AreEqual(1, (await ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-5", baseInfo, new GameplayModifiers { smallCubes = true, proMode = true })).ModifiedStarRating.Multiplier);
+            double failedMultiplier = (await ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-1", baseInfo, allModifiers, true)).ModifiedStarRating.Multiplier;
+            double passedMultiplier = (await ci.ApplyModifiersToBeatmapInfo(Leaderboard.BeatLeader, "-1", baseInfo, allModifiers, false)).ModifiedStarRating.Multiplier;
             Assert.IsTrue(failedMultiplier < passedMultiplier);
         }
 
@@ -77,8 +77,8 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.AreEqual("Alpha Pool", alphabeticalPools[1].MapPoolName);
 
             await ci.UpdateMapPoolDetails(Leaderboard.HitBloq, "pool-a");
-            PPPBeatMapInfo first = await ci.GetBeatMapInfoAsync(Leaderboard.HitBloq, "pool-a", MapInfo("HBHASH", BeatMapDifficulty.ExpertPlus, 0));
-            PPPBeatMapInfo cached = await ci.GetBeatMapInfoAsync(Leaderboard.HitBloq, "pool-a", MapInfo("HBHASH", BeatMapDifficulty.ExpertPlus, 0));
+            PPPBeatMapInfo first = await ci.GetBeatMapInfoAsync(Leaderboard.HitBloq, "pool-a", MapInfo("HBHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
+            PPPBeatMapInfo cached = await ci.GetBeatMapInfoAsync(Leaderboard.HitBloq, "pool-a", MapInfo("HBHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
             Assert.AreEqual(first.ModifiedStarRating.Stars, cached.ModifiedStarRating.Stars);
 
             (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.HitBloq, "-1", true);
@@ -116,10 +116,10 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, true, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12), savedData);
 
             PPPBeatMapInfo emptyHash = MapInfo(string.Empty, BeatMapDifficulty.ExpertPlus, 3);
-            Assert.AreSame(emptyHash, await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", emptyHash));
-            Assert.AreEqual(0, (await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0))).ModifiedStarRating.Stars);
+            Assert.AreSame(emptyHash, await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", emptyHash, new GameplayModifiers()));
+            Assert.AreEqual(0, (await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers())).ModifiedStarRating.Stars);
 
-            PPPBeatMapInfo standardInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("ACCHASH", BeatMapDifficulty.ExpertPlus, 0));
+            PPPBeatMapInfo standardInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("ACCHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
             Assert.IsTrue(ci.CalculatePPatPercentage(Leaderboard.AccSaber, "overall", standardInfo, 95, false, false) > 0);
             Assert.IsTrue(ci.CalculateMaxPP(Leaderboard.AccSaber, "overall", standardInfo) > 0);
             Assert.IsFalse(ci.IsScoreSetOnCurrentMapPool(Leaderboard.AccSaber, "standard", new PPPScoreSetData { hash = "MISSING" }));
@@ -132,8 +132,8 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             CalculatorInstance ci = await CreateCalculator(new Settings(false, false, false, true, "123", PPGainCalculationType.Raw, MapPoolSorting.Alphabetical, 7, 12));
 
             PPPBeatMapInfo emptyHash = MapInfo(string.Empty, BeatMapDifficulty.ExpertPlus, 3);
-            Assert.AreSame(emptyHash, await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", emptyHash));
-            Assert.AreEqual(0, (await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0))).ModifiedStarRating.Stars);
+            Assert.AreSame(emptyHash, await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", emptyHash, new GameplayModifiers()));
+            Assert.AreEqual(0, (await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers())).ModifiedStarRating.Stars);
 
             (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "-1", true);
             Assert.IsTrue(sessionPlayer.IsErrorUser);
@@ -160,10 +160,10 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.AreEqual(50, (await scoreSaber.GetPlayers(1, defaultPool)).Count);
             Assert.AreEqual(0, (await scoreSaber.GetAllScores("123", defaultPool)).LsPPPScore.Count);
             Assert.AreEqual(0, (await scoreSaber.GetRecentScores("123", 10, 1, defaultPool)).LsPPPScore.Count);
-            Assert.AreEqual(0, (await scoreSaber.GetBeatMapInfoAsync(MapInfo(string.Empty, BeatMapDifficulty.ExpertPlus, 8), defaultPool)).ModifiedStarRating.Stars);
+            Assert.AreEqual(0, (await scoreSaber.GetBeatMapInfoAsync(MapInfo(string.Empty, BeatMapDifficulty.ExpertPlus, 8), defaultPool, new GameplayModifiers())).ModifiedStarRating.Stars);
             PPPBeatMapInfo oldDotsInfo = MapInfo("HASH", BeatMapDifficulty.ExpertPlus, 8);
             oldDotsInfo.OldDotsEnabled = true;
-            Assert.AreEqual(0, scoreSaber.ApplyModifiersToBeatmapInfo(oldDotsInfo, defaultPool, new GameplayModifiers()).ModifiedStarRating.Stars);
+            Assert.AreEqual(0, (await scoreSaber.ApplyModifiersToBeatmapInfo(oldDotsInfo, defaultPool, new GameplayModifiers())).ModifiedStarRating.Stars);
             await scoreSaber.UpdateAvailableMapPools();
             Assert.AreEqual(1, scoreSaber.GetMapPools().Count);
 
@@ -171,7 +171,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.IsTrue((await accSaber.GetPlayerInfo(123, new PPPMapPool("missing", "missing", MapPoolType.Custom, "Missing", new PPPWeightingInfo(0), 0, CurveParser.ParseToCurve(new CurveInfo(CurveType.AccSaber)), string.Empty))).IsErrorUser);
             Assert.AreEqual(string.Empty, accSaber.CreateSeachString(null, BeatKey(BeatMapDifficulty.ExpertPlus)));
             Assert.AreEqual("HASH", accSaber.CreateSeachString("hash", null));
-            Assert.AreEqual(8, accSaber.ApplyModifiersToBeatmapInfo(MapInfo("HASH", BeatMapDifficulty.ExpertPlus, 8), defaultPool, new GameplayModifiers()).ModifiedStarRating.Stars);
+            Assert.AreEqual(8, (await accSaber.ApplyModifiersToBeatmapInfo(MapInfo("HASH", BeatMapDifficulty.ExpertPlus, 8), defaultPool, new GameplayModifiers())).ModifiedStarRating.Stars);
             Assert.AreEqual(0, (await accSaber.GetRecentScores("123", 10, 1, defaultPool)).LsPPPScore.Count);
             Assert.AreEqual(0, (await accSaber.GetAllScores("123", defaultPool)).LsPPPScore.Count);
             Assert.AreEqual(0, (await accSaber.GetPlayers(1, defaultPool)).Count);
@@ -186,7 +186,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.AreEqual(50, (await beatLeader.GetPlayers(1, customPool)).Count);
             Assert.AreEqual(2, (await beatLeader.GetRecentScores("123", 10, 1, customPool)).LsPPPScore.Count);
             Assert.IsTrue((await beatLeader.GetPlayerInfo(999, customPool)).IsErrorUser);
-            PPPBeatMapInfo missingCustomInfo = await beatLeader.GetBeatMapInfoAsync(MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0), customPool);
+            PPPBeatMapInfo missingCustomInfo = await beatLeader.GetBeatMapInfoAsync(MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0), customPool, new GameplayModifiers());
             Assert.AreEqual(0, missingCustomInfo.ModifiedStarRating.Stars);
 
             PPCalculatorHitBloq<MockHitBloq> hitBloq = new PPCalculatorHitBloq<MockHitBloq>(new Dictionary<string, PPPMapPool>(), settings);

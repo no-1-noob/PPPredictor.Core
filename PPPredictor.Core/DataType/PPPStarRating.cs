@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using PPPredictor.Core.DataType.Curve;
 
 namespace PPPredictor.Core.DataType
 {
@@ -12,13 +13,13 @@ namespace PPPredictor.Core.DataType
         private double _passRating = 0;
         private double _accRating = 0;
         private double _techRating = 0;
-        private double _sliderPercentage = 0;
-        private double _noteSpan = 0;
-        private int _notes = 0;
-        private double _noteSpanMult = 1;
         private bool? _rankedBeatLeader = null;
+        private int _mode;
+        private int _value;
+        private string _songId;
         private Dictionary<string, double> _modifiersRating = new Dictionary<string, double>();
         private Dictionary<string, double> _modifierValues = new Dictionary<string, double>();
+        private Dictionary<string, CurveInfo> _dctCurves = new Dictionary<string, CurveInfo>();
         
         [DefaultValue(null)]
         public bool? RankedBeatLeader{ get => _rankedBeatLeader; set => _rankedBeatLeader = value; }
@@ -28,25 +29,30 @@ namespace PPPredictor.Core.DataType
         public double PredictedAcc { get => _predictedAcc; set => _predictedAcc = value; }
         [DefaultValue(0d)]
         public double PassRating { get => _passRating; set => _passRating = value; }
-        [DefaultValue(0d)] 
+        [DefaultValue(0d)]
         public double AccRating { get => _accRating; set => _accRating = value; }
         [DefaultValue(0d)]
         public double TechRating { get => _techRating; set => _techRating = value; }
-        [DefaultValue(0d)] 
-        public double SliderPercentage { get => _sliderPercentage; set => _sliderPercentage = value; }
-        [DefaultValue(0d)] 
-        public double NoteSpan { get => _noteSpan; set => _noteSpan = value; }
-        [DefaultValue(0d)] 
-        public int Notes { get => _notes; set => _notes = value; }
-        [DefaultValue(1d)] 
-        public double NoteSpanMult { get => _noteSpanMult; set => _noteSpanMult = value; }
+        [DefaultValue(0)]
+        public int Mode { get => _mode; set => _mode = value; }
+        [DefaultValue(0)]
+        public int Value { get => _value; set => _value = value; }
+        [DefaultValue(0)]
+        public string SongId { get => _songId; set => _songId = value; }
         [DefaultValue(null)]
-        public Dictionary<string, double> ModifiersRating { get => _modifiersRating; set => _modifiersRating = value; }
+        public Dictionary<string, double> ModifiersRating { get => _modifiersRating; set => _modifiersRating = value; } //Needed?
         [DefaultValue(null)]
         public Dictionary<string, double> ModifierValues { get => _modifierValues; set => _modifierValues = value; }
+        public bool ShouldSerializeDctCurves()
+        {
+            return DctCurves != null && DctCurves.Count > 0;
+        }
+        [DefaultValue(null)]
+        public Dictionary<string, CurveInfo> DctCurves { get => _dctCurves; set => _dctCurves = value; }
         [JsonIgnoreAttribute]
         [DefaultValue(1)]
         public double Multiplier { get => _multiplier; set => _multiplier = value; }
+        
 
         internal PPPStarRating()
         {
@@ -71,15 +77,15 @@ namespace PPPredictor.Core.DataType
             _passRating = beatLeaderDifficulty.passRating.GetValueOrDefault();
             _accRating = beatLeaderDifficulty.accRating.GetValueOrDefault();
             _techRating = beatLeaderDifficulty.techRating.GetValueOrDefault();
-            _sliderPercentage = beatLeaderDifficulty.sliderPercentage.GetValueOrDefault();
-            _notes = beatLeaderDifficulty.notes;
-            _noteSpan = beatLeaderDifficulty.noteSpan.GetValueOrDefault();
-            _noteSpanMult = 1;
+            _mode = beatLeaderDifficulty.mode;
+            _value = beatLeaderDifficulty.value;
+            _songId = beatLeaderDifficulty.songId;
             _modifiersRating = beatLeaderDifficulty.modifiersRating ?? new Dictionary<string, double>();
             _modifierValues = beatLeaderDifficulty.modifierValues ?? new Dictionary<string, double>();
         }
 
-        internal PPPStarRating(double mulitplier, double accRating, double passRating, double techRating, double predictedAcc, double sliderPercentage, int notes, double noteSpan, double noteSpanMult, bool? rankedBeatLeader)
+        internal PPPStarRating(double mulitplier, double accRating, double passRating, double techRating, double predictedAcc,
+            int mode, int value, string songId, Dictionary<string, CurveInfo> dctCurves, bool? rankedBeatLeader)
         {
             _rankedBeatLeader = rankedBeatLeader;
             _multiplier = mulitplier;
@@ -87,10 +93,10 @@ namespace PPPredictor.Core.DataType
             _passRating = passRating;
             _techRating = techRating;
             _predictedAcc = predictedAcc;
-            _sliderPercentage = sliderPercentage;
-            _notes = notes;
-            _noteSpan = noteSpan;
-            _noteSpanMult = noteSpanMult;
+            _value = value;
+            _mode = mode;
+            _songId = songId;
+            _dctCurves = dctCurves;
         }
 
         public bool IsRanked()
@@ -104,7 +110,7 @@ namespace PPPredictor.Core.DataType
 
         public override string ToString()
         {
-            return $"PPPStarRating: Stars {Stars} Multiplier {Multiplier} PredictedAcc {PredictedAcc} PassRating {PassRating} AccRating {AccRating} TechRating {TechRating} SliderPercentage {SliderPercentage} NoteSpan {NoteSpan} Notes {Notes} NoteSpanMult {NoteSpanMult} ModifiersRating {ModifiersRating} ModifierValues {ModifierValues}";
+            return $"PPPStarRating: Stars {Stars} Multiplier {Multiplier} PredictedAcc {_predictedAcc} PassRating {_passRating} AccRating {_accRating} TechRating {_techRating} ModifiersRating {ModifiersRating} ModifierValues {ModifierValues}";
         }
     }
 }

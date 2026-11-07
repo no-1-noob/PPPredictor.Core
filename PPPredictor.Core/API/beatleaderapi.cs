@@ -37,6 +37,11 @@ namespace PPPredictor.Core.API
         {
             return await NetworkUtil.GetDataAsync<BeatLeaderSong>(client, DataType.Enums.Leaderboard.BeatLeader, "GetSongByHash", $"/map/hash/{hash}");
         }
+        
+        public async Task<BeatLeaderCurve> GetCurveByLeaderboardId(string leaderboardId, string modifiers, long leaderboardContextId)
+        {
+            return await NetworkUtil.GetDataAsync<BeatLeaderCurve>(client, DataType.Enums.Leaderboard.BeatLeader, "GetCurveByLeaderboardId", $"/pp/curve?leaderboardId={leaderboardId}&modifiers={modifiers}&context={leaderboardContextId}");
+        }
 
         public async Task<BeatLeaderPlayer> GetPlayer(long userId, long leaderboardContextId)
         {

@@ -17,7 +17,7 @@ namespace PPPredictor.Core.Calculator
 
         //Dummy class, for when no Leaderboards are selected in the options. mhh... why even use this mod then
 
-        internal override Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool)
+        internal override Task<PPPBeatMapInfo> GetBeatMapInfoAsync(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers)
         {
             return Task.FromResult(beatMapInfo);
         }
@@ -52,9 +52,9 @@ namespace PPPredictor.Core.Calculator
             return Task.CompletedTask;
         }
 
-        internal override PPPBeatMapInfo ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
+        internal override Task<PPPBeatMapInfo> ApplyModifiersToBeatmapInfo(PPPBeatMapInfo beatMapInfo, PPPMapPool mapPool, DataType.BeatSaberEncapsulation.GameplayModifiers gameplayModifiers, bool levelFailed = false, bool levelPaused = false)
         {
-            return beatMapInfo;
+            return Task.FromResult(beatMapInfo);
         }
 
         public override Task UpdateAvailableMapPools()
