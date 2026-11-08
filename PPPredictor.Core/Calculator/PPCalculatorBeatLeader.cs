@@ -127,20 +127,28 @@ namespace PPPredictor.Core.Calculator
                             BeatLeaderDifficulty diff = song.difficulties.FirstOrDefault(x => x.value == ParsingUtil.ParseDifficultyNameToInt(beatMapInfo.BeatmapKey.difficulty.ToString()) && x.modeName.ToUpper() == beatMapInfo.BeatmapKey.serializedName.ToUpper());
                             if (diff != null)
                             {
-                                mapPool.LsLeaderboadInfo.Add(new ShortScore(searchString, new PPPStarRating(diff), DateTime.Now));
+                                bool ret = false;
+                                PPPStarRating pppStarRating = new PPPStarRating(diff);
                                 if(mapPool.MapPoolType == MapPoolType.Custom)
                                 {
                                     if (diff.stars.HasValue)
                                     {
-                                        return new PPPBeatMapInfo(beatMapInfo, await GetPPCurve(new PPPStarRating(diff, true), gameplayModifiers, mapPool));
+                                        ret = true;
+                                        pppStarRating = new PPPStarRating(diff, true);
                                     }
                                 }
                                 else
                                 {
                                     if (diff.stars.HasValue && diff.status == (int)BeatLeaderDifficultyStatus.ranked)
                                     {
-                                        return new PPPBeatMapInfo(beatMapInfo, await GetPPCurve(new PPPStarRating(diff), gameplayModifiers, mapPool));
+                                        ret = true;
                                     }
+                                }
+                                pppStarRating = await GetPPCurve(pppStarRating, gameplayModifiers, mapPool);
+                                mapPool.LsLeaderboadInfo.Add(new ShortScore(searchString, pppStarRating, DateTime.Now));
+                                if (ret)
+                                {
+                                    return new PPPBeatMapInfo(beatMapInfo, pppStarRating);
                                 }
                             }
                         }
@@ -167,7 +175,7 @@ namespace PPPredictor.Core.Calculator
                 string modifierString = String.Join(",", ParseModifiers(gameplayModifiers).Where(x => x != "NF"));
                 if (pppStarRating.DctCurves.TryGetValue(modifierString, out CurveInfo curve))
                 {
-                    if (curve.LastUpdated < DateTime.Now.AddDays(_settings.RefetchMapInfoAfterDays))
+                    if (curve.LastUpdated > DateTime.Now.AddDays(_settings.RefetchMapInfoAfterDays))
                     {
                         return pppStarRating;
                     }
