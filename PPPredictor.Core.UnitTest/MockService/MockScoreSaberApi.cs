@@ -43,7 +43,7 @@ namespace PPPredictor.Core.UnitTest.MockService
 
         public Task<ScoreSaberDataTypes.ScoreSaberPlayerScoreList> GetPlayerScores(string playerId, int? limit, int? page)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ScoreSaberDataTypes.ScoreSaberPlayerScoreList());
         }
     }
 }

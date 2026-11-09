@@ -10,7 +10,6 @@ namespace PPPredictor.Core.DataType.Score
         private readonly string _category = "";
         private double _pp;
         private double _weightedSum;
-        private double _ppWeighted;
         private PPPStarRating _starRating;
         private DateTime _fetchTime;
         private bool _isPlaceHolder = false;
@@ -21,10 +20,8 @@ namespace PPPredictor.Core.DataType.Score
         public DateTime FetchTime { get => _fetchTime; set => _fetchTime = value; }
         [DefaultValue("")]
         public string Category => _category;
-        // [JsonIgnore]
+        [JsonIgnore]
         public double WeightedSum { get => _weightedSum; set => _weightedSum = value; }
-        // [JsonIgnore]
-        public double PPWeighted { get => _ppWeighted; set => _ppWeighted = value; }
         [DefaultValue(false)]
         public bool IsPlaceHolder { get => _isPlaceHolder; set => _isPlaceHolder = value; }
 

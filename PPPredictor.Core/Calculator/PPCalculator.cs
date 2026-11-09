@@ -51,29 +51,6 @@ namespace PPPredictor.Core.Calculator
             {
                 mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
                 mapPool.DctScorePositionLookup.Clear();
-                // mapPool.LsScores = mapPool.LsScores; //Trigger sorting in setter
-                // mapPool.DctScorePositionLookup.Clear();
-                // if (mapPool.LsScores != null)
-                // {
-                //     double weightedSum = 0;
-                //     for (int i = mapPool.LsScores.Count - 1; i >= 0; i--)
-                //     {
-                //         ShortScore score = mapPool.LsScores[i];
-                //         score.PPWeighted = WeightPP(score.Pp, i + 1, mapPool);
-                //         weightedSum += score.PPWeighted;
-                //         score.WeightedSum = weightedSum;
-                //     
-                //         // if (_leaderboardInfo.Leaderboard == Leaderboard.AccSaber)
-                //         // {
-                //             Logging.DebugNetworkPrint($"Score {_leaderboardInfo.Leaderboard} {score.Searchstring} WeightedSum: {score.Pp} {score.WeightedSum} {score.PPWeighted} {mapPool.WeightingInfo.AccumulationConstant}", _leaderboardInfo.Leaderboard);
-                //         // }
-                //     }
-                //     //Calculate position lookup
-                //     for (int i = 0; i < mapPool.LsScores.Count; i++)
-                //     {
-                //         mapPool.DctScorePositionLookup[mapPool.LsScores[i].Searchstring] = i;
-                //     }
-                // }
                 double weightedSum = 0;
                 for (int i = 0; i < mapPool.LsScores.Count; i++)
                 {
