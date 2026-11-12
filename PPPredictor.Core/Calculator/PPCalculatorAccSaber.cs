@@ -192,7 +192,7 @@ namespace PPPredictor.Core.Calculator
                     }
                     //Refresh all Pools since the combined pool has no info about all scores so they have to be combined from all others
                     await InternalUpdateMapPoolDetails(mapPool);
-                    await UpdatePlayer(mapPool, true);
+                    await UpdatePlayer(mapPool, true, true);
                 }
                 SendMapPoolRefreshed();
             }

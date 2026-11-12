@@ -229,11 +229,11 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
             );
 
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", false);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", false, false);
             Assert.AreEqual(2000, sessionPlayer.Rank);
             Assert.AreEqual(2000, currentPlayer.Rank);
 
-            (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", true);
+            (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", true, false);
             Assert.AreEqual(2000, sessionPlayer.Rank);
             Assert.AreEqual(2000, currentPlayer.Rank);
 
@@ -243,7 +243,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
                 (PPPBeatMapInfo x) => new PPPBeatMapInfo()
             );
 
-            (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", false);
+            (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.ScoreSaber, "-1", false, false);
             Assert.AreEqual(2000, sessionPlayer.Rank);
             Assert.AreEqual(2000, currentPlayer.Rank);
         }

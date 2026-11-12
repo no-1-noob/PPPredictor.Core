@@ -78,9 +78,18 @@ namespace PPPredictor.Core.Calculator
             }
         }
 
-        internal async Task<(PPPPlayer, PPPPlayer)> UpdatePlayer(PPPMapPool mapPool, bool doResetSession)
+        internal async Task<(PPPPlayer, PPPPlayer)> UpdatePlayer(PPPMapPool mapPool, bool doResetSession, bool doPlayerFetch)
         {
-            PPPPlayer player = await GetProfile(mapPool);
+            PPPPlayer player = mapPool.CurrentPlayer;
+            if (mapPool.LastPlayerFetch < DateTime.Now.AddSeconds(-10) || player == null || doResetSession || doPlayerFetch)
+            {
+                PPPPlayer newPlayer = await GetProfile(mapPool);
+                if (newPlayer != null && !newPlayer.IsErrorUser)
+                {
+                    player = newPlayer;
+                    mapPool.LastPlayerFetch = DateTime.Now;
+                }
+            }
             mapPool.CurrentPlayer = player;
             if (doResetSession || mapPool.SessionPlayer == null || NeedsResetSession(mapPool))
             {

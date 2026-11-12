@@ -30,7 +30,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             await ci.GetPlayerScores(Leaderboard.NoLeaderboard, "-1", 10, 100, true);
             Assert.IsNull(ci.GetPersonalBest(Leaderboard.NoLeaderboard, "-1", "NOHASH_ExpertPlus"));
             Assert.IsTrue(ci.IsScoreSetOnCurrentMapPool(Leaderboard.NoLeaderboard, "-1", new PPPScoreSetData()));
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.NoLeaderboard, "-1", true);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.NoLeaderboard, "-1", true, false);
             Assert.AreEqual(0, sessionPlayer.Pp);
             Assert.AreEqual(0, currentPlayer.Rank);
 
@@ -57,7 +57,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.IsTrue(ci.IsScoreSetOnCurrentMapPool(Leaderboard.AccSaber, "standard", new PPPScoreSetData { hash = "ACCHASH" }));
             Assert.IsFalse(ci.IsScoreSetOnCurrentMapPool(Leaderboard.AccSaber, "standard", new PPPScoreSetData { hash = "MISSING" }));
 
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "standard", true);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "standard", true, false);
             Assert.AreEqual(50, sessionPlayer.Rank);
             Assert.AreEqual(600, currentPlayer.Pp);
 
@@ -87,7 +87,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             PPPBeatMapInfo overallInfo = await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "overall", MapInfo("ACCHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
             Assert.AreEqual(13.5, overallInfo.ModifiedStarRating.Stars);
 
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "standard", true);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "standard", true, false);
             Assert.AreEqual(50, sessionPlayer.Rank);
             Assert.AreEqual(600, currentPlayer.Pp);
 
@@ -133,14 +133,14 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
 
             await ci.GetPlayerScores(Leaderboard.BeatLeader, "-1", 10, 100, true);
             Assert.AreEqual(450, ci.GetPersonalBest(Leaderboard.BeatLeader, "-1", "BLHASH_SOLOSTANDARD_9"));
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.BeatLeader, "-1", true);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.BeatLeader, "-1", true, false);
             Assert.AreEqual(150, sessionPlayer.Rank);
             Assert.AreEqual(12345, currentPlayer.Pp);
 
             await ci.UpdateMapPoolDetails(Leaderboard.BeatLeader, "987");
             PPPBeatMapInfo customInfo = await ci.GetBeatMapInfoAsync(Leaderboard.BeatLeader, "987", MapInfo("BLHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
             Assert.AreEqual(6.25, customInfo.ModifiedStarRating.PassRating);
-            (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.BeatLeader, "987", true);
+            (sessionPlayer, currentPlayer) = await ci.UpdatePlayer(Leaderboard.BeatLeader, "987", true, false);
             Assert.AreEqual(3, currentPlayer.Rank);
 
             RankGainResult rankGain = await ci.GetPlayerRankGain(Leaderboard.BeatLeader, "-1", 12500);
@@ -164,7 +164,7 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
 
             await ci.GetPlayerScores(Leaderboard.HitBloq, "pool-a", 10, 100, true);
             Assert.AreEqual(500, ci.GetPersonalBest(Leaderboard.HitBloq, "pool-a", "HBHASH_SOLOSTANDARD_9"));
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.HitBloq, "pool-a", true);
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.HitBloq, "pool-a", true, false);
             Assert.AreEqual(33, sessionPlayer.Rank);
             Assert.AreEqual(900, currentPlayer.Pp);
 

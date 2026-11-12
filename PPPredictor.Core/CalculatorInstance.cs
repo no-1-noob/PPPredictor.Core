@@ -162,11 +162,11 @@ namespace PPPredictor.Core
         }
 
         
-        public async Task<(PPPPlayer, PPPPlayer)> UpdatePlayer(Leaderboard leaderBoard, string mapPoolId, bool doResetSession)
+        public async Task<(PPPPlayer, PPPPlayer)> UpdatePlayer(Leaderboard leaderBoard, string mapPoolId, bool doResetSession, bool doPlayerFetch)
         {
             (PPCalculator calculator, PPPMapPool mapPool) = GetCalculatorAndMapPool(leaderBoard, mapPoolId);
             var i = await SemaphoreFunction(calculator.Semaphore,
-                () => Task.Run(() => calculator.UpdatePlayer(mapPool, doResetSession))
+                () => Task.Run(() => calculator.UpdatePlayer(mapPool, doResetSession, doPlayerFetch))
             );
             return i;
         }

@@ -36,6 +36,7 @@ namespace PPPredictor.Core.DataType.MapPool
         private string _customLeaderboardUserId;
         private double _totalWeightedSum = 0;
         private DateTime _lastSessionReset;
+        private DateTime _lastPlayerFetch;
 
         public string MapPoolName { get => _mapPoolName; set => _mapPoolName = value; }
         public float AccumulationConstant { get => _accumulationConstant; set => _accumulationConstant = value; }
@@ -91,6 +92,8 @@ namespace PPPredictor.Core.DataType.MapPool
         [JsonIgnore]
         public double TotalWeightedSum { get => _totalWeightedSum; set => _totalWeightedSum = value; }
         public DateTime LastSessionReset { get => _lastSessionReset; set => _lastSessionReset = value; }
+        [JsonIgnore]
+        public DateTime LastPlayerFetch { get => _lastPlayerFetch; set => _lastPlayerFetch = value; }
 
         
         [JsonConstructor]

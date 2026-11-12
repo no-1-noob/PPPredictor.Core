@@ -81,9 +81,13 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             PPPBeatMapInfo cached = await ci.GetBeatMapInfoAsync(Leaderboard.HitBloq, "pool-a", MapInfo("HBHASH", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers());
             Assert.AreEqual(first.ModifiedStarRating.Stars, cached.ModifiedStarRating.Stars);
 
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.HitBloq, "-1", true);
-            Assert.IsTrue(sessionPlayer.IsErrorUser);
-            Assert.IsTrue(currentPlayer.IsErrorUser);
+            PPPMapPool defaultPool = ci.GetSaveData()[Leaderboard.HitBloq.ToString()].DctMapPool["-1"];
+            PPPPlayer previousPlayer = defaultPool.CurrentPlayer;
+            DateTime previousFetch = defaultPool.LastPlayerFetch;
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.HitBloq, "-1", true, false);
+            Assert.AreSame(previousPlayer, sessionPlayer);
+            Assert.AreSame(previousPlayer, currentPlayer);
+            Assert.AreEqual(previousFetch, defaultPool.LastPlayerFetch);
             await ci.GetPlayerScores(Leaderboard.HitBloq, "-1", 10, 100, true);
 
             CalculatorInstance invalidSort = await CreateCalculator(new Settings(false, false, true, false, "123", PPGainCalculationType.Raw, (MapPoolSorting)999, 7, 12));
@@ -135,9 +139,13 @@ namespace PPPredictor.Core.UnitTest.LeaderBoard
             Assert.AreSame(emptyHash, await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", emptyHash, new GameplayModifiers()));
             Assert.AreEqual(0, (await ci.GetBeatMapInfoAsync(Leaderboard.AccSaber, "standard", MapInfo("MISSING", BeatMapDifficulty.ExpertPlus, 0), new GameplayModifiers())).ModifiedStarRating.Stars);
 
-            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "-1", true);
-            Assert.IsTrue(sessionPlayer.IsErrorUser);
-            Assert.IsTrue(currentPlayer.IsErrorUser);
+            PPPMapPool defaultPool = ci.GetSaveData()[Leaderboard.AccSaber.ToString()].DctMapPool["-1"];
+            PPPPlayer previousPlayer = defaultPool.CurrentPlayer;
+            DateTime previousFetch = defaultPool.LastPlayerFetch;
+            (PPPPlayer sessionPlayer, PPPPlayer currentPlayer) = await ci.UpdatePlayer(Leaderboard.AccSaber, "-1", true, false);
+            Assert.AreSame(previousPlayer, sessionPlayer);
+            Assert.AreSame(previousPlayer, currentPlayer);
+            Assert.AreEqual(previousFetch, defaultPool.LastPlayerFetch);
             await ci.GetPlayerScores(Leaderboard.AccSaber, "-1", 10, 100, true);
 
             Assert.AreEqual(0, ci.GetPlayerScorePPGain(Leaderboard.AccSaber, "overall", "MISSING_SOLOSTANDARD_9", 123).PpTotal);
